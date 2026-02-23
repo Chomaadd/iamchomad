@@ -164,6 +164,7 @@ export default function ManageMusic() {
             {uploading ? <Loader2 className="animate-spin" /> : "Save Track"}
           </Button>
         </form>
+        
       </Modal>
     </AdminLayout>
   );
