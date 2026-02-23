@@ -38,6 +38,7 @@ export const musicTracks = pgTable("music_tracks", {
   albumArt: text("album_art"),
   audioUrl: text("audio_url").notNull(),
   duration: text("duration"),
+  isAutoPlay: boolean("is_auto_play").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -20,12 +20,39 @@ export default function ManageMusic() {
     artist: "",
     audioUrl: "",
     albumArt: "",
-    duration: ""
+    duration: "",
+    isAutoPlay: false
   });
+
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      setForm(prev => ({ ...prev, [field]: data.url }));
+      toast({ title: "File uploaded successfully" });
+    } catch (error) {
+      toast({ title: "Upload failed", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const openCreate = () => {
     setEditingId(null);
-    setForm({ title: "", artist: "", audioUrl: "", albumArt: "", duration: "" });
+    setForm({ title: "", artist: "", audioUrl: "", albumArt: "", duration: "", isAutoPlay: false });
     setModalOpen(true);
   };
 
@@ -36,7 +63,8 @@ export default function ManageMusic() {
       artist: track.artist,
       audioUrl: track.audioUrl,
       albumArt: track.albumArt || "",
-      duration: track.duration || ""
+      duration: track.duration || "",
+      isAutoPlay: track.isAutoPlay || false
     });
     setModalOpen(true);
   };
@@ -119,18 +147,22 @@ export default function ManageMusic() {
             <Input required value={form.artist} onChange={e => setForm({...form, artist: e.target.value})} />
           </div>
           <div>
-            <Label>Audio URL (mp3/wav)</Label>
-            <Input required value={form.audioUrl} onChange={e => setForm({...form, audioUrl: e.target.value})} />
+            <Label>Audio File</Label>
+            <Input type="file" accept="audio/*" onChange={e => handleFileUpload(e, "audioUrl")} />
+            <Input required value={form.audioUrl} onChange={e => setForm({...form, audioUrl: e.target.value})} placeholder="Or enter URL" />
           </div>
           <div>
-            <Label>Album Art URL</Label>
-            <Input value={form.albumArt} onChange={e => setForm({...form, albumArt: e.target.value})} />
+            <Label>Album Art</Label>
+            <Input type="file" accept="image/*" onChange={e => handleFileUpload(e, "albumArt")} />
+            <Input value={form.albumArt} onChange={e => setForm({...form, albumArt: e.target.value})} placeholder="Or enter URL" />
           </div>
-          <div>
-            <Label>Duration (e.g. 3:45)</Label>
-            <Input value={form.duration} onChange={e => setForm({...form, duration: e.target.value})} />
+          <div className="flex items-center space-x-2">
+            <input type="checkbox" id="autoplay" checked={form.isAutoPlay} onChange={e => setForm({...form, isAutoPlay: e.target.checked})} className="w-4 h-4" />
+            <Label htmlFor="autoplay">Set as Autoplay Song</Label>
           </div>
-          <Button type="submit" className="w-full">Save Track</Button>
+          <Button type="submit" className="w-full" disabled={uploading}>
+            {uploading ? <Loader2 className="animate-spin" /> : "Save Track"}
+          </Button>
         </form>
       </Modal>
     </AdminLayout>

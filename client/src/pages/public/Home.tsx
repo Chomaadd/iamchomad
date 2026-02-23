@@ -25,7 +25,7 @@ export default function Home() {
                 className="max-w-2xl"
               >
                 <h1 className="font-serif text-5xl sm:text-7xl font-bold tracking-tight text-balance leading-[1.1]">
-                  Redefining the <br/><span className="italic font-light">standard</span> of design.
+                  Choiril Ahmad. <br/><span className="italic font-light text-muted-foreground text-4xl">Digital Strategist</span>
                 </h1>
                 <p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-lg">
                   I am an independent creative director and strategist, building brands that demand attention and command respect.

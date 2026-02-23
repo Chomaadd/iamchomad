@@ -162,6 +162,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createMusicTrack(track: CreateMusicTrackRequest): Promise<MusicTrack> {
+    if (track.isAutoPlay) {
+      await db.update(musicTracks).set({ isAutoPlay: false });
+    }
     const [created] = await db
       .insert(musicTracks)
       .values(track)
@@ -170,6 +173,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateMusicTrack(id: number, updates: UpdateMusicTrackRequest): Promise<MusicTrack> {
+    if (updates.isAutoPlay) {
+      await db.update(musicTracks).set({ isAutoPlay: false });
+    }
     const [updated] = await db
       .update(musicTracks)
       .set(updates)

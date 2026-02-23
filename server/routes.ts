@@ -5,6 +5,10 @@ import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import bcrypt from "bcrypt";
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import express from 'express';
 
 declare module "express-session" {
   interface SessionData {
@@ -36,19 +40,54 @@ export async function registerRoutes(
     next();
   };
 
+  const uploadDir = path.join(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  const storageConfig = multer.diskStorage({
+    destination: (req: any, file: any, cb: any) => {
+      cb(null, uploadDir);
+    },
+    filename: (req: any, file: any, cb: any) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+  });
+
+  const upload = multer({ storage: storageConfig });
+
+  app.post('/api/upload', requireAuth, upload.single('file'), (req: any, res: any) => {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    const url = `/uploads/${req.file.filename}`;
+    res.json({ url });
+  });
+
+  app.use('/uploads', express.static(uploadDir));
+
   app.post(api.auth.login.path, async (req, res) => {
     try {
       const input = api.auth.login.input.parse(req.body);
-      const admin = await storage.getAdminByUsername(input.username);
+      
+      const adminUsername = process.env.ADMIN_USERNAME || "admin";
+      const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
 
-      if (!admin) {
+      if (input.username !== adminUsername) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      const validPassword = await bcrypt.compare(input.password, admin.password);
-      if (!validPassword) {
+      if (input.password !== adminPassword) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
+
+      const admin = {
+        id: 1,
+        username: adminUsername,
+        name: "Choiril Ahmad",
+        email: "admin@example.com",
+      };
 
       req.session.adminId = admin.id;
 
@@ -87,16 +126,13 @@ export async function registerRoutes(
       return res.json(null);
     }
 
-    const admin = await storage.getAdminById(req.session.adminId);
-    if (!admin) {
-      return res.json(null);
-    }
-
+    const adminUsername = process.env.ADMIN_USERNAME || "admin";
+    
     res.json({
-      id: admin.id,
-      username: admin.username,
-      name: admin.name,
-      email: admin.email,
+      id: 1,
+      username: adminUsername,
+      name: "Choiril Ahmad",
+      email: "admin@example.com",
     });
   });
 
@@ -368,37 +404,14 @@ export async function registerRoutes(
 
 async function seedDatabase() {
   try {
-    const existingAdmin = await storage.getAdminByUsername("admin");
-    if (!existingAdmin) {
-      const hashedPassword = await bcrypt.hash("admin123", 10);
-      await storage.createAdmin("admin", hashedPassword, "Administrator", "admin@example.com");
-      console.log("Created default admin user (username: admin, password: admin123)");
-    }
-
     const existingPosts = await storage.getBlogPosts();
     if (existingPosts.length === 0) {
       console.log("Seeding blog posts...");
       await storage.createBlogPost({
-        title: "Welcome to My Personal Website",
-        content: "This is my first blog post. I'm excited to share my thoughts, experiences, and insights with you. This platform will serve as a space where I document my journey, share valuable content, and connect with like-minded individuals.\n\nStay tuned for more updates!",
-        excerpt: "Welcome to my personal website and blog. This is where I share my journey and insights.",
+        title: "Welcome to Choiril Ahmad's Website",
+        content: "This is my personal platform built with elegance and precision.",
+        excerpt: "Welcome to my personal website and journal.",
         imageUrl: "https://images.unsplash.com/photo-1499750310107-5fef28a66643",
-        published: true,
-      });
-
-      await storage.createBlogPost({
-        title: "Building a Strong Personal Brand",
-        content: "In today's digital age, building a personal brand is more important than ever. Your personal brand is how you present yourself to the world - it's your reputation, your expertise, and your unique value proposition.\n\nHere are some key principles I've learned:\n\n1. Be authentic and consistent\n2. Provide value to your audience\n3. Engage with your community\n4. Stay updated and keep learning\n\nRemember, your personal brand is a marathon, not a sprint.",
-        excerpt: "Exploring the fundamentals of building and maintaining a strong personal brand in the digital era.",
-        imageUrl: "https://images.unsplash.com/photo-1557804506-669a67965ba0",
-        published: true,
-      });
-
-      await storage.createBlogPost({
-        title: "The Power of Consistent Content Creation",
-        content: "Creating content consistently is one of the most powerful ways to grow your influence and reach. Whether it's blog posts, videos, or social media updates, consistency is key.\n\nWhen you commit to regular content creation, you:\n- Build trust with your audience\n- Improve your skills over time\n- Establish yourself as an authority\n- Create opportunities for collaboration\n\nThe key is to start small and stay committed.",
-        excerpt: "Why consistent content creation matters and how it can transform your personal brand.",
-        imageUrl: "https://images.unsplash.com/photo-1455390582262-044cdead277a",
         published: true,
       });
     }
@@ -407,19 +420,12 @@ async function seedDatabase() {
     if (existingTracks.length === 0) {
       console.log("Seeding music tracks...");
       await storage.createMusicTrack({
-        title: "Ambient Focus",
-        artist: "Studio Session",
+        title: "eńau feat. Ari Lesmana - Sesi Potret",
+        artist: "eńau",
         audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
         albumArt: "https://images.unsplash.com/photo-1511379938547-c1f69419868d",
-        duration: "3:45",
-      });
-
-      await storage.createMusicTrack({
-        title: "Creative Flow",
-        artist: "Productivity Mix",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-        albumArt: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745",
-        duration: "4:20",
+        duration: "4:00",
+        isAutoPlay: true,
       });
     }
 
