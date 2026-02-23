@@ -24,6 +24,32 @@ export default function ManageBrand() {
     featured: false
   });
 
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      setForm(prev => ({ ...prev, imageUrl: data.url }));
+      toast({ title: "Image uploaded" });
+    } catch (error) {
+      toast({ title: "Upload failed", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const openCreate = () => {
     setEditingId(null);
     setForm({ title: "", description: "", category: "", imageUrl: "", link: "", featured: false });
@@ -116,8 +142,9 @@ export default function ManageBrand() {
             <Textarea className="min-h-[80px]" required value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
           </div>
           <div>
-            <Label>Image URL</Label>
-            <Input value={form.imageUrl} onChange={e => setForm({...form, imageUrl: e.target.value})} />
+            <Label>Asset Image</Label>
+            <Input type="file" accept="image/*" onChange={handleFileUpload} />
+            <Input value={form.imageUrl} onChange={e => setForm({...form, imageUrl: e.target.value})} placeholder="Or enter URL" />
           </div>
           <div>
             <Label>External Link</Label>
@@ -127,7 +154,9 @@ export default function ManageBrand() {
             <input type="checkbox" id="featured" checked={form.featured} onChange={e => setForm({...form, featured: e.target.checked})} className="w-4 h-4 accent-primary" />
             <Label htmlFor="featured">Featured</Label>
           </div>
-          <Button type="submit" className="w-full">Save Asset</Button>
+          <Button type="submit" className="w-full" disabled={uploading}>
+            {uploading ? "Uploading..." : "Save Asset"}
+          </Button>
         </form>
       </Modal>
     </AdminLayout>

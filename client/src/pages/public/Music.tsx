@@ -2,16 +2,37 @@ import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useMusicTracks } from "@/hooks/use-music";
-import { Loader2, Play, Pause } from "lucide-react";
-import { useState } from "react";
+import { Loader2, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 
 export default function Music() {
   const { data: tracks, isLoading } = useMusicTracks();
   const [playing, setPlaying] = useState<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (tracks && tracks.length > 0) {
+      const autoPlayTrack = tracks.find(t => t.isAutoPlay) || tracks[0];
+      setPlaying(autoPlayTrack.id);
+    }
+  }, [tracks]);
+
+  useEffect(() => {
+    if (audioRef.current && playing) {
+      const track = tracks?.find(t => t.id === playing);
+      if (track) {
+        audioRef.current.src = track.audioUrl;
+        audioRef.current.play().catch(e => console.log("Autoplay blocked by browser", e));
+      }
+    } else if (audioRef.current && !playing) {
+      audioRef.current.pause();
+    }
+  }, [playing, tracks]);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <audio ref={audioRef} onEnded={() => setPlaying(null)} />
       
       <main className="max-w-4xl mx-auto px-6 lg:px-8 py-24">
         <header className="mb-20 border-b-2 border-border pb-12 text-center">

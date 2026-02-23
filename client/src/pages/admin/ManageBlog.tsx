@@ -23,6 +23,32 @@ export default function ManageBlog() {
     published: true
   });
 
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      setForm(prev => ({ ...prev, imageUrl: data.url }));
+      toast({ title: "Image uploaded" });
+    } catch (error) {
+      toast({ title: "Upload failed", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const openCreate = () => {
     setEditingId(null);
     setForm({ title: "", excerpt: "", content: "", imageUrl: "", published: true });
@@ -124,14 +150,17 @@ export default function ManageBlog() {
             <Textarea className="min-h-[200px]" required value={form.content} onChange={e => setForm({...form, content: e.target.value})} />
           </div>
           <div>
-            <Label>Image URL (Unsplash recommended)</Label>
-            <Input value={form.imageUrl} onChange={e => setForm({...form, imageUrl: e.target.value})} placeholder="https://..." />
+            <Label>Cover Image</Label>
+            <Input type="file" accept="image/*" onChange={handleFileUpload} />
+            <Input value={form.imageUrl} onChange={e => setForm({...form, imageUrl: e.target.value})} placeholder="Or enter URL" />
           </div>
           <div className="flex items-center space-x-2">
             <input type="checkbox" id="published" checked={form.published} onChange={e => setForm({...form, published: e.target.checked})} className="w-4 h-4 accent-primary" />
             <Label htmlFor="published">Published</Label>
           </div>
-          <Button type="submit" className="w-full">Save Entry</Button>
+          <Button type="submit" className="w-full" disabled={uploading}>
+            {uploading ? "Uploading..." : "Save Entry"}
+          </Button>
         </form>
       </Modal>
     </AdminLayout>
