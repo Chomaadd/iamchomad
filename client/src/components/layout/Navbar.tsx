@@ -21,8 +21,9 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 w-full border-b-2 border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto flex h-20 items-center justify-between px-6 lg:px-8">
-        <Link href="/" className="font-serif text-2xl font-bold tracking-tighter">
-          Choiril Ahmad
+        <Link href="/" className="flex items-center gap-3">
+          <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain dark:invert" onError={(e) => e.currentTarget.style.display='none'} />
+          <span className="font-serif text-2xl font-bold tracking-tighter">Choiril Ahmad</span>
         </Link>
         
         {/* Desktop Nav */}
