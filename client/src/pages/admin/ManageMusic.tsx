@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useMusicTracks, useCreateMusicTrack, useUpdateMusicTrack, useDeleteMusicTrack } from "@/hooks/use-music";
 import { Button, Input, Label, Modal } from "@/components/ui/core";
-import { Plus, Edit2, Trash2 } from "lucide-react";
+import { Plus, Edit2, Trash2, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ManageMusic() {
@@ -161,10 +161,9 @@ export default function ManageMusic() {
             <Label htmlFor="autoplay">Set as Autoplay Song</Label>
           </div>
           <Button type="submit" className="w-full" disabled={uploading}>
-            {uploading ? <Loader2 className="animate-spin" /> : "Save Track"}
+            {uploading ? <Loader2 className="animate-spin" /> : "Save Track"} 
           </Button>
         </form>
-        
       </Modal>
     </AdminLayout>
   );
