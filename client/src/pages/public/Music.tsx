@@ -29,14 +29,8 @@ export default function Music() {
     }
   }, [playing, tracks]);
 
-  const getYouTubeId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-  };
-
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background">
       <Navbar />
       <audio ref={audioRef} onEnded={() => setPlaying(null)} />
       
@@ -63,53 +57,36 @@ export default function Music() {
           <div className="flex justify-center py-32"><Loader2 className="w-8 h-8 animate-spin" /></div>
         ) : (
           <div className="space-y-4">
-            {tracks?.map((track, i) => {
-              const youtubeId = getYouTubeId(track.audioUrl);
-              return (
-                <motion.div 
-                  key={track.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="flex flex-col p-4 border-2 border-border hover:border-primary transition-colors bg-card group"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-6">
-                      {!youtubeId && (
-                        <button 
-                          onClick={() => setPlaying(playing === track.id ? null : track.id)}
-                          className="w-12 h-12 flex items-center justify-center rounded-full bg-primary text-primary-foreground hover:scale-105 transition-transform"
-                        >
-                          {playing === track.id ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
-                        </button>
-                      )}
-                      <div className="flex items-center space-x-4">
-                        {track.albumArt && (
-                          <img src={track.albumArt} alt={track.title} className="w-12 h-12 object-cover border border-border grayscale group-hover:grayscale-0 transition-all" />
-                        )}
-                        <div>
-                          <h3 className="font-serif font-bold text-lg leading-tight">{track.title}</h3>
-                          <p className="text-sm text-muted-foreground">{track.artist}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-sm font-mono text-muted-foreground">
-                      {track.duration || "—"}
+            {tracks?.map((track, i) => (
+              <motion.div 
+                key={track.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="flex items-center justify-between p-4 border-2 border-border hover:border-primary transition-colors bg-card group"
+              >
+                <div className="flex items-center space-x-6">
+                  <button 
+                    onClick={() => setPlaying(playing === track.id ? null : track.id)}
+                    className="w-12 h-12 flex items-center justify-center rounded-full bg-primary text-primary-foreground hover:scale-105 transition-transform"
+                  >
+                    {playing === track.id ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
+                  </button>
+                  <div className="flex items-center space-x-4">
+                    {track.albumArt && (
+                      <img src={track.albumArt} alt={track.title} className="w-12 h-12 object-cover border border-border grayscale group-hover:grayscale-0 transition-all" />
+                    )}
+                    <div>
+                      <h3 className="font-serif font-bold text-lg leading-tight">{track.title}</h3>
+                      <p className="text-sm text-muted-foreground">{track.artist}</p>
                     </div>
                   </div>
-                  {youtubeId && (
-                    <div className="aspect-video w-full border-2 border-border overflow-hidden bg-black mt-2">
-                      <iframe
-                        src={`https://www.youtube.com/embed/${youtubeId}`}
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  )}
-                </motion.div>
-              );
-            })}
+                </div>
+                <div className="text-sm font-mono text-muted-foreground">
+                  {track.duration || "—"}
+                </div>
+              </motion.div>
+            ))}
             {tracks?.length === 0 && (
               <div className="text-center py-24 text-muted-foreground font-serif italic">No tracks uploaded yet.</div>
             )}
