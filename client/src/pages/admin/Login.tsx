@@ -26,7 +26,7 @@ export default function Login() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md border-2 border-primary p-8 md:p-12 bg-card editorial-shadow-sm">
         <div className="text-center mb-10">
-          <h1 className="font-serif text-3xl font-bold tracking-tighter mb-2">ELEGANCE.</h1>
+          <h1 className="font-serif text-3xl font-bold tracking-tighter mb-2">CHOIRIL AHMAD</h1>
           <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Authorized Access Only</p>
         </div>
         

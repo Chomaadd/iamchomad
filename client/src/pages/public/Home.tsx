@@ -25,7 +25,7 @@ export default function Home() {
                 className="max-w-2xl"
               >
                 <h1 className="font-serif text-5xl sm:text-7xl font-bold tracking-tight text-balance leading-[1.1]">
-                  Choiril Ahmad. <br/><span className="italic font-light text-muted-foreground text-4xl">Digital Strategist</span>
+                  Choiril Ahmad <br/><span className="italic font-light text-muted-foreground text-4xl">Developer, Business man</span>
                 </h1>
                 <p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-lg">
                   I am an independent creative director and strategist, building brands that demand attention and command respect.
@@ -48,9 +48,9 @@ export default function Home() {
               >
                 {/* landing page hero editorial portrait */}
                 <div className="aspect-[4/5] overflow-hidden border-2 border-primary editorial-shadow bg-muted">
-                  <img 
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop&grayscale=true" 
-                    alt="Portrait" 
+                  <img  
+                    src="/src/image/hiarill.jpg?w=800&h=1000&fit=crop&grayscale=true"
+                    alt="Choiril Ahmad" 
                     className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                   />
                 </div>
@@ -64,8 +64,8 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="flex justify-between items-end mb-16 border-b-2 border-border pb-8">
               <div>
-                <h2 className="font-serif text-4xl font-bold">Latest Journal</h2>
-                <p className="text-muted-foreground mt-2">Thoughts, essays, and observations.</p>
+                <h2 className="font-serif text-4xl font-bold">Latest Blog</h2>
+                <p className="text-muted-foreground mt-2">All information related to CHOOMAD and business or development will be notified on the Blog.</p>
               </div>
               <Link href="/blog" className="hidden sm:inline-flex text-sm font-bold uppercase tracking-widest hover:underline underline-offset-8">
                 Read All

@@ -49,7 +49,7 @@ export default function Music() {
             transition={{ delay: 0.2 }}
             className="text-xl text-muted-foreground mt-6 mx-auto max-w-2xl"
           >
-            Auditory explorations and curated selections.
+            Choiril Ahmad's favorite that he listens to all the time.
           </motion.p>
         </header>
 

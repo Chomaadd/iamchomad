@@ -28,8 +28,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside className="w-full md:w-64 border-r-2 border-border bg-card flex flex-col">
         <div className="p-6 border-b-2 border-border">
-          <h2 className="font-serif text-2xl font-bold tracking-tighter">ELEGANCE.</h2>
-          <p className="text-xs text-muted-foreground mt-1 tracking-widest uppercase">Workspace</p>
+          <h2 className="font-serif text-2xl font-bold tracking-tighter">Choiril Ahmad</h2>
+          <p className="text-xs text-muted-foreground mt-1 tracking-widest uppercase">Owner of CHOOMAD</p>
         </div>
         <nav className="flex-1 p-4 space-y-2">
           {links.map((link) => {
