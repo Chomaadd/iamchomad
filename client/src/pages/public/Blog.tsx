@@ -19,7 +19,7 @@ export default function Blog() {
             animate={{ opacity: 1, y: 0 }}
             className="font-serif text-6xl md:text-8xl font-bold"
           >
-            Journal.
+            Blog.
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}

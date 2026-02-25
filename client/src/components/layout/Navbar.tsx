@@ -12,7 +12,7 @@ export function Navbar() {
   const links = [
     { href: "/", label: "Home" },
     { href: "/about", label: "About" },
-    { href: "/blog", label: "Journal" },
+    { href: "/blog", label: "Blog" },
     { href: "/brand", label: "Brand" },
     { href: "/music", label: "Sound" },
     { href: "/contact", label: "Contact" },

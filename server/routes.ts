@@ -71,8 +71,8 @@ export async function registerRoutes(
     try {
       const input = api.auth.login.input.parse(req.body);
       
-      const adminUsername = process.env.ADMIN_USERNAME || "admin";
-      const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+      const adminUsername = process.env.ADMIN_USERNAME || "user";
+      const adminPassword = process.env.ADMIN_PASSWORD || "Makanseblak123#";
 
       if (input.username !== adminUsername) {
         return res.status(401).json({ message: "Invalid credentials" });
@@ -86,7 +86,7 @@ export async function registerRoutes(
         id: 1,
         username: adminUsername,
         name: "Choiril Ahmad",
-        email: "admin@example.com",
+        email: "iamchoirilfk@gmail.com",
       };
 
       req.session.adminId = admin.id;
@@ -132,7 +132,7 @@ export async function registerRoutes(
       id: 1,
       username: adminUsername,
       name: "Choiril Ahmad",
-      email: "admin@example.com",
+      email: "iamchoirilfk@gmail.com",
     });
   });
 

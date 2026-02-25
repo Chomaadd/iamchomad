@@ -1,0 +1,27 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+
+export default function NotFound() {
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
+      <Card className="w-full max-w-md mx-4">
+        <CardContent className="pt-6">
+          <div className="flex mb-4 gap-2">
+          <AlertCircle className="h-16 w-16 text-muted-foreground opacity-20" />
+          </div>
+          <h1 className="text-4xl font-heading font-bold text-foreground">404</h1>
+          <p className="text-lg text-muted-foreground font-light">
+            The page you're looking for has vanished into the digital void.
+          </p>
+          <Link href="/">
+            <Button variant="outline" className="mt-4">
+              Return Home
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

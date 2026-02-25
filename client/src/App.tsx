@@ -22,7 +22,7 @@ import ManageMessages from "./pages/admin/ManageMessages";
 import ManageMusic from "./pages/admin/ManageMusic";
 
 // Base Fallback
-import NotFound from "@/pages/not-found";
+import NotFound from "@/pages/public/Not-Found";
 
 function Router() {
   return (
