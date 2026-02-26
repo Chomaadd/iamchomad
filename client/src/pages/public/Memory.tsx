@@ -43,13 +43,13 @@ export default function Memory() {
                 transition={{ delay: (i % 2) * 0.1 }}
                 className="group relative"
               >
-                <div className="border-4 border-border p-4 bg-card editorial-shadow-sm hover:editorial-shadow transition-all duration-500">
-                  <div className="aspect-square overflow-hidden bg-muted mb-6 relative">
+                <div className="border-4 border-border p-4 bg-card editorial-shadow-sm hover:editorial-shadow transition-all duration-500 rounded-[2rem] overflow-hidden">
+                  <div className="overflow-hidden bg-muted mb-6 relative rounded-[1.5rem]">
                     {item.imageUrl && (
                       <img 
                         src={item.imageUrl} 
                         alt={item.title} 
-                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
+                        className="w-full h-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-700" 
                       />
                     )}
                     {item.link && (
@@ -58,7 +58,7 @@ export default function Memory() {
                       </a>
                     )}
                   </div>
-                  <div>
+                  <div className="px-2">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-serif text-3xl font-bold">{item.title}</h3>
                       {item.category && <span className="text-xs font-bold uppercase tracking-widest border border-border px-2 py-1">{item.category}</span>}
