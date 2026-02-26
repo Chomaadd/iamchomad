@@ -536,23 +536,6 @@ async function seedDatabase() {
           category: "Life",
           featured: true,
         });
-
-        await storage.createMemoryItem({
-          title: "Aodaosisadj",
-          description: "Delivering available for conferences and corporate events.",
-          imageUrl: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2",
-          category: "Truestory",
-          featured: false,
-        });
-
-        await storage.createMemoryItem({
-          title: "AKWOKWOWKWOWKWO",
-          description: "Access to exclusive resources and community.",
-          imageUrl: "https://images.unsplash.com/photo-1501504905252-473c47e087f8",
-          category: "Education",
-          featured: false,
-        });
-
       }
     }
 
