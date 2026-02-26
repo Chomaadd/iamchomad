@@ -17,9 +17,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const links = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/admin/blog", label: "Journal", icon: FileText },
+    { href: "/admin/blog", label: "Blog", icon: FileText },
     { href: "/admin/brand", label: "Brand", icon: Image },
     { href: "/admin/music", label: "Music", icon: Music },
+    { href: "/admin/memory", label: "Memory", icon: Image },
     { href: "/admin/messages", label: "Messages", icon: Mail },
   ];
 

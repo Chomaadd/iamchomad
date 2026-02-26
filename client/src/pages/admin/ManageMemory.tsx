@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
-import { useBrandItems, useCreateBrandItem, useUpdateBrandItem, useDeleteBrandItem } from "@/hooks/use-brand";
+import { useMemoryItems, useCreateMemoryItem, useUpdateMemoryItem, useDeleteMemoryItem } from "@/hooks/use-memory";
 import { Button, Input, Textarea, Label, Modal } from "@/components/ui/core";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-export default function ManageBrand() {
-  const { data: items } = useBrandItems();
-  const { mutateAsync: createItem } = useCreateBrandItem();
-  const { mutateAsync: updateItem } = useUpdateBrandItem();
-  const { mutateAsync: deleteItem } = useDeleteBrandItem();
+export default function ManageMemory() {
+  const { data: items } = useMemoryItems();
+  const { mutateAsync: createItem } = useCreateMemoryItem();
+  const { mutateAsync: updateItem } = useUpdateMemoryItem();
+  const { mutateAsync: deleteItem } = useDeleteMemoryItem();
   const { toast } = useToast();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -100,10 +100,10 @@ export default function ManageBrand() {
     <AdminLayout>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-serif font-bold">Brand Assets</h1>
+          <h1 className="text-3xl font-serif font-bold">Memories Immortalized</h1>
         </div>
         <Button onClick={openCreate} className="gap-2">
-          <Plus size={16} /> New Assets
+          <Plus size={16} /> New Posts
         </Button>
       </div>
 
@@ -127,7 +127,7 @@ export default function ManageBrand() {
         ))}
       </div>
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? "Edit Asset" : "New Asset"}>
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? "Edit Posts" : "New Posts"}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label>Title</Label>

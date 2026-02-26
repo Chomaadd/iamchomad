@@ -10,6 +10,7 @@ import About from "./pages/public/About";
 import Blog from "./pages/public/Blog";
 import BlogPost from "./pages/public/BlogPost";
 import Brand from "./pages/public/Brand";
+import Memory from "./pages/public/Memory";
 import Contact from "./pages/public/Contact";
 import Music from "./pages/public/Music";
 
@@ -18,6 +19,7 @@ import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
 import ManageBlog from "./pages/admin/ManageBlog";
 import ManageBrand from "./pages/admin/ManageBrand";
+import ManageMemory from "./pages/admin/ManageMemory";
 import ManageMessages from "./pages/admin/ManageMessages";
 import ManageMusic from "./pages/admin/ManageMusic";
 
@@ -33,6 +35,7 @@ function Router() {
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:id" component={BlogPost} />
       <Route path="/brand" component={Brand} />
+      <Route path="/memory" component={Memory} />
       <Route path="/contact" component={Contact} />
       <Route path="/music" component={Music} />
 
@@ -41,6 +44,7 @@ function Router() {
       <Route path="/admin" component={Dashboard} />
       <Route path="/admin/blog" component={ManageBlog} />
       <Route path="/admin/brand" component={ManageBrand} />
+      <Route path="/admin/memory" component={ManageMemory} />
       <Route path="/admin/messages" component={ManageMessages} />
       <Route path="/admin/music" component={ManageMusic} />
 

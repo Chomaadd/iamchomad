@@ -5,11 +5,13 @@ import {
   contactMessages,
   musicTracks,
   brandItems,
+  memoryItems,
   type Admin,
   type BlogPost,
   type ContactMessage,
   type MusicTrack,
   type BrandItem,
+  type MemoryItem,
   type CreateBlogPostRequest,
   type UpdateBlogPostRequest,
   type CreateContactMessageRequest,
@@ -17,6 +19,8 @@ import {
   type UpdateMusicTrackRequest,
   type CreateBrandItemRequest,
   type UpdateBrandItemRequest,
+  type CreateMemoryItemRequest,
+  type UpdateMemoryItemRequest,
 } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
@@ -47,6 +51,12 @@ export interface IStorage {
   createBrandItem(item: CreateBrandItemRequest): Promise<BrandItem>;
   updateBrandItem(id: number, updates: UpdateBrandItemRequest): Promise<BrandItem>;
   deleteBrandItem(id: number): Promise<void>;
+
+  getMemoryItems(): Promise<MemoryItem[]>;
+  getMemoryItem(id: number): Promise<MemoryItem | undefined>;
+  createMemoryItem(item: CreateMemoryItemRequest): Promise<MemoryItem>;
+  updateMemoryItem(id: number, updates: UpdateMemoryItemRequest): Promise<MemoryItem>;
+  deleteMemoryItem(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -223,6 +233,43 @@ export class DatabaseStorage implements IStorage {
 
   async deleteBrandItem(id: number): Promise<void> {
     await db.delete(brandItems).where(eq(brandItems.id, id));
+  }
+
+  async getMemoryItems(): Promise<MemoryItem[]> {
+    return await db
+      .select()
+      .from(memoryItems)
+      .orderBy(memoryItems.createdAt);
+  }
+
+  async getMemoryItem(id: number): Promise<MemoryItem | undefined> {
+    const [item] = await db
+      .select()
+      .from(memoryItems)
+      .where(eq(memoryItems.id, id))
+      .limit(1);
+    return item;
+  }
+
+  async createMemoryItem(item: CreateMemoryItemRequest): Promise<MemoryItem> {
+    const [created] = await db
+      .insert(memoryItems)
+      .values({ ...item, updatedAt: new Date() })
+      .returning();
+    return created;
+  }
+
+  async updateMemoryItem(id: number, updates: UpdateMemoryItemRequest): Promise<MemoryItem> {
+    const [updated] = await db
+      .update(memoryItems)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(memoryItems.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteMemoryItem(id: number): Promise<void> {
+    await db.delete(memoryItems).where(eq(memoryItems.id, id));
   }
 }
 
