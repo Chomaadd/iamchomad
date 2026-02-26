@@ -54,11 +54,24 @@ export const brandItems = pgTable("brand_items", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const memoryItems = pgTable("memory_items", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  imageUrl: text("image_url"),
+  link: text("link"),
+  category: text("category"),
+  featured: boolean("featured").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const insertAdminSchema = createInsertSchema(admins).omit({ id: true });
 export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({ id: true, createdAt: true, read: true });
 export const insertMusicTrackSchema = createInsertSchema(musicTracks).omit({ id: true, createdAt: true });
 export const insertBrandItemSchema = createInsertSchema(brandItems).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertMemoryItemSchema = createInsertSchema(memoryItems).omit({ id: true, createdAt: true, updatedAt: true });
 
 export type Admin = typeof admins.$inferSelect;
 export type InsertAdmin = z.infer<typeof insertAdminSchema>;
@@ -85,6 +98,12 @@ export type InsertBrandItem = z.infer<typeof insertBrandItemSchema>;
 export type CreateBrandItemRequest = InsertBrandItem;
 export type UpdateBrandItemRequest = Partial<InsertBrandItem>;
 export type BrandItemResponse = BrandItem;
+
+export type MemoryItem = typeof memoryItems.$inferSelect;
+export type InsertMemoryItem = z.infer<typeof insertMemoryItemSchema>;
+export type CreateMemoryItemRequest = InsertMemoryItem;
+export type UpdateMemoryItemRequest = Partial<InsertMemoryItem>;
+export type MemoryItemResponse = MemoryItem;
 
 export interface LoginRequest {
   username: string;

@@ -4,10 +4,12 @@ import {
   insertContactMessageSchema,
   insertMusicTrackSchema,
   insertBrandItemSchema,
+  insertMemoryItemSchema,
   blogPosts,
   contactMessages,
   musicTracks,
   brandItems,
+  memoryItems,
 } from './schema';
 
 export const errorSchemas = {
@@ -207,6 +209,54 @@ export const api = {
     },
   },
 
+  memory: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/memory' as const,
+      responses: {
+        200: z.array(z.custom<typeof memoryItems.$inferSelect>()),
+      },
+    },
+    get: {
+      method: 'GET' as const,
+      path: '/api/memory/:id' as const,
+      responses: {
+        200: z.custom<typeof memoryItems.$inferSelect>(),
+        404: errorSchemas.notFound,
+      },
+    },
+    create: {
+      method: 'POST' as const,
+      path: '/api/memory' as const,
+      input: insertMemoryItemSchema,
+      responses: {
+        201: z.custom<typeof memoryItems.$inferSelect>(),
+        400: errorSchemas.validation,
+        401: errorSchemas.unauthorized,
+      },
+    },
+    update: {
+      method: 'PUT' as const,
+      path: '/api/memory/:id' as const,
+      input: insertMemoryItemSchema.partial(),
+      responses: {
+        200: z.custom<typeof memoryItems.$inferSelect>(),
+        400: errorSchemas.validation,
+        401: errorSchemas.unauthorized,
+        404: errorSchemas.notFound,
+      },
+    },
+    delete: {
+      method: 'DELETE' as const,
+      path: '/api/memory/:id' as const,
+      responses: {
+        204: z.void(),
+        401: errorSchemas.unauthorized,
+        404: errorSchemas.notFound,
+      },
+    },
+  },
+
   brand: {
     list: {
       method: 'GET' as const,
@@ -286,3 +336,7 @@ export type MusicTrackResponse = z.infer<typeof api.music.create.responses[201]>
 export type BrandItemInput = z.infer<typeof api.brand.create.input>;
 export type BrandItemUpdateInput = z.infer<typeof api.brand.update.input>;
 export type BrandItemResponse = z.infer<typeof api.brand.create.responses[201]>;
+
+export type MemoryItemInput = z.infer<typeof api.memory.create.input>;
+export type MemoryItemUpdateInput = z.infer<typeof api.memory.update.input>;
+export type MemoryItemResponse = z.infer<typeof api.memory.create.responses[201]>;

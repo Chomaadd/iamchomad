@@ -4,7 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { useBrandItems } from "@/hooks/use-brand";
 import { Loader2, ArrowUpRight } from "lucide-react";
 
-export default function Brand() {
+export default function Memory() {
   const { data: items, isLoading } = useBrandItems();
 
   return (

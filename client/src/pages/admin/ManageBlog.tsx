@@ -98,7 +98,7 @@ export default function ManageBlog() {
     <AdminLayout>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-serif font-bold">Journal Manager</h1>
+          <h1 className="text-3xl font-serif font-bold">Blog Manager</h1>
         </div>
         <Button onClick={openCreate} className="gap-2">
           <Plus size={16} /> New Entry

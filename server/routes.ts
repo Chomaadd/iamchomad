@@ -327,7 +327,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get(api.brand.list.path, async (req, res) => {
+  app.get(api.brand.list.path, async (_req, res) => {
     try {
       const items = await storage.getBrandItems();
       res.json(items);
@@ -396,6 +396,76 @@ export async function registerRoutes(
       res.status(500).json({ message: "Internal server error" });
     }
   });
+  
+  app.get(api.memory.list.path, async (_req, res) => {
+    try {
+      const items = await storage.getMemoryItems();
+      res.json(items);
+    } catch (err) {
+      console.error("Memory list error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get(api.memory.get.path, async (req, res) => {
+    try {
+      const item = await storage.getMemoryItem(Number(req.params.id));
+      if (!item) {
+        return res.status(404).json({ message: "Memory item not found" });
+      }
+      res.json(item);
+    } catch (err) {
+      console.error("Memory get error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post(api.memory.create.path, requireAuth, async (req, res) => {
+    try {
+      const input = api.memory.create.input.parse(req.body);
+      const item = await storage.createMemoryItem(input);
+      res.status(201).json(item);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      console.error("Memory create error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.put(api.memory.update.path, requireAuth, async (req, res) => {
+    try {
+      const input = api.memory.update.input.parse(req.body);
+      const item = await storage.updateMemoryItem(Number(req.params.id), input);
+      if (!item) {
+        return res.status(404).json({ message: "Memory item not found" });
+      }
+      res.json(item);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      console.error("Memory update error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.delete(api.memory.delete.path, requireAuth, async (req, res) => {
+    try {
+      await storage.deleteMemoryItem(Number(req.params.id));
+      res.status(204).send();
+    } catch (err) {
+      console.error("Memory delete error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
 
   await seedDatabase();
 
@@ -455,6 +525,35 @@ async function seedDatabase() {
         category: "Education",
         featured: false,
       });
+
+      const existingMemory = await storage.getMemoryItems();
+      if (existingMemory.length === 0) {
+        console.log("Seeding memory items...");
+        await storage.createMemoryItem({
+          title: "Erlangga Solid Victory",
+          description: "It is an extraordinary trust to be able to join PT Penerbit Elangga and meet good people.",
+          imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978",
+          category: "Life",
+          featured: true,
+        });
+
+        await storage.createMemoryItem({
+          title: "Aodaosisadj",
+          description: "Delivering available for conferences and corporate events.",
+          imageUrl: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2",
+          category: "Truestory",
+          featured: false,
+        });
+
+        await storage.createMemoryItem({
+          title: "AKWOKWOWKWOWKWO",
+          description: "Access to exclusive resources and community.",
+          imageUrl: "https://images.unsplash.com/photo-1501504905252-473c47e087f8",
+          category: "Education",
+          featured: false,
+        });
+
+      }
     }
 
     console.log("Database seeding complete!");
