@@ -71,13 +71,13 @@ export const api = {
       },
     },
   },
-  
+
   blog: {
     list: {
       method: 'GET' as const,
-      path: '/api/blog' as const,
+      path: '/api/posts' as const,
       input: z.object({
-        published: z.boolean().optional(),
+        published: z.coerce.boolean().optional(),
       }).optional(),
       responses: {
         200: z.array(z.custom<typeof blogPosts.$inferSelect>()),
@@ -85,7 +85,7 @@ export const api = {
     },
     get: {
       method: 'GET' as const,
-      path: '/api/blog/:slug' as const,
+      path: '/api/posts/:slug' as const,
       responses: {
         200: z.custom<typeof blogPosts.$inferSelect>(),
         404: errorSchemas.notFound,
@@ -93,7 +93,7 @@ export const api = {
     },
     create: {
       method: 'POST' as const,
-      path: '/api/blog' as const,
+      path: '/api/posts' as const,
       input: insertBlogPostSchema,
       responses: {
         201: z.custom<typeof blogPosts.$inferSelect>(),
@@ -103,22 +103,22 @@ export const api = {
     },
     update: {
       method: 'PUT' as const,
-      path: '/api/blog/:slug' as const,
+      path: '/api/posts/:id' as const,
       input: insertBlogPostSchema.partial(),
       responses: {
         200: z.custom<typeof blogPosts.$inferSelect>(),
         400: errorSchemas.validation,
-        401: errorSchemas.unauthorized,
         404: errorSchemas.notFound,
+        401: errorSchemas.unauthorized,
       },
     },
     delete: {
       method: 'DELETE' as const,
-      path: '/api/blog/:slug' as const,
+      path: '/api/posts/:id' as const,
       responses: {
         204: z.void(),
-        401: errorSchemas.unauthorized,
         404: errorSchemas.notFound,
+        401: errorSchemas.unauthorized,
       },
     },
   },
@@ -257,7 +257,7 @@ export const api = {
     },
   },
 
-  brand: {
+brand: {
     list: {
       method: 'GET' as const,
       path: '/api/brand' as const,
@@ -267,7 +267,7 @@ export const api = {
     },
     get: {
       method: 'GET' as const,
-      path: '/api/brand/:slug' as const,
+      path: '/api/brand/:id' as const,
       responses: {
         200: z.custom<typeof brandItems.$inferSelect>(),
         404: errorSchemas.notFound,
@@ -285,7 +285,7 @@ export const api = {
     },
     update: {
       method: 'PUT' as const,
-      path: '/api/brand/:slug' as const,
+      path: '/api/brand/:id' as const,
       input: insertBrandItemSchema.partial(),
       responses: {
         200: z.custom<typeof brandItems.$inferSelect>(),
@@ -296,7 +296,7 @@ export const api = {
     },
     delete: {
       method: 'DELETE' as const,
-      path: '/api/brand/:slug' as const,
+      path: '/api/brand/:id' as const,
       responses: {
         204: z.void(),
         401: errorSchemas.unauthorized,
