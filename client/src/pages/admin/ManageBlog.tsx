@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { usePosts, useCreatePost, useUpdatePost, useDeletePost } from "@/hooks/use-blog";
 import { Button, Input, Textarea, Label, Modal } from "@/components/ui/core";
@@ -14,14 +14,16 @@ export default function ManageBlog() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  
+
   const [form, setForm] = useState({
     title: "",
+    slug: "",
     excerpt: "",
     content: "",
     imageUrl: "",
     published: true
   });
+
 
   const [uploading, setUploading] = useState(false);
 
@@ -51,7 +53,7 @@ export default function ManageBlog() {
 
   const openCreate = () => {
     setEditingId(null);
-    setForm({ title: "", excerpt: "", content: "", imageUrl: "", published: true });
+    setForm({ title: "", slug: "", excerpt: "", content: "", imageUrl: "", published: true });
     setModalOpen(true);
   };
 
@@ -59,6 +61,7 @@ export default function ManageBlog() {
     setEditingId(post.id);
     setForm({
       title: post.title,
+      slug: post.slug,
       excerpt: post.excerpt,
       content: post.content,
       imageUrl: post.imageUrl || "",
@@ -66,6 +69,12 @@ export default function ManageBlog() {
     });
     setModalOpen(true);
   };
+
+  useEffect(() => {
+    if (!editingId && form.title && !form.slug) {
+      setForm(form.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
+    }
+  }, [form.title, form.slug, editingId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

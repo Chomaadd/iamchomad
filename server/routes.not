@@ -149,7 +149,7 @@ export async function registerRoutes(
 
   app.get(api.blog.get.path, async (req, res) => {
     try {
-      const post = await storage.getBlogPost(Number(req.params.slug));
+      const post = await storage.getBlogPost(Number(req.params.id));
       if (!post) {
         return res.status(404).json({ message: "Blog post not found" });
       }
@@ -176,7 +176,7 @@ export async function registerRoutes(
       res.status(500).json({ message: "Internal server error" });
     }
   });
-    
+
   app.put(api.blog.update.path, requireAuth, async (req, res) => {
     try {
       const input = api.blog.update.input.parse(req.body);
@@ -479,7 +479,6 @@ async function seedDatabase() {
       console.log("Seeding blog posts...");
       await storage.createBlogPost({
         title: "Welcome to Choiril Ahmad's Website",
-        slug: "welcome-to-my-blog",
         content: "This is my personal platform built with elegance and precision.",
         excerpt: "Welcome to my personal website and journal.",
         imageUrl: "https://images.unsplash.com/photo-1499750310107-5fef28a66643",
@@ -511,8 +510,24 @@ async function seedDatabase() {
         featured: true,
       });
 
-    const existingMemory = await storage.getMemoryItems();
-    if (existingMemory.length === 0) {
+      await storage.createBrandItem({
+        title: "Speaking & Workshops",
+        description: "Delivering keynote presentations and interactive workshops on topics including innovation, entrepreneurship, and personal development. Available for conferences and corporate events.",
+        imageUrl: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2",
+        category: "Speaking",
+        featured: true,
+      });
+
+      await storage.createBrandItem({
+        title: "Digital Products & Courses",
+        description: "Creating educational content and online courses that empower professionals to develop new skills and advance their careers. Access to exclusive resources and community.",
+        imageUrl: "https://images.unsplash.com/photo-1501504905252-473c47e087f8",
+        category: "Education",
+        featured: false,
+      });
+
+      const existingMemory = await storage.getMemoryItems();
+      if (existingMemory.length === 0) {
         console.log("Seeding memory items...");
         await storage.createMemoryItem({
           title: "Erlangga Solid Victory",

@@ -1,18 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, buildUrl, type BlogPostInput, type BlogPostUpdateInput } from "@shared/routes";
-import { z } from "zod";
 
-export function usePosts(published?: boolean) {
+export function usePosts(publishedOnly = false) {
   return useQuery({
-    queryKey: [api.blog.list.path, published],
+    queryKey: [api.blog.list.path, publishedOnly],
     queryFn: async () => {
-      let url = api.blog.list.path;
-      if (published !== undefined) {
-        url += `?published=${published}`;
-      }
-      const res = await fetch(url, { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch posts");
-      return api.blog.list.responses[200].parse(await res.json());
+        const url = publishedOnly ? `${api.blog.list.path}?published=true` : api.blog.list.path;
+        const res = await fetch(url, { credentials: "include" });    
+        if (!res.ok) throw new Error("Failed to fetch posts");
+        return api.blog.list.responses[200].parse(await res.json());
     },
   });
 }
@@ -25,8 +21,10 @@ export function usePost(slug: string) {
       const res = await fetch(url, { credentials: "include" });
       if (res.status === 404) return null;
       if (!res.ok) throw new Error("Failed to fetch post");
-      return api.blog.get.responses[200].parse(await res.json());
+      const data = await res.json();
+      return api.blog.get.responses[200].parse(data);
     },
+    enabled: !!slug,
   });
 }
 
@@ -40,41 +38,33 @@ export function useCreatePost() {
         body: JSON.stringify(data),
         credentials: "include",
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || "Failed to create post");
-      }
+      if (!res.ok) throw new Error("Failed to create post");
       return api.blog.create.responses[201].parse(await res.json());
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [api.blog.list.path] });
-    },
-  });
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.blog.list.path] }),
+  })
 }
 
-export function useUpdatePost() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, ...data }: { id: number } & BlogPostUpdateInput) => {
-      const url = buildUrl(api.blog.update.path, { id });
-      const res = await fetch(url, {
-        method: api.blog.update.method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || "Failed to update post");
-      }
-      return api.blog.update.responses[200].parse(await res.json());
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: [api.blog.list.path] });
-      queryClient.invalidateQueries({ queryKey: [api.blog.get.path] });
-    },
-  });
-}
+  export function useUpdatePost() {
+    const queryClient = useQueryClient();
+    return useMutation({
+      mutationFn: async ({ id, data }: { id: number; data: Partial<BlogPostUpdateInput> }) => {
+        const url = buildUrl(api.blog.update.path, { id });
+        const res = await fetch(url, {
+          method: api.blog.update.method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("Failed to update post");
+        return api.blog.update.responses[200].parse(await res.json());
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [api.blog.list.path] });
+      },
+    });
+  }
+
 
 export function useDeletePost() {
   const queryClient = useQueryClient();
@@ -87,8 +77,6 @@ export function useDeletePost() {
       });
       if (!res.ok) throw new Error("Failed to delete post");
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [api.blog.list.path] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.blog.list.path] }),
   });
 }

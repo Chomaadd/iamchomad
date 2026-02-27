@@ -85,7 +85,7 @@ export const api = {
     },
     get: {
       method: 'GET' as const,
-      path: '/api/blog/:slug' as const,
+      path: '/api/blog/:id' as const,
       responses: {
         200: z.custom<typeof blogPosts.$inferSelect>(),
         404: errorSchemas.notFound,
@@ -102,7 +102,7 @@ export const api = {
       },
     },
     update: {
-      method: 'PATCH' as const,
+      method: 'PUT' as const,
       path: '/api/blog/:id' as const,
       input: insertBlogPostSchema.partial(),
       responses: {
