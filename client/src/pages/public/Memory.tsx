@@ -49,7 +49,7 @@ export default function Memory() {
                       <img 
                         src={item.imageUrl} 
                         alt={item.title} 
-                        className="w-full h-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-700" 
+                        //className="w-full h-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-700" 
                       />
                     )}
                     {item.link && (

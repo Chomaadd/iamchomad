@@ -74,28 +74,6 @@ export default function Contact() {
                   North Sumatra, Pematangsiantar City, ID.
                 </p>
               </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">
-                  Social
-                </p>
-                <div className="flex gap-4">
-                  <a href="#" className="hover:font-serif text-2xl">
-                    Discord
-                  </a>
-                  <a
-                    href="https://facebook.com/iamchomad"
-                    className="hover:font-serif text-2xl"
-                  >
-                    Facebook
-                  </a>
-                  <a
-                    href="https://instagram.com/iamchomad"
-                    className="hover:font-serif text-2xl"
-                  >
-                    Instagram
-                  </a>
-                </div>
-              </div>
             </div>
           </motion.div>
 
