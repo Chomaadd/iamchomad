@@ -30,7 +30,7 @@ export interface IStorage {
   createAdmin(username: string, password: string, name: string, email: string): Promise<Admin>;
   
   getBlogPosts(published?: boolean): Promise<BlogPost[]>;
-  getBlogPost(id: number): Promise<BlogPost | undefined>;
+  getBlogPost(slug: string): Promise<BlogPost | undefined>;
   createBlogPost(post: CreateBlogPostRequest): Promise<BlogPost>;
   updateBlogPost(id: number, updates: UpdateBlogPostRequest): Promise<BlogPost>;
   deleteBlogPost(id: number): Promise<void>;
@@ -97,12 +97,16 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(blogPosts).orderBy(blogPosts.createdAt);
   }
 
-  async getBlogPost(id: number): Promise<BlogPost | undefined> {
+  async getPost(id: number): Promise<BlogPost | undefined> {
     const [post] = await db
       .select()
       .from(blogPosts)
-      .where(eq(blogPosts.id, id))
-      .limit(1);
+      .where(eq(blogPosts.id, id));
+    return post;
+  }
+
+  async getBlogPost(slug: string): Promise<BlogPost | undefined> {
+    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
     return post;
   }
 

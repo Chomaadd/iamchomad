@@ -11,7 +11,7 @@ export default function Blog() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-24">
         <header className="mb-20 border-b-2 border-border pb-12">
           <motion.h1 
@@ -48,7 +48,7 @@ export default function Blog() {
                     <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                       {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                     </p>
-                    <Link href={`/blog/${post.id}`}>
+                    <Link href={`/blog/${post.slug}`}>
                       <h2 className="font-serif text-3xl lg:text-4xl font-bold group-hover:underline underline-offset-4 decoration-2 leading-tight">
                         {post.title}
                       </h2>
@@ -57,15 +57,15 @@ export default function Blog() {
                       {post.excerpt}
                     </p>
                     <div className="pt-4">
-                      <Link href={`/blog/${post.id}`} className="text-sm font-bold uppercase tracking-widest border-b-2 border-primary pb-1">
+                      <Link href={`/blog/${post.slug}`} className="text-sm font-bold uppercase tracking-widest border-b-2 border-primary pb-1">
                         Read Essay
                       </Link>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="lg:col-span-7 order-1 lg:order-2">
-                  <Link href={`/blog/${post.id}`} className="block overflow-hidden border-2 border-border aspect-[16/9]">
+                  <Link href={`/blog/${post.slug}`} className="block overflow-hidden border-2 border-border aspect-[16/9]">
                     {post.imageUrl ? (
                       <img 
                         src={post.imageUrl} 
@@ -79,10 +79,10 @@ export default function Blog() {
                 </div>
               </motion.article>
             ))}
-            
+
             {posts?.length === 0 && (
               <div className="text-center py-24 border-2 border-dashed border-border text-muted-foreground font-serif text-xl italic">
-                No entries published yet.
+                There are no posts published yet.
               </div>
             )}
           </div>

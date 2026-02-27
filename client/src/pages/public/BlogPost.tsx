@@ -7,17 +7,18 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 
 export default function BlogPost() {
-  const [, params] = useRoute("/blog/:id");
-  const id = params?.id ? parseInt(params.id) : 0;
-  const { data: post, isLoading } = usePost(id);
+  const [, params] = useRoute("/blog/:slug");
+  const slug = params?.slug ?? "";
+
+  const { data: post, isLoading,  } = usePost(slug);
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
-  if (!post) return <div className="min-h-screen flex flex-col items-center justify-center font-serif text-2xl">Entry not found.<Link href="/blog" className="text-sm font-sans mt-4 underline">Return to Journal</Link></div>;
+  if (!post) return <div className="min-h-screen flex flex-col items-center justify-center font-serif text-2xl">The article you're looking for doesn't exist or has been removed.<Link href="/blog" className="text-sm font-sans mt-4 underline">Return to Blog</Link></div>;
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <main className="max-w-4xl mx-auto px-6 lg:px-8 py-16">
         <Link href="/blog" className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary mb-12 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Blog
