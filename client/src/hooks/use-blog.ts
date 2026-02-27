@@ -13,18 +13,19 @@ export function usePosts(publishedOnly = false) {
   });
 }
 
-export function usePost(id: number) {
+export function usePost(slug: string) {
   return useQuery({
-    queryKey: [api.blog.get.path, id],
+    queryKey: [api.blog.get.path, slug],
     queryFn: async () => {
-      if (!id) return null;
-      const url = buildUrl(api.blog.get.path, { id });
+      if (!slug) return null;
+      const url = buildUrl(api.blog.get.path, { slug });
       const res = await fetch(url, { credentials: "include" });
       if (res.status === 404) return null;
       if (!res.ok) throw new Error("Failed to fetch post");
-      return api.blog.get.responses[200].parse(await res.json());
+      const data = await res.json();
+      return api.blog.get.responses[200].parse(data);
     },
-    enabled: !!id,
+    enabled: !!slug,
   });
 }
 
@@ -48,8 +49,8 @@ export function useCreatePost() {
 export function useUpdatePost() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: BlogPostUpdateInput }) => {
-      const url = buildUrl(api.blog.update.path, { id });
+    mutationFn: async ({ slug, data }: { id: slug; data: BlogPostUpdateInput }) => {
+      const url = buildUrl(api.blog.update.path, { slug });
       const res = await fetch(url, {
         method: api.blog.update.method,
         headers: { "Content-Type": "application/json" },
@@ -68,8 +69,8 @@ export function useUpdatePost() {
 export function useDeletePost() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
-      const url = buildUrl(api.blog.delete.path, { id });
+    mutationFn: async (slug) => {
+      const url = buildUrl(api.blog.delete.path, { slug });
       const res = await fetch(url, {
         method: api.blog.delete.method,
         credentials: "include",

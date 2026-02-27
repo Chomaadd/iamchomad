@@ -20,7 +20,7 @@ export default function BlogPost() {
       
       <main className="max-w-4xl mx-auto px-6 lg:px-8 py-16">
         <Link href="/blog" className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary mb-12 transition-colors">
-          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Journal
+          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Blog
         </Link>
 
         <motion.article 

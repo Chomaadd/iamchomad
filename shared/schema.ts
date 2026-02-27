@@ -12,6 +12,7 @@ export const admins = pgTable("admins", {
 
 export const blogPosts = pgTable("blog_posts", {
   id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
   title: text("title").notNull(),
   content: text("content").notNull(),
   excerpt: text("excerpt").notNull(),
