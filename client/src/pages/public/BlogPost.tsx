@@ -1,4 +1,3 @@
-import ReactMarkdown from 'react-markdown';
 import { useRoute } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -48,7 +47,9 @@ export default function BlogPost() {
           )}
 
           <div className="prose prose-lg dark:prose-invert prose-p:leading-loose prose-headings:font-serif prose-headings:font-bold max-w-none">
-            <ReactMarkdown>{post.content}</ReactMarkdown>
+            {post.content.split('\n\n').map((paragraph, idx) => (
+              <p key={idx}>{paragraph}</p>
+            ))}
           </div>
         </motion.article>
       </main>

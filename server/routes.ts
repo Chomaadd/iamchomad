@@ -57,27 +57,12 @@ export async function registerRoutes(
 
   const upload = multer({ storage: storageConfig });
 
-  app.post('/api/upload', requireAuth, upload.single('file'), async (req: any, res: any) => {
+  app.post('/api/upload', requireAuth, upload.single('file'), (req: any, res: any) => {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
     const url = `/uploads/${req.file.filename}`;
-    let duration = null;
-
-    if (req.file.mimetype.startsWith('audio/')) {
-      try {
-        const mm = await import('music-metadata');
-        const metadata = await mm.parseFile(req.file.path);
-        const totalSeconds = Math.round(metadata.format.duration || 0);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        duration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-      } catch (err) {
-        console.error("Metadata extraction error:", err);
-      }
-    }
-
-    res.json({ url, duration });
+    res.json({ url });
   });
 
   app.use('/uploads', express.static(uploadDir));
