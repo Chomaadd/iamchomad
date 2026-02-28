@@ -479,11 +479,11 @@ async function seedDatabase() {
       console.log("Seeding blog posts...");
       await storage.createBlogPost({
         title: existingPosts.title,
-        slug: "welcome-to-my-blog",
-        content: "This is my personal platform built with elegance and precision.",
-        excerpt: "Welcome to my personal website and journal.",
-        imageUrl: "https://images.unsplash.com/photo-1499750310107-5fef28a66643",
-        published: true,
+        slug: existingPosts.slug,
+        content: existingPosts.content,
+        excerpt: existingPosts.excerpt,
+        imageUrl: existingPosts.imageUrl,
+        published: existingTracks.published,
       });
     }
 
@@ -491,12 +491,12 @@ async function seedDatabase() {
     if (existingTracks.length === 0) {
       console.log("Seeding music tracks...");
       await storage.createMusicTrack({
-        title: "eńau feat. Ari Lesmana - Sesi Potret",
-        artist: "eńau",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-        albumArt: "https://images.unsplash.com/photo-1511379938547-c1f69419868d",
-        duration: "4:00",
-        isAutoPlay: true,
+        title: existingTracks.title,
+        artist: existingTracks.artist,
+        audioUrl: existingTracks.audioUrl,
+        albumArt: existingTracks.albumArt,
+        duration: existingTracks.duration,
+        isAutoPlay: existingTracks.isAutoPlay,
       });
     }
 
@@ -504,22 +504,22 @@ async function seedDatabase() {
     if (existingBrand.length === 0) {
       console.log("Seeding brand items...");
       await storage.createBrandItem({
-        title: "Professional Consulting Services",
-        description: "Offering expert consulting in business strategy, digital transformation, and leadership development. Helping organizations navigate change and achieve sustainable growth.",
-        imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978",
-        category: "Services",
-        featured: true,
+        title: existingBrand.title,
+        description: existingBrand.description,
+        imageUrl: existingBrand.imageUrl,
+        category: existingBrand.category,
+        featured: existingBrand.featured,
       });
 
     const existingMemory = await storage.getMemoryItems();
     if (existingMemory.length === 0) {
         console.log("Seeding memory items...");
         await storage.createMemoryItem({
-          title: "Erlangga Solid Victory",
-          description: "It is an extraordinary trust to be able to join PT Penerbit Elangga and meet good people.",
-          imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978",
-          category: "Life",
-          featured: true,
+          title: existingMemory.title,
+          description: existingMemory.description,
+          imageUrl: existingMemory.imageUrl,
+          category: existingMemory.category,
+          featured: existingMemory.featured,
         });
       }
     }
