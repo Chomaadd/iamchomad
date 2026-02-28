@@ -3,6 +3,7 @@ import type { Server } from "http";
 import session from "express-session";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
+import { usePosts } from "@/hooks/use-blog";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import multer from 'multer';
@@ -477,7 +478,7 @@ async function seedDatabase() {
     if (existingPosts.length === 0) {
       console.log("Seeding blog posts...");
       await storage.createBlogPost({
-        title: "Welcome to Choiril Ahmad's Website",
+        title: existingPosts.title,
         slug: "welcome-to-my-blog",
         content: "This is my personal platform built with elegance and precision.",
         excerpt: "Welcome to my personal website and journal.",
