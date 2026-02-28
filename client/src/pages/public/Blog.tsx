@@ -6,7 +6,9 @@ import { usePosts } from "@/hooks/use-blog";
 import { Loader2 } from "lucide-react";
 
 export default function Blog() {
-  const { data: posts, isLoading } = usePosts(true);
+  const { data: posts, isLoading } = usePosts();
+
+  const publishedPosts = posts?.filter(post => post.published);
 
   return (
     <div className="min-h-screen bg-background">
@@ -35,7 +37,7 @@ export default function Blog() {
           <div className="flex justify-center py-32"><Loader2 className="w-8 h-8 animate-spin" /></div>
         ) : (
           <div className="space-y-16 lg:space-y-24">
-            {posts?.map((post, i) => (
+            {publishedPosts?.map((post, i) => (
               <motion.article 
                 key={post.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -80,7 +82,7 @@ export default function Blog() {
               </motion.article>
             ))}
 
-            {posts?.length === 0 && (
+            {publishedPosts?.length === 0 && (
               <div className="text-center py-24 border-2 border-dashed border-border text-muted-foreground font-serif text-xl italic">
                 There are no posts published yet.
               </div>

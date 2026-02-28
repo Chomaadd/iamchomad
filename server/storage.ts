@@ -29,7 +29,7 @@ export interface IStorage {
   getAdminById(id: number): Promise<Admin | undefined>;
   createAdmin(username: string, password: string, name: string, email: string): Promise<Admin>;
   
-  getBlogPosts(published?: boolean): Promise<BlogPost[]>;
+  getBlogPosts(): Promise<BlogPost[]>;
   getBlogPost(slug: string): Promise<BlogPost | undefined>;
   createBlogPost(post: CreateBlogPostRequest): Promise<BlogPost>;
   updateBlogPost(id: number, updates: UpdateBlogPostRequest): Promise<BlogPost>;
