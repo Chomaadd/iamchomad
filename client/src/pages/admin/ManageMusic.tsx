@@ -41,7 +41,15 @@ export default function ManageMusic() {
       });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
-      setForm(prev => ({ ...prev, [field]: data.url }));
+      
+      setForm(prev => {
+        const next = { ...prev, [field]: data.url };
+        if (data.duration && field === "audioUrl") {
+          next.duration = data.duration;
+        }
+        return next;
+      });
+      
       toast({ title: "File uploaded successfully" });
     } catch (error) {
       toast({ title: "Upload failed", variant: "destructive" });

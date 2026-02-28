@@ -1,3 +1,4 @@
+import ReactMarkdown from 'react-markdown';
 import { useRoute } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -47,10 +48,7 @@ export default function BlogPost() {
           )}
 
           <div className="prose prose-lg dark:prose-invert prose-p:leading-loose prose-headings:font-serif prose-headings:font-bold max-w-none">
-            {/* Extremely simple markdown/newline rendering for aesthetic display */}
-            {post.content.split('\n\n').map((paragraph, idx) => (
-              <p key={idx}>{paragraph}</p>
-            ))}
+            <ReactMarkdown>{post.content}</ReactMarkdown>
           </div>
         </motion.article>
       </main>

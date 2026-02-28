@@ -79,6 +79,7 @@ export default function Music() {
                     <div>
                       <h3 className="font-serif font-bold text-lg leading-tight">{track.title}</h3>
                       <p className="text-sm text-muted-foreground">{track.artist}</p>
+                      {track.duration && <p className="text-xs font-mono text-muted-foreground mt-1">{track.duration}</p>}
                     </div>
                   </div>
                 </div>

@@ -1,12 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, buildUrl, type BlogPostInput, type BlogPostUpdateInput } from "@shared/routes";
 
-export function usePosts(publishedOnly = false) {
+export function usePosts() {
   return useQuery({
-    queryKey: [api.blog.list.path, publishedOnly],
+    queryKey: [api.blog.list.path],
     queryFn: async () => {
-        const url = publishedOnly ? `${api.blog.list.path}?published=true` : api.blog.list.path;
-        const res = await fetch(url, { credentials: "include" });    
+        const res = await fetch(api.blog.list.path, { credentials: "include" });    
         if (!res.ok) throw new Error("Failed to fetch posts");
         return api.blog.list.responses[200].parse(await res.json());
     },
@@ -45,25 +44,25 @@ export function useCreatePost() {
   })
 }
 
-  export function useUpdatePost() {
-    const queryClient = useQueryClient();
-    return useMutation({
-      mutationFn: async ({ id, data }: { id: number; data: Partial<BlogPostUpdateInput> }) => {
-        const url = buildUrl(api.blog.update.path, { id });
-        const res = await fetch(url, {
-          method: api.blog.update.method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-          credentials: "include",
-        });
-        if (!res.ok) throw new Error("Failed to update post");
-        return api.blog.update.responses[200].parse(await res.json());
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: [api.blog.list.path] });
-      },
-    });
-  }
+export function useUpdatePost() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...data }: { id: number } & Partial<BlogPostInput>) => {
+      const url = buildUrl(api.blog.update.path, { id });
+      const res = await fetch(url, {
+        method: api.blog.update.method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to update post");
+      return api.blog.update.responses[200].parse(await res.json());
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.blog.list.path] });
+    },
+  });
+}
 
 
 export function useDeletePost() {

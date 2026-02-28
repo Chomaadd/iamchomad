@@ -57,12 +57,27 @@ export async function registerRoutes(
 
   const upload = multer({ storage: storageConfig });
 
-  app.post('/api/upload', requireAuth, upload.single('file'), (req: any, res: any) => {
+  app.post('/api/upload', requireAuth, upload.single('file'), async (req: any, res: any) => {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
     const url = `/uploads/${req.file.filename}`;
-    res.json({ url });
+    let duration = null;
+
+    if (req.file.mimetype.startsWith('audio/')) {
+      try {
+        const mm = await import('music-metadata');
+        const metadata = await mm.parseFile(req.file.path);
+        const totalSeconds = Math.round(metadata.format.duration || 0);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        duration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      } catch (err) {
+        console.error("Metadata extraction error:", err);
+      }
+    }
+
+    res.json({ url, duration });
   });
 
   app.use('/uploads', express.static(uploadDir));
@@ -138,8 +153,7 @@ export async function registerRoutes(
 
   app.get(api.blog.list.path, async (req, res) => {
     try {
-      const published = req.query.published === "true" ? true : req.query.published === "false" ? false : undefined;
-      const posts = await storage.getBlogPosts(published);
+      const posts = await storage.getBlogPosts();
       res.json(posts);
     } catch (err) {
       console.error("Blog list error:", err);
@@ -149,7 +163,7 @@ export async function registerRoutes(
 
   app.get(api.blog.get.path, async (req, res) => {
     try {
-      const post = await storage.getBlogPost(Number(req.params.slug));
+      const post = await storage.getBlogPost(req.params.slug);
       if (!post) {
         return res.status(404).json({ message: "Blog post not found" });
       }
