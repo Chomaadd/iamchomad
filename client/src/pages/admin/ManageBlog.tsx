@@ -72,7 +72,11 @@ export default function ManageBlog() {
 
   useEffect(() => {
     if (!editingId && form.title && !form.slug) {
-      setForm(form.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
+      const generatedSlug = form.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+      setForm(prev => ({ ...prev, slug: generatedSlug }));
     }
   }, [form.title, form.slug, editingId]);
 
@@ -80,7 +84,11 @@ export default function ManageBlog() {
     e.preventDefault();
     try {
       if (editingId) {
-        await updatePost({ id: editingId, data: form });
+        const { title, slug, excerpt, content, imageUrl, published } = form;
+        await updatePost({ 
+          id: editingId, 
+          title, slug, excerpt, content, imageUrl, published
+        });
         toast({ title: "Entry updated successfully." });
       } else {
         await createPost(form);
@@ -88,6 +96,7 @@ export default function ManageBlog() {
       }
       setModalOpen(false);
     } catch (error) {
+      console.error("Save error:", error);
       toast({ title: "Error saving entry", variant: "destructive" });
     }
   };
@@ -149,6 +158,10 @@ export default function ManageBlog() {
           <div>
             <Label>Title</Label>
             <Input required value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
+          </div>
+          <div>
+            <Label>Slug</Label>
+            <Input required value={form.slug} onChange={e => setForm({...form, slug: e.target.value})} />
           </div>
           <div>
             <Label>Excerpt</Label>
