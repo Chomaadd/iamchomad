@@ -7,7 +7,6 @@ import { Loader2 } from "lucide-react";
 
 export default function Blog() {
   const { data: posts, isLoading } = usePosts();
-
   const publishedPosts = posts?.filter(post => post.published);
 
   return (

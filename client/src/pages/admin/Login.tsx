@@ -17,6 +17,7 @@ export default function Login() {
     try {
       await login(credentials);
       // Redirect happens naturally via the user state change
+      toast({ title: "Login Successful" });
     } catch (error: any) {
       toast({ title: "Access Denied", description: error.message, variant: "destructive" });
     }
