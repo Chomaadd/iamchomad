@@ -76,9 +76,6 @@ export const api = {
     list: {
       method: 'GET' as const,
       path: '/api/blog' as const,
-      input: z.object({
-        published: z.boolean().optional(),
-      }).optional(),
       responses: {
         200: z.array(z.custom<typeof blogPosts.$inferSelect>()),
       },
@@ -102,7 +99,7 @@ export const api = {
       },
     },
     update: {
-      method: 'PATCH' as const,
+      method: 'PUT' as const,
       path: '/api/blog/:id' as const,
       input: insertBlogPostSchema.partial(),
       responses: {

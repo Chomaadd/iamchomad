@@ -17,7 +17,7 @@ export const blogPosts = pgTable("blog_posts", {
   content: text("content").notNull(),
   excerpt: text("excerpt").notNull(),
   imageUrl: text("image_url"),
-  published: boolean("published").default(true),
+  published: boolean("published").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

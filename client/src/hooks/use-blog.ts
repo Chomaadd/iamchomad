@@ -5,9 +5,9 @@ export function usePosts() {
   return useQuery({
     queryKey: [api.blog.list.path],
     queryFn: async () => {
-        const res = await fetch(api.blog.list.path, { credentials: "include" });    
-        if (!res.ok) throw new Error("Failed to fetch posts");
-        return api.blog.list.responses[200].parse(await res.json());
+      const res = await fetch(api.blog.list.path, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch posts");
+      return api.blog.list.responses[200].parse(await res.json());
     },
   });
 }
@@ -23,7 +23,7 @@ export function usePost(slug: string) {
       const data = await res.json();
       return api.blog.get.responses[200].parse(data);
     },
-    enabled: !!slug,
+    enabled: !!slug && slug !== "undefined",
   });
 }
 
@@ -47,7 +47,7 @@ export function useCreatePost() {
 export function useUpdatePost() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...data }: { id: number } & Partial<BlogPostInput>) => {
+    mutationFn: async ({ id, ...data }: { id: number } & Partial<BlogPostUpdateInput>) => {
       const url = buildUrl(api.blog.update.path, { id });
       const res = await fetch(url, {
         method: api.blog.update.method,
