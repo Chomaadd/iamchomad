@@ -53,7 +53,7 @@ export default function Home() {
                     alt="Choiril Ahmad" 
                     className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                     onError={(e) => {
-                      e.currentTarget.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d";
+                      e.currentTarget.src = "/src/image/hiarill.jpg";
                     }}
                   />
                 </div>
