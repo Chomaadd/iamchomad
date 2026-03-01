@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/core";
 import { usePosts } from "@/hooks/use-blog";
 
 export default function Home() {
-  const { data: posts } = usePosts(true);
+  const { data: posts } = usePosts();
   const featuredPosts = posts?.slice(0, 3) || [];
 
   return (
@@ -49,9 +49,12 @@ export default function Home() {
                 {/* landing page hero editorial portrait */}
                 <div className="aspect-[4/5] overflow-hidden border-2 border-primary editorial-shadow bg-muted">
                   <img  
-                    src="/src/image/hiarill.jpg?w=800&h=1000&fit=crop&grayscale=true"
+                    src="/src/image/hiarill.jpg"
                     alt="Choiril Ahmad" 
                     className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                    onError={(e) => {
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d";
+                    }}
                   />
                 </div>
               </motion.div>

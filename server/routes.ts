@@ -3,7 +3,7 @@ import type { Server } from "http";
 import session from "express-session";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
-import { usePosts } from "@/hooks/use-blog";
+import { log } from "./index";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import multer from 'multer';
@@ -476,55 +476,55 @@ async function seedDatabase() {
   try {
     const existingPosts = await storage.getBlogPosts();
     if (existingPosts.length === 0) {
-      console.log("Seeding blog posts...");
+      log("Seeding blog posts...");
       await storage.createBlogPost({
-        title: existingPosts.title,
-        slug: existingPosts.slug,
-        content: existingPosts.content,
-        excerpt: existingPosts.excerpt,
-        imageUrl: existingPosts.imageUrl,
-        published: existingTracks.published,
+        title: "Welcome to Choiril Ahmad's Website",
+        slug: "welcome-to-my-blog",
+        content: "This is my personal platform built with elegance and precision.",
+        excerpt: "Welcome to my personal website and journal.",
+        imageUrl: "https://images.unsplash.com/photo-1499750310107-5fef28a66643",
+        published: true,
       });
     }
 
     const existingTracks = await storage.getMusicTracks();
     if (existingTracks.length === 0) {
-      console.log("Seeding music tracks...");
+      log("Seeding music tracks...");
       await storage.createMusicTrack({
-        title: existingTracks.title,
-        artist: existingTracks.artist,
-        audioUrl: existingTracks.audioUrl,
-        albumArt: existingTracks.albumArt,
-        duration: existingTracks.duration,
-        isAutoPlay: existingTracks.isAutoPlay,
+        title: "eńau feat. Ari Lesmana - Sesi Potret",
+        artist: "eńau",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        albumArt: "https://images.unsplash.com/photo-1511379938547-c1f69419868d",
+        duration: "4:00",
+        isAutoPlay: true,
       });
     }
 
     const existingBrand = await storage.getBrandItems();
     if (existingBrand.length === 0) {
-      console.log("Seeding brand items...");
+      log("Seeding brand items...");
       await storage.createBrandItem({
-        title: existingBrand.title,
-        description: existingBrand.description,
-        imageUrl: existingBrand.imageUrl,
-        category: existingBrand.category,
-        featured: existingBrand.featured,
+        title: "Professional Consulting Services",
+        description: "Offering expert consulting in business strategy, digital transformation, and leadership development. Helping organizations navigate change and achieve sustainable growth.",
+        imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978",
+        category: "Services",
+        featured: true,
       });
+    }
 
     const existingMemory = await storage.getMemoryItems();
     if (existingMemory.length === 0) {
-        console.log("Seeding memory items...");
-        await storage.createMemoryItem({
-          title: existingMemory.title,
-          description: existingMemory.description,
-          imageUrl: existingMemory.imageUrl,
-          category: existingMemory.category,
-          featured: existingMemory.featured,
-        });
-      }
+      log("Seeding memory items...");
+      await storage.createMemoryItem({
+        title: "Erlangga Solid Victory",
+        description: "It is an extraordinary trust to be able to join PT Penerbit Elangga and meet good people.",
+        imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978",
+        category: "Life",
+        featured: true,
+      });
     }
 
-    console.log("Database seeding complete!");
+    log("Database seeding complete!");
   } catch (error) {
     console.error("Error seeding database:", error);
   }
