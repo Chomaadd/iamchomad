@@ -21,7 +21,7 @@
                       alt="Profile Choiril Ahmad" 
                       className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                       onError={(e) => {
-                        e.currentTarget.src = "/src/image/iamchomad.png";
+                        e.currentTarget.src = "https://imgur.com/dKFwCEX";
                       }}
                     />
                   </div>
