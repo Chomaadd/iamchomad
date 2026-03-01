@@ -17,9 +17,12 @@
                   {/* about page professional portrait */}
                   <div className="sticky top-32 border-2 border-primary editorial-shadow bg-muted overflow-hidden">
                     <img  
-                      src="/src/image/iamchomad.png?w=800&h=1000&fit=crop&grayscale=true"
+                      src="/src/image/iamchomad.png"
                       alt="Profile Choiril Ahmad" 
                       className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                      onError={(e) => {
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e";
+                      }}
                     />
                   </div>
                 </motion.div>
