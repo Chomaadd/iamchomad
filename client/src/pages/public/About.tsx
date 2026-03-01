@@ -21,7 +21,7 @@
                       alt="Profile Choiril Ahmad" 
                       className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                       onError={(e) => {
-                        e.currentTarget.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e";
+                        e.currentTarget.src = "/src/image/iamchomad.png";
                       }}
                     />
                   </div>
