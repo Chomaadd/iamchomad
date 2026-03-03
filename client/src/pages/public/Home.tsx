@@ -49,7 +49,7 @@ export default function Home() {
                 {/* landing page hero editorial portrait */}
                 <div className="aspect-[4/5] overflow-hidden border-2 border-primary editorial-shadow bg-muted">
                   <img  
-                    src="/src/image/hiarill.jpg"
+                    src="/client/src/image/hiarill.jpg"
                     alt="Choiril Ahmad" 
                     className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                     onError={(e) => {

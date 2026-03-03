@@ -17,7 +17,7 @@
                   {/* about page professional portrait */}
                   <div className="sticky top-32 border-2 border-primary editorial-shadow bg-muted overflow-hidden">
                     <img  
-                      src="/src/image/iamchomad.png"
+                      src="/client/src/image/iamchomad.png"
                       alt="Profile Choiril Ahmad" 
                       className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                       onError={(e) => {
