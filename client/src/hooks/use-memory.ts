@@ -32,7 +32,7 @@ export function useCreateMemoryItem() {
 export function useUpdateMemoryItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: MemoryItemUpdateInput }) => {
+    mutationFn: async ({ id, data }: { id: string; data: MemoryItemUpdateInput }) => {
       const url = buildUrl(api.memory.update.path, { id });
       const res = await fetch(url, {
         method: api.memory.update.method,
@@ -50,7 +50,7 @@ export function useUpdateMemoryItem() {
 export function useDeleteMemoryItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const url = buildUrl(api.memory.delete.path, { id });
       const res = await fetch(url, { method: api.memory.delete.method, credentials: "include" });
       if (!res.ok) throw new Error("Failed to delete memory item");

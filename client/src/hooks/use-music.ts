@@ -32,7 +32,7 @@ export function useCreateMusicTrack() {
 export function useUpdateMusicTrack() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: MusicTrackUpdateInput }) => {
+    mutationFn: async ({ id, data }: { id: string; data: MusicTrackUpdateInput }) => {
       const url = buildUrl(api.music.update.path, { id });
       const res = await fetch(url, {
         method: api.music.update.method,
@@ -50,7 +50,7 @@ export function useUpdateMusicTrack() {
 export function useDeleteMusicTrack() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const url = buildUrl(api.music.delete.path, { id });
       const res = await fetch(url, { method: api.music.delete.method, credentials: "include" });
       if (!res.ok) throw new Error("Failed to delete track");

@@ -1,280 +1,244 @@
-import { db } from "./db";
-import {
-  admins,
-  blogPosts,
-  contactMessages,
-  musicTracks,
-  brandItems,
-  memoryItems,
-  type Admin,
-  type BlogPost,
-  type ContactMessage,
-  type MusicTrack,
-  type BrandItem,
-  type MemoryItem,
-  type CreateBlogPostRequest,
-  type UpdateBlogPostRequest,
-  type CreateContactMessageRequest,
-  type CreateMusicTrackRequest,
-  type UpdateMusicTrackRequest,
-  type CreateBrandItemRequest,
-  type UpdateBrandItemRequest,
-  type CreateMemoryItemRequest,
-  type UpdateMemoryItemRequest,
-} from "@shared/schema";
-import { eq } from "drizzle-orm";
+import mongoose from 'mongoose';
+  import {
+    type Admin,
+    type BlogPost,
+    type ContactMessage,
+    type MusicTrack,
+    type BrandItem,
+    type MemoryItem,
+    type CreateBlogPostRequest,
+    type UpdateBlogPostRequest,
+    type CreateContactMessageRequest,
+    type CreateMusicTrackRequest,
+    type UpdateMusicTrackRequest,
+    type CreateBrandItemRequest,
+    type UpdateBrandItemRequest,
+    type CreateMemoryItemRequest,
+    type UpdateMemoryItemRequest,
+  } from "@shared/schema";
+  import { 
+    AdminModel, 
+    BlogPostModel, 
+    ContactMessageModel, 
+    MusicTrackModel, 
+    BrandItemModel, 
+    MemoryItemModel 
+  } from "./db";
 
-export interface IStorage {
-  getAdminByUsername(username: string): Promise<Admin | undefined>;
-  getAdminById(id: number): Promise<Admin | undefined>;
-  createAdmin(username: string, password: string, name: string, email: string): Promise<Admin>;
-  
-  getBlogPosts(): Promise<BlogPost[]>;
-  getBlogPost(slug: string): Promise<BlogPost | undefined>;
-  createBlogPost(post: CreateBlogPostRequest): Promise<BlogPost>;
-  updateBlogPost(id: number, updates: UpdateBlogPostRequest): Promise<BlogPost>;
-  deleteBlogPost(id: number): Promise<void>;
-  
-  getContactMessages(): Promise<ContactMessage[]>;
-  createContactMessage(message: CreateContactMessageRequest): Promise<ContactMessage>;
-  markContactMessageRead(id: number, read: boolean): Promise<ContactMessage>;
-  deleteContactMessage(id: number): Promise<void>;
-  
-  getMusicTracks(): Promise<MusicTrack[]>;
-  getMusicTrack(id: number): Promise<MusicTrack | undefined>;
-  createMusicTrack(track: CreateMusicTrackRequest): Promise<MusicTrack>;
-  updateMusicTrack(id: number, updates: UpdateMusicTrackRequest): Promise<MusicTrack>;
-  deleteMusicTrack(id: number): Promise<void>;
-  
-  getBrandItems(): Promise<BrandItem[]>;
-  getBrandItem(id: number): Promise<BrandItem | undefined>;
-  createBrandItem(item: CreateBrandItemRequest): Promise<BrandItem>;
-  updateBrandItem(id: number, updates: UpdateBrandItemRequest): Promise<BrandItem>;
-  deleteBrandItem(id: number): Promise<void>;
+  export interface IStorage {
+    getAdminByUsername(username: string): Promise<Admin | undefined>;
+    getAdminById(id: string): Promise<Admin | undefined>;
+    createAdmin(username: string, password: string, name: string, email: string): Promise<Admin>;
+    
+    getBlogPosts(published?: boolean): Promise<BlogPost[]>;
+    getBlogPost(slug: string): Promise<BlogPost | undefined>;
+    createBlogPost(post: CreateBlogPostRequest): Promise<BlogPost>;
+    updateBlogPost(id: string, updates: UpdateBlogPostRequest): Promise<BlogPost>;
+    deleteBlogPost(id: string): Promise<void>;
+    
+    getContactMessages(): Promise<ContactMessage[]>;
+    createContactMessage(message: CreateContactMessageRequest): Promise<ContactMessage>;
+    markContactMessageRead(id: string, read: boolean): Promise<ContactMessage>;
+    deleteContactMessage(id: string): Promise<void>;
+    
+    getMusicTracks(): Promise<MusicTrack[]>;
+    getMusicTrack(id: string): Promise<MusicTrack | undefined>;
+    createMusicTrack(track: CreateMusicTrackRequest): Promise<MusicTrack>;
+    updateMusicTrack(id: string, updates: UpdateMusicTrackRequest): Promise<MusicTrack>;
+    deleteMusicTrack(id: string): Promise<void>;
+    
+    getBrandItems(): Promise<BrandItem[]>;
+    getBrandItem(id: string): Promise<BrandItem | undefined>;
+    createBrandItem(item: CreateBrandItemRequest): Promise<BrandItem>;
+    updateBrandItem(id: string, updates: UpdateBrandItemRequest): Promise<BrandItem>;
+    deleteBrandItem(id: string): Promise<void>;
 
-  getMemoryItems(): Promise<MemoryItem[]>;
-  getMemoryItem(id: number): Promise<MemoryItem | undefined>;
-  createMemoryItem(item: CreateMemoryItemRequest): Promise<MemoryItem>;
-  updateMemoryItem(id: number, updates: UpdateMemoryItemRequest): Promise<MemoryItem>;
-  deleteMemoryItem(id: number): Promise<void>;
-}
-
-export class DatabaseStorage implements IStorage {
-  async getAdminByUsername(username: string): Promise<Admin | undefined> {
-    const [admin] = await db
-      .select()
-      .from(admins)
-      .where(eq(admins.username, username))
-      .limit(1);
-    return admin;
+    getMemoryItems(): Promise<MemoryItem[]>;
+    getMemoryItem(id: string): Promise<MemoryItem | undefined>;
+    createMemoryItem(item: CreateMemoryItemRequest): Promise<MemoryItem>;
+    updateMemoryItem(id: string, updates: UpdateMemoryItemRequest): Promise<MemoryItem>;
+    deleteMemoryItem(id: string): Promise<void>;
   }
 
-  async getAdminById(id: number): Promise<Admin | undefined> {
-    const [admin] = await db
-      .select()
-      .from(admins)
-      .where(eq(admins.id, id))
-      .limit(1);
-    return admin;
-  }
-
-  async createAdmin(username: string, password: string, name: string, email: string): Promise<Admin> {
-    const [admin] = await db
-      .insert(admins)
-      .values({ username, password, name, email })
-      .returning();
-    return admin;
-  }
-
-  async getBlogPosts(published?: boolean): Promise<BlogPost[]> {
-    if (published !== undefined) {
-      return await db
-        .select()
-        .from(blogPosts)
-        .where(eq(blogPosts.published, published))
-        .orderBy(blogPosts.createdAt);
+  function mapId<T>(doc: any): T {
+    if (!doc) return doc;
+    const obj = doc.toObject ? doc.toObject() : doc;
+    if (obj._id) {
+      obj.id = obj._id.toString();
+      delete obj._id;
     }
-    return await db.select().from(blogPosts).orderBy(blogPosts.createdAt);
+    delete obj.__v;
+    return obj as T;
   }
 
-  async getPost(id: number): Promise<BlogPost | undefined> {
-    const [post] = await db
-      .select()
-      .from(blogPosts)
-      .where(eq(blogPosts.id, id));
-    return post;
-  }
-
-  async getBlogPost(slug: string): Promise<BlogPost | undefined> {
-    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
-    return post;
-  }
-
-  async createBlogPost(post: CreateBlogPostRequest): Promise<BlogPost> {
-    const [created] = await db
-      .insert(blogPosts)
-      .values({ ...post, updatedAt: new Date() })
-      .returning();
-    return created;
-  }
-
-  async updateBlogPost(id: number, updates: UpdateBlogPostRequest): Promise<BlogPost> {
-    const [updated] = await db
-      .update(blogPosts)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(blogPosts.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deleteBlogPost(id: number): Promise<void> {
-    await db.delete(blogPosts).where(eq(blogPosts.id, id));
-  }
-
-  async getContactMessages(): Promise<ContactMessage[]> {
-    return await db
-      .select()
-      .from(contactMessages)
-      .orderBy(contactMessages.createdAt);
-  }
-
-  async createContactMessage(message: CreateContactMessageRequest): Promise<ContactMessage> {
-    const [created] = await db
-      .insert(contactMessages)
-      .values(message)
-      .returning();
-    return created;
-  }
-
-  async markContactMessageRead(id: number, read: boolean): Promise<ContactMessage> {
-    const [updated] = await db
-      .update(contactMessages)
-      .set({ read })
-      .where(eq(contactMessages.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deleteContactMessage(id: number): Promise<void> {
-    await db.delete(contactMessages).where(eq(contactMessages.id, id));
-  }
-
-  async getMusicTracks(): Promise<MusicTrack[]> {
-    return await db
-      .select()
-      .from(musicTracks)
-      .orderBy(musicTracks.createdAt);
-  }
-
-  async getMusicTrack(id: number): Promise<MusicTrack | undefined> {
-    const [track] = await db
-      .select()
-      .from(musicTracks)
-      .where(eq(musicTracks.id, id))
-      .limit(1);
-    return track;
-  }
-
-  async createMusicTrack(track: CreateMusicTrackRequest): Promise<MusicTrack> {
-    if (track.isAutoPlay) {
-      await db.update(musicTracks).set({ isAutoPlay: false });
+  export class DatabaseStorage implements IStorage {
+    async getAdminByUsername(username: string): Promise<Admin | undefined> {
+      const admin = await AdminModel.findOne({ username });
+      return admin ? mapId(admin) : undefined;
     }
-    const [created] = await db
-      .insert(musicTracks)
-      .values(track)
-      .returning();
-    return created;
-  }
 
-  async updateMusicTrack(id: number, updates: UpdateMusicTrackRequest): Promise<MusicTrack> {
-    if (updates.isAutoPlay) {
-      await db.update(musicTracks).set({ isAutoPlay: false });
+    async getAdminById(id: string): Promise<Admin | undefined> {
+      const admin = await AdminModel.findById(id);
+      return admin ? mapId(admin) : undefined;
     }
-    const [updated] = await db
-      .update(musicTracks)
-      .set(updates)
-      .where(eq(musicTracks.id, id))
-      .returning();
-    return updated;
+
+    async createAdmin(username: string, password: string, name: string, email: string): Promise<Admin> {
+      const admin = await AdminModel.create({ username, password, name, email });
+      return mapId(admin);
+    }
+
+    async getBlogPosts(published?: boolean): Promise<BlogPost[]> {
+      const query = published !== undefined ? { published } : {};
+      const posts = await BlogPostModel.find(query).sort({ createdAt: 1 });
+      return posts.map(p => mapId<BlogPost>(p));
+    }
+
+    async getPost(id: string): Promise<BlogPost | undefined> {
+      const post = await BlogPostModel.findById(id);
+      return post ? mapId(post) : undefined;
+    }
+
+    async getBlogPost(slug: string): Promise<BlogPost | undefined> {
+      const post = await BlogPostModel.findOne({ slug });
+      return post ? mapId(post) : undefined;
+    }
+
+    async createBlogPost(post: CreateBlogPostRequest): Promise<BlogPost> {
+      const created = await BlogPostModel.create(post);
+      return mapId(created);
+    }
+
+    async updateBlogPost(id: string, updates: UpdateBlogPostRequest): Promise<BlogPost> {
+      const updated = await BlogPostModel.findByIdAndUpdate(
+        id, 
+        { ...updates, updatedAt: new Date() },
+        { new: true }
+      );
+      if (!updated) throw new Error('Blog post not found');
+      return mapId(updated);
+    }
+
+    async deleteBlogPost(id: string): Promise<void> {
+      await BlogPostModel.findByIdAndDelete(id);
+    }
+
+    async getContactMessages(): Promise<ContactMessage[]> {
+      const messages = await ContactMessageModel.find().sort({ createdAt: 1 });
+      return messages.map(m => mapId<ContactMessage>(m));
+    }
+
+    async createContactMessage(message: CreateContactMessageRequest): Promise<ContactMessage> {
+      const created = await ContactMessageModel.create(message);
+      return mapId(created);
+    }
+
+    async markContactMessageRead(id: string, read: boolean): Promise<ContactMessage> {
+      const updated = await ContactMessageModel.findByIdAndUpdate(
+        id,
+        { read },
+        { new: true }
+      );
+      if (!updated) throw new Error('Message not found');
+      return mapId(updated);
+    }
+
+    async deleteContactMessage(id: string): Promise<void> {
+      await ContactMessageModel.findByIdAndDelete(id);
+    }
+
+    async getMusicTracks(): Promise<MusicTrack[]> {
+      const tracks = await MusicTrackModel.find().sort({ createdAt: 1 });
+      return tracks.map(t => mapId<MusicTrack>(t));
+    }
+
+    async getMusicTrack(id: string): Promise<MusicTrack | undefined> {
+      const track = await MusicTrackModel.findById(id);
+      return track ? mapId(track) : undefined;
+    }
+
+    async createMusicTrack(track: CreateMusicTrackRequest): Promise<MusicTrack> {
+      if (track.isAutoPlay) {
+        await MusicTrackModel.updateMany({}, { isAutoPlay: false });
+      }
+      const created = await MusicTrackModel.create(track);
+      return mapId(created);
+    }
+
+    async updateMusicTrack(id: string, updates: UpdateMusicTrackRequest): Promise<MusicTrack> {
+      if (updates.isAutoPlay) {
+        await MusicTrackModel.updateMany({}, { isAutoPlay: false });
+      }
+      const updated = await MusicTrackModel.findByIdAndUpdate(
+        id,
+        updates,
+        { new: true }
+      );
+      if (!updated) throw new Error('Music track not found');
+      return mapId(updated);
+    }
+
+    async deleteMusicTrack(id: string): Promise<void> {
+      await MusicTrackModel.findByIdAndDelete(id);
+    }
+
+    async getBrandItems(): Promise<BrandItem[]> {
+      const items = await BrandItemModel.find().sort({ createdAt: 1 });
+      return items.map(i => mapId<BrandItem>(i));
+    }
+
+    async getBrandItem(id: string): Promise<BrandItem | undefined> {
+      const item = await BrandItemModel.findById(id);
+      return item ? mapId(item) : undefined;
+    }
+
+    async createBrandItem(item: CreateBrandItemRequest): Promise<BrandItem> {
+      const created = await BrandItemModel.create(item);
+      return mapId(created);
+    }
+
+    async updateBrandItem(id: string, updates: UpdateBrandItemRequest): Promise<BrandItem> {
+      const updated = await BrandItemModel.findByIdAndUpdate(
+        id,
+        { ...updates, updatedAt: new Date() },
+        { new: true }
+      );
+      if (!updated) throw new Error('Brand item not found');
+      return mapId(updated);
+    }
+
+    async deleteBrandItem(id: string): Promise<void> {
+      await BrandItemModel.findByIdAndDelete(id);
+    }
+
+    async getMemoryItems(): Promise<MemoryItem[]> {
+      const items = await MemoryItemModel.find().sort({ createdAt: 1 });
+      return items.map(i => mapId<BrandItem>(i));
+    }
+
+    async getMemoryItem(id: string): Promise<MemoryItem | undefined> {
+      const item = await MemoryItemModel.findById(id);
+      return item ? mapId(item) : undefined;
+    }
+
+    async createMemoryItem(item: CreateMemoryItemRequest): Promise<MemoryItem> {
+      const created = await MemoryItemModel.create(item);
+      return mapId(created);
+    }
+
+    async updateMemoryItem(id: string, updates: UpdateMemoryItemRequest): Promise<MemoryItem> {
+      const updated = await MemoryItemModel.findByIdAndUpdate(
+        id,
+        { ...updates, updatedAt: new Date() },
+        { new: true }
+      );
+      if (!updated) throw new Error('Memory item not found');
+      return mapId(updated);
+    }
+
+    async deleteMemoryItem(id: string): Promise<void> {
+      await MemoryItemModel.findByIdAndDelete(id);
+    }
   }
 
-  async deleteMusicTrack(id: number): Promise<void> {
-    await db.delete(musicTracks).where(eq(musicTracks.id, id));
-  }
-
-  async getBrandItems(): Promise<BrandItem[]> {
-    return await db
-      .select()
-      .from(brandItems)
-      .orderBy(brandItems.createdAt);
-  }
-
-  async getBrandItem(id: number): Promise<BrandItem | undefined> {
-    const [item] = await db
-      .select()
-      .from(brandItems)
-      .where(eq(brandItems.id, id))
-      .limit(1);
-    return item;
-  }
-
-  async createBrandItem(item: CreateBrandItemRequest): Promise<BrandItem> {
-    const [created] = await db
-      .insert(brandItems)
-      .values({ ...item, updatedAt: new Date() })
-      .returning();
-    return created;
-  }
-
-  async updateBrandItem(id: number, updates: UpdateBrandItemRequest): Promise<BrandItem> {
-    const [updated] = await db
-      .update(brandItems)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(brandItems.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deleteBrandItem(id: number): Promise<void> {
-    await db.delete(brandItems).where(eq(brandItems.id, id));
-  }
-
-  async getMemoryItems(): Promise<MemoryItem[]> {
-    return await db
-      .select()
-      .from(memoryItems)
-      .orderBy(memoryItems.createdAt);
-  }
-
-  async getMemoryItem(id: number): Promise<MemoryItem | undefined> {
-    const [item] = await db
-      .select()
-      .from(memoryItems)
-      .where(eq(memoryItems.id, id))
-      .limit(1);
-    return item;
-  }
-
-  async createMemoryItem(item: CreateMemoryItemRequest): Promise<MemoryItem> {
-    const [created] = await db
-      .insert(memoryItems)
-      .values({ ...item, updatedAt: new Date() })
-      .returning();
-    return created;
-  }
-
-  async updateMemoryItem(id: number, updates: UpdateMemoryItemRequest): Promise<MemoryItem> {
-    const [updated] = await db
-      .update(memoryItems)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(memoryItems.id, id))
-      .returning();
-    return updated;
-  }
-
-  async deleteMemoryItem(id: number): Promise<void> {
-    await db.delete(memoryItems).where(eq(memoryItems.id, id));
-  }
-}
-
-export const storage = new DatabaseStorage();
+  export const storage = new DatabaseStorage();
+  

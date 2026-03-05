@@ -29,7 +29,7 @@ export function useCreateContactMessage() {
 export function useMarkMessageRead() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const url = buildUrl(api.contact.markRead.path, { id });
       const res = await fetch(url, { method: api.contact.markRead.method, credentials: "include" });
       if (!res.ok) throw new Error("Failed to update message");
@@ -42,7 +42,7 @@ export function useMarkMessageRead() {
 export function useDeleteMessage() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const url = buildUrl(api.contact.delete.path, { id });
       const res = await fetch(url, { method: api.contact.delete.method, credentials: "include" });
       if (!res.ok) throw new Error("Failed to delete message");

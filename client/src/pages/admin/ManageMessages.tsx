@@ -10,7 +10,7 @@ export default function ManageMessages() {
   const { mutateAsync: deleteMsg } = useDeleteMessage();
   const { toast } = useToast();
 
-  const handleMarkRead = async (id: number) => {
+  const handleMarkRead = async (id: string) => {
     try {
       await markRead(id);
       toast({ title: "Marked as read." });
@@ -19,7 +19,7 @@ export default function ManageMessages() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Delete this message?")) {
       try {
         await deleteMsg(id);
@@ -48,7 +48,7 @@ export default function ManageMessages() {
                 </div>
               </div>
               <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                {new Date(msg.createdAt).toLocaleString()}
+                {new Date(msg.createdAt || Date.now()).toLocaleString()}
               </div>
             </div>
             

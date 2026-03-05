@@ -13,7 +13,7 @@ export default function ManageBlog() {
   const { toast } = useToast();
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -101,7 +101,7 @@ export default function ManageBlog() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this entry?")) {
       try {
         await deletePost(id);
@@ -142,7 +142,7 @@ export default function ManageBlog() {
                     {post.published ? 'Published' : 'Draft'}
                   </span>
                 </td>
-                <td className="p-4">{new Date(post.createdAt).toLocaleDateString()}</td>
+                <td className="p-4">{new Date(post.createdAt || Date.now()).toLocaleDateString()}</td>
                 <td className="p-4 text-right space-x-2">
                   <button onClick={() => openEdit(post)} className="p-2 border-2 border-border hover:bg-primary hover:text-primary-foreground transition-colors"><Edit2 size={16} /></button>
                   <button onClick={() => handleDelete(post.id)} className="p-2 border-2 border-border hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-colors"><Trash2 size={16} /></button>

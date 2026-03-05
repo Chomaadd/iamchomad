@@ -114,7 +114,7 @@ export default function Home() {
                     </div>
                     <div className="space-y-3">
                       <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                        {new Date(post.createdAt).toLocaleDateString("en-US", {
+                        {new Date(post.createdAt || Date.now()).toLocaleDateString("en-US", {
                           month: "long",
                           day: "numeric",
                           year: "numeric",

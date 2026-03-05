@@ -180,7 +180,7 @@ export async function registerRoutes(
   app.put(api.blog.update.path, requireAuth, async (req, res) => {
     try {
       const input = api.blog.update.input.parse(req.body);
-      const post = await storage.updateBlogPost(Number(req.params.id), input);
+      const post = await storage.updateBlogPost(req.params.id, input);
       if (!post) {
         return res.status(404).json({ message: "Blog post not found" });
       }
@@ -199,7 +199,7 @@ export async function registerRoutes(
 
   app.delete(api.blog.delete.path, requireAuth, async (req, res) => {
     try {
-      await storage.deleteBlogPost(Number(req.params.id));
+      await storage.deleteBlogPost(req.params.id);
       res.status(204).send();
     } catch (err) {
       console.error("Blog delete error:", err);
@@ -236,7 +236,7 @@ export async function registerRoutes(
 
   app.patch(api.contact.markRead.path, requireAuth, async (req, res) => {
     try {
-      const message = await storage.markContactMessageRead(Number(req.params.id), true);
+      const message = await storage.markContactMessageRead(req.params.id, true);
       if (!message) {
         return res.status(404).json({ message: "Contact message not found" });
       }
@@ -249,7 +249,7 @@ export async function registerRoutes(
 
   app.delete(api.contact.delete.path, requireAuth, async (req, res) => {
     try {
-      await storage.deleteContactMessage(Number(req.params.id));
+      await storage.deleteContactMessage(req.params.id);
       res.status(204).send();
     } catch (err) {
       console.error("Contact delete error:", err);
@@ -269,7 +269,7 @@ export async function registerRoutes(
 
   app.get(api.music.get.path, async (req, res) => {
     try {
-      const track = await storage.getMusicTrack(Number(req.params.id));
+      const track = await storage.getMusicTrack(req.params.id);
       if (!track) {
         return res.status(404).json({ message: "Music track not found" });
       }
@@ -300,7 +300,7 @@ export async function registerRoutes(
   app.put(api.music.update.path, requireAuth, async (req, res) => {
     try {
       const input = api.music.update.input.parse(req.body);
-      const track = await storage.updateMusicTrack(Number(req.params.id), input);
+      const track = await storage.updateMusicTrack(req.params.id, input);
       if (!track) {
         return res.status(404).json({ message: "Music track not found" });
       }
@@ -319,7 +319,7 @@ export async function registerRoutes(
 
   app.delete(api.music.delete.path, requireAuth, async (req, res) => {
     try {
-      await storage.deleteMusicTrack(Number(req.params.id));
+      await storage.deleteMusicTrack(req.params.id);
       res.status(204).send();
     } catch (err) {
       console.error("Music delete error:", err);
@@ -339,7 +339,7 @@ export async function registerRoutes(
 
   app.get(api.brand.get.path, async (req, res) => {
     try {
-      const item = await storage.getBrandItem(Number(req.params.id));
+      const item = await storage.getBrandItem(req.params.id);
       if (!item) {
         return res.status(404).json({ message: "Brand item not found" });
       }
@@ -370,7 +370,7 @@ export async function registerRoutes(
   app.put(api.brand.update.path, requireAuth, async (req, res) => {
     try {
       const input = api.brand.update.input.parse(req.body);
-      const item = await storage.updateBrandItem(Number(req.params.id), input);
+      const item = await storage.updateBrandItem(req.params.id, input);
       if (!item) {
         return res.status(404).json({ message: "Brand item not found" });
       }
@@ -389,7 +389,7 @@ export async function registerRoutes(
 
   app.delete(api.brand.delete.path, requireAuth, async (req, res) => {
     try {
-      await storage.deleteBrandItem(Number(req.params.id));
+      await storage.deleteBrandItem(req.params.id);
       res.status(204).send();
     } catch (err) {
       console.error("Brand delete error:", err);
@@ -409,7 +409,7 @@ export async function registerRoutes(
 
   app.get(api.memory.get.path, async (req, res) => {
     try {
-      const item = await storage.getMemoryItem(Number(req.params.id));
+      const item = await storage.getMemoryItem(req.params.id);
       if (!item) {
         return res.status(404).json({ message: "Memory item not found" });
       }
@@ -440,7 +440,7 @@ export async function registerRoutes(
   app.put(api.memory.update.path, requireAuth, async (req, res) => {
     try {
       const input = api.memory.update.input.parse(req.body);
-      const item = await storage.updateMemoryItem(Number(req.params.id), input);
+      const item = await storage.updateMemoryItem(req.params.id, input);
       if (!item) {
         return res.status(404).json({ message: "Memory item not found" });
       }
@@ -459,7 +459,7 @@ export async function registerRoutes(
 
   app.delete(api.memory.delete.path, requireAuth, async (req, res) => {
     try {
-      await storage.deleteMemoryItem(Number(req.params.id));
+      await storage.deleteMemoryItem(req.params.id);
       res.status(204).send();
     } catch (err) {
       console.error("Memory delete error:", err);

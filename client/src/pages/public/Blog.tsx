@@ -47,7 +47,7 @@ export default function Blog() {
                 <div className="lg:col-span-5 order-2 lg:order-1">
                   <div className="space-y-4">
                     <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                      {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                      {new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                     </p>
                     <Link href={`/blog/${post.slug}`}>
                       <h2 className="font-serif text-3xl lg:text-4xl font-bold group-hover:underline underline-offset-4 decoration-2 leading-tight">

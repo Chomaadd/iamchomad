@@ -5,11 +5,11 @@ import {
   insertMusicTrackSchema,
   insertBrandItemSchema,
   insertMemoryItemSchema,
-  blogPosts,
-  contactMessages,
-  musicTracks,
-  brandItems,
-  memoryItems,
+  blogPostSchema,
+  contactMessageSchema,
+  musicTrackSchema,
+  brandItemSchema,
+  memoryItemSchema,
 } from './schema';
 
 export const errorSchemas = {
@@ -41,7 +41,7 @@ export const api = {
         200: z.object({
           success: z.boolean(),
           admin: z.object({
-            id: z.number(),
+            id: z.string(),
             username: z.string(),
             name: z.string(),
             email: z.string(),
@@ -63,7 +63,7 @@ export const api = {
       path: '/api/auth/me' as const,
       responses: {
         200: z.object({
-          id: z.number(),
+          id: z.string(),
           username: z.string(),
           name: z.string(),
           email: z.string(),
@@ -77,14 +77,14 @@ export const api = {
       method: 'GET' as const,
       path: '/api/blog' as const,
       responses: {
-        200: z.array(z.custom<typeof blogPosts.$inferSelect>()),
+        200: z.array(blogPostSchema),
       },
     },
     get: {
       method: 'GET' as const,
       path: '/api/blog/:slug' as const,
       responses: {
-        200: z.custom<typeof blogPosts.$inferSelect>(),
+        200: blogPostSchema,
         404: errorSchemas.notFound,
       },
     },
@@ -93,7 +93,7 @@ export const api = {
       path: '/api/blog' as const,
       input: insertBlogPostSchema,
       responses: {
-        201: z.custom<typeof blogPosts.$inferSelect>(),
+        201: blogPostSchema,
         400: errorSchemas.validation,
         401: errorSchemas.unauthorized,
       },
@@ -103,7 +103,7 @@ export const api = {
       path: '/api/blog/:id' as const,
       input: insertBlogPostSchema.partial(),
       responses: {
-        200: z.custom<typeof blogPosts.$inferSelect>(),
+        200: blogPostSchema,
         400: errorSchemas.validation,
         401: errorSchemas.unauthorized,
         404: errorSchemas.notFound,
@@ -125,7 +125,7 @@ export const api = {
       method: 'GET' as const,
       path: '/api/contact' as const,
       responses: {
-        200: z.array(z.custom<typeof contactMessages.$inferSelect>()),
+        200: z.array(contactMessageSchema),
         401: errorSchemas.unauthorized,
       },
     },
@@ -134,7 +134,7 @@ export const api = {
       path: '/api/contact' as const,
       input: insertContactMessageSchema,
       responses: {
-        201: z.custom<typeof contactMessages.$inferSelect>(),
+        201: contactMessageSchema,
         400: errorSchemas.validation,
       },
     },
@@ -142,7 +142,7 @@ export const api = {
       method: 'PATCH' as const,
       path: '/api/contact/:id/read' as const,
       responses: {
-        200: z.custom<typeof contactMessages.$inferSelect>(),
+        200: contactMessageSchema,
         401: errorSchemas.unauthorized,
         404: errorSchemas.notFound,
       },
@@ -163,14 +163,14 @@ export const api = {
       method: 'GET' as const,
       path: '/api/music' as const,
       responses: {
-        200: z.array(z.custom<typeof musicTracks.$inferSelect>()),
+        200: z.array(musicTrackSchema),
       },
     },
     get: {
       method: 'GET' as const,
       path: '/api/music/:id' as const,
       responses: {
-        200: z.custom<typeof musicTracks.$inferSelect>(),
+        200: musicTrackSchema,
         404: errorSchemas.notFound,
       },
     },
@@ -179,7 +179,7 @@ export const api = {
       path: '/api/music' as const,
       input: insertMusicTrackSchema,
       responses: {
-        201: z.custom<typeof musicTracks.$inferSelect>(),
+        201: musicTrackSchema,
         400: errorSchemas.validation,
         401: errorSchemas.unauthorized,
       },
@@ -189,7 +189,7 @@ export const api = {
       path: '/api/music/:id' as const,
       input: insertMusicTrackSchema.partial(),
       responses: {
-        200: z.custom<typeof musicTracks.$inferSelect>(),
+        200: musicTrackSchema,
         400: errorSchemas.validation,
         401: errorSchemas.unauthorized,
         404: errorSchemas.notFound,
@@ -211,14 +211,14 @@ export const api = {
       method: 'GET' as const,
       path: '/api/memory' as const,
       responses: {
-        200: z.array(z.custom<typeof memoryItems.$inferSelect>()),
+        200: z.array(memoryItemSchema),
       },
     },
     get: {
       method: 'GET' as const,
       path: '/api/memory/:id' as const,
       responses: {
-        200: z.custom<typeof memoryItems.$inferSelect>(),
+        200: memoryItemSchema,
         404: errorSchemas.notFound,
       },
     },
@@ -227,7 +227,7 @@ export const api = {
       path: '/api/memory' as const,
       input: insertMemoryItemSchema,
       responses: {
-        201: z.custom<typeof memoryItems.$inferSelect>(),
+        201: memoryItemSchema,
         400: errorSchemas.validation,
         401: errorSchemas.unauthorized,
       },
@@ -237,7 +237,7 @@ export const api = {
       path: '/api/memory/:id' as const,
       input: insertMemoryItemSchema.partial(),
       responses: {
-        200: z.custom<typeof memoryItems.$inferSelect>(),
+        200: memoryItemSchema,
         400: errorSchemas.validation,
         401: errorSchemas.unauthorized,
         404: errorSchemas.notFound,
@@ -254,19 +254,19 @@ export const api = {
     },
   },
 
-brand: {
+  brand: {
     list: {
       method: 'GET' as const,
       path: '/api/brand' as const,
       responses: {
-        200: z.array(z.custom<typeof brandItems.$inferSelect>()),
+        200: z.array(brandItemSchema),
       },
     },
     get: {
       method: 'GET' as const,
       path: '/api/brand/:id' as const,
       responses: {
-        200: z.custom<typeof brandItems.$inferSelect>(),
+        200: brandItemSchema,
         404: errorSchemas.notFound,
       },
     },
@@ -275,7 +275,7 @@ brand: {
       path: '/api/brand' as const,
       input: insertBrandItemSchema,
       responses: {
-        201: z.custom<typeof brandItems.$inferSelect>(),
+        201: brandItemSchema,
         400: errorSchemas.validation,
         401: errorSchemas.unauthorized,
       },
@@ -285,7 +285,7 @@ brand: {
       path: '/api/brand/:id' as const,
       input: insertBrandItemSchema.partial(),
       responses: {
-        200: z.custom<typeof brandItems.$inferSelect>(),
+        200: brandItemSchema,
         400: errorSchemas.validation,
         401: errorSchemas.unauthorized,
         404: errorSchemas.notFound,

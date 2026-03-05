@@ -7,7 +7,7 @@ import { useState, useRef, useEffect } from "react";
 
 export default function Music() {
   const { data: tracks, isLoading } = useMusicTracks();
-  const [playing, setPlaying] = useState<number | null>(null);
+  const [playing, setPlaying] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {

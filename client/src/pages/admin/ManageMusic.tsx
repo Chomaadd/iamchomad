@@ -13,7 +13,7 @@ export default function ManageMusic() {
   const { toast } = useToast();
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   
   const [form, setForm] = useState({
     title: "",
@@ -93,7 +93,7 @@ export default function ManageMusic() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this track?")) {
       try {
         await deleteTrack(id);

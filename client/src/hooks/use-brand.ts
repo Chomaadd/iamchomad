@@ -32,7 +32,7 @@ export function useCreateBrandItem() {
 export function useUpdateBrandItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: BrandItemUpdateInput }) => {
+    mutationFn: async ({ id, data }: { id: string; data: BrandItemUpdateInput }) => {
       const url = buildUrl(api.brand.update.path, { id });
       const res = await fetch(url, {
         method: api.brand.update.method,
@@ -50,7 +50,7 @@ export function useUpdateBrandItem() {
 export function useDeleteBrandItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const url = buildUrl(api.brand.delete.path, { id });
       const res = await fetch(url, { method: api.brand.delete.method, credentials: "include" });
       if (!res.ok) throw new Error("Failed to delete brand item");

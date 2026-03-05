@@ -47,7 +47,7 @@ export function useCreatePost() {
 export function useUpdatePost() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...data }: { id: number } & Partial<BlogPostUpdateInput>) => {
+    mutationFn: async ({ id, ...data }: { id: string } & Partial<BlogPostUpdateInput>) => {
       const url = buildUrl(api.blog.update.path, { id });
       const res = await fetch(url, {
         method: api.blog.update.method,
@@ -68,7 +68,7 @@ export function useUpdatePost() {
 export function useDeletePost() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const url = buildUrl(api.blog.delete.path, { id });
       const res = await fetch(url, {
         method: api.blog.delete.method,

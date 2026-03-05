@@ -30,7 +30,7 @@ export default function BlogPost() {
         >
           <header className="mb-16 text-center">
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-6">
-              {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              {new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
             </p>
             <h1 className="font-serif text-4xl md:text-6xl font-bold leading-tight mb-8">
               {post.title}
@@ -47,7 +47,7 @@ export default function BlogPost() {
           )}
 
           <div className="prose prose-lg dark:prose-invert prose-p:leading-loose prose-headings:font-serif prose-headings:font-bold max-w-none">
-            {post.content.split('\n\n').map((paragraph, idx) => (
+            {post.content.split('\n\n').map((paragraph: string, idx: number) => (
               <p key={idx}>{paragraph}</p>
             ))}
           </div>
