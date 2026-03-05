@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+import { connectToDatabase } from "./db";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 
@@ -47,12 +48,7 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      log(logLine);
+      log(`${req.method} ${path} [${res.statusCode}] ${duration}ms`);
     }
   });
 
@@ -60,6 +56,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  await connectToDatabase();
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
