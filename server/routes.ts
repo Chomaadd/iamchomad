@@ -13,7 +13,7 @@ import express from 'express';
 
 declare module "express-session" {
   interface SessionData {
-    adminId?: number;
+    adminId?: string;
   }
 }
 
@@ -84,7 +84,7 @@ export async function registerRoutes(
       }
 
       const admin = {
-        id: 1,
+        id: "1",
         username: adminUsername,
         name: "Choiril Ahmad",
         email: "iamchoirilfk@gmail.com",
@@ -130,7 +130,7 @@ export async function registerRoutes(
     const adminUsername = process.env.ADMIN_USERNAME || "admin";
     
     res.json({
-      id: 1,
+      id: "1",
       username: adminUsername,
       name: "Choiril Ahmad",
       email: "iamchoirilfk@gmail.com",
