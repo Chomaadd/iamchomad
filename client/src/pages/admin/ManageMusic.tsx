@@ -52,8 +52,9 @@ export default function ManageMusic() {
       
       toast({ title: "File uploaded successfully" });
     } catch (error) {
-      toast({ title: "Upload failed", variant: "destructive" });
-    } finally {
+        console.error("Upload error:", error);
+        toast({ title: "Upload failed", variant: "destructive" });
+      } finally {
       setUploading(false);
     }
   };
@@ -81,10 +82,10 @@ export default function ManageMusic() {
     e.preventDefault();
     try {
       if (editingId) {
-        await updateTrack({ id: editingId, data: form });
+        await updateTrack({ id: editingId, data: { ...form, isAutoPlay: Boolean(form.isAutoPlay) } });
         toast({ title: "Track updated successfully." });
       } else {
-        await createTrack(form);
+        await createTrack({ ...form, isAutoPlay: Boolean(form.isAutoPlay) });
         toast({ title: "Track added successfully." });
       }
       setModalOpen(false);

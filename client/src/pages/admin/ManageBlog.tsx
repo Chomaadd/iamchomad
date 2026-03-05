@@ -45,8 +45,9 @@ export default function ManageBlog() {
       setForm(prev => ({ ...prev, imageUrl: data.url }));
       toast({ title: "Image uploaded" });
     } catch (error) {
-      toast({ title: "Upload failed", variant: "destructive" });
-    } finally {
+        console.error("Upload error:", error);
+        toast({ title: "Upload failed", variant: "destructive" });
+      } finally {
       setUploading(false);
     }
   };
@@ -91,7 +92,7 @@ export default function ManageBlog() {
         });
         toast({ title: "Entry updated successfully." });
       } else {
-        await createPost(form);
+        await createPost({ ...form, slug: form.slug.trim(), published: Boolean(form.published) });
         toast({ title: "Entry created successfully." });
       }
       setModalOpen(false);
