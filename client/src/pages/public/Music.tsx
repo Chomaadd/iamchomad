@@ -74,12 +74,11 @@ export default function Music() {
                   </button>
                   <div className="flex items-center space-x-4">
                     {track.albumArt && (
-                      <img src={track.albumArt} alt={track.title} className="w-12 h-12 object-cover border border-border grayscale group-hover:grayscale-0 transition-all" />
+                      <img src={track.albumArt} alt={track.title} className="w-12 h-12 "/>
                     )}
                     <div>
                       <h3 className="font-serif font-bold text-lg leading-tight">{track.title}</h3>
                       <p className="text-sm text-muted-foreground">{track.artist}</p>
-                      {track.duration && <p className="text-xs font-mono text-muted-foreground mt-1">{track.duration}</p>}
                     </div>
                   </div>
                 </div>

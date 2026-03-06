@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/core";
 import { usePosts } from "@/hooks/use-blog";
 
 export default function Home() {
@@ -57,7 +56,7 @@ export default function Home() {
                 className="relative hidden lg:block"
               >
                 {/* landing page hero editorial portrait */}
-                <div className="aspect-[4/5] overflow-hidden border-2 border-primary editorial-shadow bg-muted">
+                <div className="aspect-square w-64 h-64 lg:w-80 lg:h-80 mx-auto overflow-hidden rounded-full border-4 border-primary editorial-shadow bg-muted">
                   <img
                     src="/client/src/image/hiarill.jpg"
                     alt="Choiril Ahmad"
@@ -114,7 +113,7 @@ export default function Home() {
                     </div>
                     <div className="space-y-3">
                       <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                        {new Date(post.createdAt || Date.now()).toLocaleDateString("en-US", {
+                        {new Date(post.createdAt).toLocaleDateString("en-US", {
                           month: "long",
                           day: "numeric",
                           year: "numeric",
