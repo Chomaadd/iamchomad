@@ -14,64 +14,53 @@ export default function Home() {
 
       <main>
         {/* Hero Section */}
-        <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden border-b-2 border-border">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="max-w-2xl"
-              >
-                <h1 className="font-serif text-5xl sm:text-7xl font-bold tracking-tight text-balance leading-[1.1]">
-                  Choiril Ahmad <br />
-                  <span className="italic font-light text-muted-foreground text-4xl">
-                    Developer, Business man
-                  </span>
-                </h1>
-                <p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-lg">
-                  I am an independent creative director and strategist, building
-                  brands that demand attention and command respect.
-                </p>
-                <div className="mt-10 flex flex-wrap gap-4">
-                  <Link
-                    href="/brand"
-                    className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 editorial-shadow hover:translate-y-[-2px] hover:translate-x-[-2px] transition-all"
-                  >
-                    View Portfolio
-                  </Link>
-                  <Link
-                    href="/contact"
-                    className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all"
-                  >
-                    Get in Touch
-                  </Link>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="relative hidden lg:block"
-              >
-                {/* landing page hero editorial portrait */}
-                <div className="aspect-square w-64 h-64 lg:w-80 lg:h-80 mx-auto overflow-hidden rounded-full border-4 border-primary editorial-shadow bg-muted">
+        <section className="relative pt-10 pb-16 lg:pt-24 lg:pb-20 overflow-hidden border-b-2 border-border">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="flex flex-col items-center"
+            >
+              <div className="mb-8 relative">
+                <div className="w-32 h-32 lg:w-40 lg:h-40 mx-auto overflow-hidden rounded-full border-4 border-primary bg-muted flex items-center justify-center">
                   <img
                     src="/client/src/image/hiarill.jpg"
                     alt="Choiril Ahmad"
-                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                    className="w-full h-full object-cover transition-all duration-700"
                   />
                 </div>
-              </motion.div>
-            </div>
+              </div>
+
+              <h2 className="text-lg sm:text-2xl font-medium mb-3">
+                Hi I'm Choiril Ahmad
+              </h2>
+
+              <h1 className="font-serif text-5xl sm:text-7xl font-bold tracking-tight text-balance leading-[1.1] max-w-4xl mx-auto">
+                Building digital products, brands, and experience.
+              </h1>
+
+              <p className="mt-8 text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+                A Frontend Developer and Visual Designer with experience in web
+                design, brand identity and product design.
+              </p>
+
+              <div className="mt-12">
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center justify-center px-8 py-3.5 text-xs font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 transition-all rounded-full"
+                >
+                  CONNECT WITH ME
+                </Link>
+              </div>
+            </motion.div>
           </div>
         </section>
 
         {/* Featured Journal */}
         <section className="py-24">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="flex justify-between items-end mb-16 border-b-2 border-border pb-8">
+            <div className="flex justify-between items-end mb-16 pb-8">
               <div>
                 <h2 className="font-serif text-4xl font-bold">Latest Blog</h2>
                 <p className="text-muted-foreground mt-2">
