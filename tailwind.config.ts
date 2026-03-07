@@ -2,13 +2,28 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
+  content: ["./index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       borderRadius: {
-        lg: ".5625rem", /* 9px */
-        md: ".375rem", /* 6px */
-        sm: ".1875rem", /* 3px */
+        lg: ".5625rem" /* 9px */,
+        md: ".375rem" /* 6px */,
+        sm: ".1875rem" /* 3px */,
+      },
+      fontSize: {
+        xs: ".75rem", // 12px
+        xtiny: ".8125rem", // 13px
+        tiny: ".875rem", // 14px
+        base: "1rem", // 16px
+        lg: "1.125rem", // 18px
+        xl: "1.25rem", // 20px
+        "2xl": "1.375rem", // 22px
+        "3xl": "1.5rem", // 24px
+        "4xl": "1.5625rem", // 25px
+        "5xl": "1.625rem", // 26px
+        "6xl": "1.75rem", // 28px
+        "7xl": "2.5rem", // 40px
+        "8xl": "6rem", // 40px
       },
       colors: {
         // Flat / base colors (regular buttons)
@@ -73,7 +88,7 @@ export default {
         "sidebar-accent": {
           DEFAULT: "hsl(var(--sidebar-accent) / <alpha-value>)",
           foreground: "hsl(var(--sidebar-accent-foreground) / <alpha-value>)",
-          border: "var(--sidebar-accent-border)"
+          border: "var(--sidebar-accent-border)",
         },
         status: {
           online: "rgb(34 197 94)",
@@ -100,6 +115,11 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        textFadeIn: 'textFadeIn 400ms ease-in',
+          textFadeOut: 'textFadeOut 400ms ease-in',
+          wiggle: 'wiggle 1s ease infinite', 
+          'spin-slow': 'spin 6s linear infinite',
+          'ping-slow': 'ping 6s linear infinite',
       },
     },
   },

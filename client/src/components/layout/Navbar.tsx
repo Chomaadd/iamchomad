@@ -20,7 +20,7 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b-2 border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto flex h-20 items-center justify-between px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
           <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain dark:invert" onError={(e) => e.currentTarget.style.display='none'} />
@@ -61,7 +61,7 @@ export function Navbar() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden border-b-2 border-border bg-background overflow-hidden"
+            className="md:hidden bg-background overflow-hidden"
           >
             <div className="flex flex-col px-6 py-4 space-y-4">
               {links.map((link) => (

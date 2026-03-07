@@ -2,7 +2,7 @@ import { Github, Linkedin, Instagram, Mail, Send } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="bg-black text-zinc-400 py-10 mt-20 border-t border-zinc-800">
+    <footer className="bg-background text-zinc-400 py-10">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6 text-sm font-medium">
         <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3">
           <span>&copy; {new Date().getFullYear()}</span>
