@@ -29,8 +29,9 @@ export function useAuth() {
       }
       return api.auth.login.responses[200].parse(await res.json());
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [api.auth.me.path] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [api.auth.me.path] });
+      await queryClient.refetchQueries({ queryKey: [api.auth.me.path] });
     },
   });
 
