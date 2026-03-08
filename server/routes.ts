@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import type { Server } from "http";
 import session from "express-session";
+import MongoStore from "connect-mongo";
+import mongoose from "mongoose";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { log } from "./index";
@@ -21,13 +23,27 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // Configure session store - use MongoDB in production, memory store in development
+  let store: session.Store;
+  if (process.env.NODE_ENV === "production") {
+    const mongoUrl = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/portfolio';
+    store = new MongoStore({
+      mongoUrl: mongoUrl,
+      touchAfter: 24 * 3600, // lazy session update
+    });
+  } else {
+    // Use default MemoryStore for development
+    store = new session.MemoryStore();
+  }
+
   app.use(
     session({
+      store: store,
       secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
       resave: false,
       saveUninitialized: false,
       cookie: {
-        secure: false,
+        secure: process.env.NODE_ENV === "production", // Use secure cookies only in production
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 7,
       },
