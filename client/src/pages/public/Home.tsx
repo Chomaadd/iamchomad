@@ -60,7 +60,7 @@ export default function Home() {
         {/* Featured Journal */}
         <section className="py-24">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="flex justify-between items-end mb-16 pb-8">
+            <div className="flex justify-between items-end mb-16 border-b-2 border-border pb-8">
               <div>
                 <h2 className="font-serif text-4xl font-bold">Latest Blog</h2>
                 <p className="text-muted-foreground mt-2">
