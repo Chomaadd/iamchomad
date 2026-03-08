@@ -212,7 +212,7 @@ import mongoose from 'mongoose';
 
     async getMemoryItems(): Promise<MemoryItem[]> {
       const items = await MemoryItemModel.find().sort({ createdAt: 1 });
-      return items.map(i => mapId<BrandItem>(i));
+      return items.map(i => mapId<MemoryItem>(i));
     }
 
     async getMemoryItem(id: string): Promise<MemoryItem | undefined> {

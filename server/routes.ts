@@ -101,9 +101,12 @@ export async function registerRoutes(
         if (isAudio) {
           try {
             const durationSeconds = await duration(filePath);
-            // Convert seconds to milliseconds
-            fileDuration = Math.round(durationSeconds * 1000);
-            console.log(`Extracted duration ${fileDuration}ms from ${req.file.filename}`);
+            // Convert seconds to formatted string "M:SS"
+            const totalSeconds = Math.round(durationSeconds);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            fileDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            console.log(`Extracted duration ${fileDuration} from ${req.file.filename}`);
           } catch (durationError) {
             console.log(`Could not extract duration from ${req.file.filename}:`, durationError);
             fileDuration = null;

@@ -86,7 +86,7 @@ export default function Home() {
                   transition={{ delay: i * 0.1 }}
                   className="group cursor-pointer"
                 >
-                  <Link href={`/blog/${post.id}`} className="block">
+                  <Link href={`/blog/${post.slug}`} className="block">
                     <div className="aspect-[3/2] mb-6 overflow-hidden border-2 border-border group-hover:border-primary transition-colors">
                       {post.imageUrl ? (
                         <img

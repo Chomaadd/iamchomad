@@ -38,6 +38,7 @@ export default function ManageMusic() {
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
@@ -164,6 +165,10 @@ export default function ManageMusic() {
             <Label>Album Art</Label>
             <Input type="file" accept="image/*" onChange={e => handleFileUpload(e, "albumArt")} />
             <Input value={form.albumArt} onChange={e => setForm({...form, albumArt: e.target.value})} placeholder="Or enter URL" />
+          </div>
+          <div>
+            <Label>Duration</Label>
+            <Input value={form.duration} onChange={e => setForm({...form, duration: e.target.value})} placeholder="Auto-detected or enter manually (e.g. 3:45)" />
           </div>
           <div className="flex items-center space-x-2">
             <input type="checkbox" id="autoplay" checked={form.isAutoPlay} onChange={e => setForm({...form, isAutoPlay: e.target.checked})} className="w-4 h-4" />

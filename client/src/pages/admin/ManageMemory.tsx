@@ -38,6 +38,7 @@ export default function ManageMemory() {
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
