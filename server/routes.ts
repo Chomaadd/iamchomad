@@ -100,7 +100,7 @@ export async function registerRoutes(
         
         if (isAudio) {
           try {
-            const durationSeconds = await duration(fs.createReadStream(filePath));
+            const durationSeconds = await duration(filePath);
             // Convert seconds to milliseconds
             fileDuration = Math.round(durationSeconds * 1000);
             console.log(`Extracted duration ${fileDuration}ms from ${req.file.filename}`);
