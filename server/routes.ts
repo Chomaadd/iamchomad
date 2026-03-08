@@ -1,7 +1,6 @@
 import type { Express } from "express";
 import type { Server } from "http";
 import session from "express-session";
-import MongoStore from "connect-mongo";
 import mongoose from "mongoose";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
@@ -23,14 +22,22 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // Configure session store - use MongoDB in production, memory store in development
+  // Configure session store - use MongoDB in production, memory store in development/fallback
   let store: session.Store;
   if (process.env.NODE_ENV === "production") {
-    const mongoUrl = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/portfolio';
-    store = new MongoStore({
-      mongoUrl: mongoUrl,
-      touchAfter: 24 * 3600, // lazy session update
-    });
+    try {
+      const mongoUrl = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/portfolio';
+      const connectMongo = require("connect-mongo");
+      const MongoStore = connectMongo.default || connectMongo;
+      store = new MongoStore({
+        mongoUrl: mongoUrl,
+        touchAfter: 24 * 3600, // lazy session update
+      });
+      log("Using MongoDB session store", "express");
+    } catch (error) {
+      log(`Failed to initialize MongoDB store: ${error}, falling back to MemoryStore`, "express");
+      store = new session.MemoryStore();
+    }
   } else {
     // Use default MemoryStore for development
     store = new session.MemoryStore();
