@@ -25,7 +25,7 @@ export default function Home() {
               <div className="mb-8 relative">
                 <div className="w-32 h-32 lg:w-40 lg:h-40 mx-auto overflow-hidden rounded-full border-4 border-primary bg-muted flex items-center justify-center">
                   <img
-                    src="/client/src/image/hiarill.jpg"
+                    src="/image/hiarill.jpg"
                     alt="Choiril Ahmad"
                     className="w-full h-full object-cover transition-all duration-700"
                   />
