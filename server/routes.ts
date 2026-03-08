@@ -11,6 +11,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import express from 'express';
+import duration from 'mp3-duration';
 
 declare module "express-session" {
   interface SessionData {
@@ -82,13 +83,28 @@ export async function registerRoutes(
 
   const upload = multer({ storage: storageConfig });
 
-  app.post('/api/upload', requireAuth, upload.single('file'), (req: any, res: any) => {
+  app.post('/api/upload', requireAuth, upload.single('file'), async (req: any, res: any) => {
       try {
         if (!req.file) {
           return res.status(400).json({ message: 'No file uploaded' });
         }
         const url = `/uploads/${req.file.filename}`;
-        res.json({ url, duration: null });
+        const filePath = path.join(uploadDir, req.file.filename);
+        
+        let fileDuration = null;
+        // Try to extract duration for audio files
+        if (req.file.mimetype.includes('audio') || req.file.filename.endsWith('.mp3')) {
+          try {
+            fileDuration = await duration(fs.createReadStream(filePath));
+            // Convert seconds to milliseconds
+            fileDuration = Math.round(fileDuration * 1000);
+          } catch (durationError) {
+            console.log("Could not extract duration:", durationError);
+            fileDuration = null;
+          }
+        }
+        
+        res.json({ url, duration: fileDuration });
       } catch (err) {
         console.error("Upload route error:", err);
         res.status(500).json({ message: "Internal server error during upload" });
