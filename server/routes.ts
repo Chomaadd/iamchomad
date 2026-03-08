@@ -92,22 +92,28 @@ export async function registerRoutes(
         const filePath = path.join(uploadDir, req.file.filename);
         
         let fileDuration = null;
-        // Try to extract duration for audio files
-        if (req.file.mimetype.includes('audio') || req.file.filename.endsWith('.mp3')) {
+        // Try to extract duration for audio files only
+        const isAudio = req.file.mimetype?.includes('audio') || 
+                       req.file.filename?.toLowerCase().endsWith('.mp3') ||
+                       req.file.filename?.toLowerCase().endsWith('.wav') ||
+                       req.file.filename?.toLowerCase().endsWith('.m4a');
+        
+        if (isAudio) {
           try {
-            fileDuration = await duration(fs.createReadStream(filePath));
+            const durationSeconds = await duration(fs.createReadStream(filePath));
             // Convert seconds to milliseconds
-            fileDuration = Math.round(fileDuration * 1000);
+            fileDuration = Math.round(durationSeconds * 1000);
+            console.log(`Extracted duration ${fileDuration}ms from ${req.file.filename}`);
           } catch (durationError) {
-            console.log("Could not extract duration:", durationError);
+            console.log(`Could not extract duration from ${req.file.filename}:`, durationError);
             fileDuration = null;
           }
         }
         
-        res.json({ url, duration: fileDuration });
+        return res.json({ url, duration: fileDuration });
       } catch (err) {
         console.error("Upload route error:", err);
-        res.status(500).json({ message: "Internal server error during upload" });
+        return res.status(500).json({ message: "Internal server error during upload" });
       }
     });
 
