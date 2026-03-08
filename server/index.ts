@@ -55,11 +55,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Healthcheck endpoint - must return 200 immediately
-app.get("/", (req, res) => {
-  res.status(200).json({ status: "ok" });
-});
-
 // Start the server immediately so healthchecks work
 const port = parseInt(process.env.PORT || "5000", 10);
 httpServer.listen(
