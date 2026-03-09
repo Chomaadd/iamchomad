@@ -55,6 +55,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// Temporary healthcheck handler that responds 200 while app initializes
+let appReady = false;
+const healthcheckMiddleware = (_req: Request, res: Response, next: NextFunction) => {
+  if (!appReady && _req.path === "/") {
+    return res.status(200).send("OK");
+  }
+  next();
+};
+app.use(healthcheckMiddleware);
+
 // Start the server immediately so healthchecks work
 const port = parseInt(process.env.PORT || "5000", 10);
 httpServer.listen(
@@ -97,6 +107,7 @@ httpServer.listen(
       await setupVite(httpServer, app);
     }
 
+    appReady = true;
     log("Database and routes initialized successfully");
   } catch (error) {
     log(`Initialization error: ${error}`, "express");
