@@ -17,7 +17,6 @@ export default function Home() {
         <section className="relative pt-16 pb-20 lg:pt-28 lg:pb-28 overflow-hidden">
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full bg-violet-500/5 blur-3xl" />
           </div>
 
           <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center relative z-10">
