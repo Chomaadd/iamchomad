@@ -16,6 +16,7 @@ import { parseBuffer } from 'music-metadata';
 declare module "express-session" {
   interface SessionData {
     adminId?: string;
+    memoryUnlocked?: boolean;
   }
 }
 
@@ -468,7 +469,34 @@ export async function registerRoutes(
     }
   });
   
-  app.get(api.memory.list.path, async (_req, res) => {
+  app.post('/api/memory/verify', (req, res) => {
+    const { password } = req.body;
+    const memoryPassword = process.env.MEMORY_PASSWORD;
+
+    if (!memoryPassword) {
+      return res.status(500).json({ message: "Memory password not configured" });
+    }
+
+    if (password === memoryPassword) {
+      req.session.memoryUnlocked = true;
+      return res.json({ success: true });
+    }
+
+    return res.status(401).json({ message: "Incorrect password" });
+  });
+
+  app.get('/api/memory/status', (req, res) => {
+    res.json({ unlocked: !!req.session.memoryUnlocked || !!req.session.adminId });
+  });
+
+  const requireMemoryAccess = (req: any, res: any, next: any) => {
+    if (!req.session.memoryUnlocked && !req.session.adminId) {
+      return res.status(401).json({ message: "Memory access denied" });
+    }
+    next();
+  };
+
+  app.get(api.memory.list.path, requireMemoryAccess, async (_req, res) => {
     try {
       const items = await storage.getMemoryItems();
       res.json(items);
@@ -478,7 +506,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get(api.memory.get.path, async (req, res) => {
+  app.get(api.memory.get.path, requireMemoryAccess, async (req, res) => {
     try {
       const item = await storage.getMemoryItem(req.params.id);
       if (!item) {

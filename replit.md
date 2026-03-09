@@ -9,7 +9,7 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 - **About** (`/about`) - Personal information and professional background
 - **Blog** (`/blog`) - Article listing with slug-based URLs (`/blog/:slug`)
 - **Brand** (`/brand`) - Showcase of brand items and projects
-- **Memory** (`/memory`) - Memory/gallery page
+- **Memory** (`/memory`) - Password-protected memory/gallery page (requires `MEMORY_PASSWORD` to view)
 - **Music** (`/music`) - Music collection player with auto-play support
 - **Resume** (`/resume`) - Professional CV/resume with experience, education, skills sections and print/PDF support
 - **Contact** (`/contact`) - Working contact form for visitor messages
@@ -86,12 +86,18 @@ Credentials are configured via environment secrets:
 - `PUT /api/music/:id` - Update track (auth required)
 - `DELETE /api/music/:id` - Delete track (auth required)
 
-### Brand, Memory & Resume (same CRUD pattern)
-- `GET /api/brand` / `GET /api/memory` / `GET /api/resume` - List items
-- `GET /api/brand/:id` / `GET /api/memory/:id` / `GET /api/resume/:id` - Get item
-- `POST /api/brand` / `POST /api/memory` / `POST /api/resume` - Create (auth required)
-- `PUT /api/brand/:id` / `PUT /api/memory/:id` / `PUT /api/resume/:id` - Update (auth required)
-- `DELETE /api/brand/:id` / `DELETE /api/memory/:id` / `DELETE /api/resume/:id` - Delete (auth required)
+### Brand & Resume (same CRUD pattern)
+- `GET /api/brand` / `GET /api/resume` - List items
+- `GET /api/brand/:id` / `GET /api/resume/:id` - Get item
+- `POST /api/brand` / `POST /api/resume` - Create (auth required)
+- `PUT /api/brand/:id` / `PUT /api/resume/:id` - Update (auth required)
+- `DELETE /api/brand/:id` / `DELETE /api/resume/:id` - Delete (auth required)
+
+### Memory (password-protected)
+- `POST /api/memory/verify` - Verify memory password (stores unlock in session)
+- `GET /api/memory/status` - Check if memory is unlocked for current session
+- `GET /api/memory` / `GET /api/memory/:id` - List/get items (requires memory password or admin session)
+- `POST /api/memory` / `PUT /api/memory/:id` / `DELETE /api/memory/:id` - CRUD (admin auth required)
 
 ### File Upload
 - `POST /api/upload` - Upload file (auth required, returns URL and duration for audio)
@@ -101,6 +107,7 @@ Credentials are configured via environment secrets:
 - `SESSION_SECRET` - Session encryption secret
 - `ADMIN_USERNAME` - Admin login username
 - `ADMIN_PASSWORD` - Admin login password
+- `MEMORY_PASSWORD` - Password to unlock the Memory page (changeable via Secrets)
 - `PORT` - Server port (default: 5000)
 
 ## Development

@@ -1,11 +1,137 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useMemoryItems } from "@/hooks/use-memory";
-import { Loader2, ArrowUpRight, Camera } from "lucide-react";
+import { Loader2, ArrowUpRight, Camera, Lock, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+
+function useMemoryStatus() {
+  return useQuery<{ unlocked: boolean }>({
+    queryKey: ["/api/memory/status"],
+  });
+}
 
 export default function Memory() {
-  const { data: items, isLoading } = useMemoryItems();
+  const { data: status, isLoading: statusLoading } = useMemoryStatus();
+  const isUnlocked = status?.unlocked === true;
+  const { data: items, isLoading: itemsLoading } = useMemoryItems(isUnlocked);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+
+  const verifyMutation = useMutation({
+    mutationFn: async (pwd: string) => {
+      const res = await apiRequest("POST", "/api/memory/verify", { password: pwd });
+      return res.json();
+    },
+    onSuccess: () => {
+      setError("");
+      setPassword("");
+      queryClient.invalidateQueries({ queryKey: ["/api/memory/status"] });
+    },
+    onError: () => {
+      setError("Incorrect password. Please try again.");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!password.trim()) return;
+    setError("");
+    verifyMutation.mutate(password);
+  };
+
+  if (statusLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="flex justify-center items-center py-48">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!isUnlocked) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+
+        <main className="max-w-md mx-auto px-6 py-24 lg:py-32">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <Lock size={36} className="text-primary" />
+            </div>
+
+            <h1 className="font-serif text-3xl md:text-4xl font-bold mb-3" data-testid="text-memory-locked">
+              Protected Memories
+            </h1>
+            <p className="text-muted-foreground mb-8">
+              This page is private. Enter the password to view these memories.
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                  placeholder="Enter password"
+                  className="w-full px-4 py-3 pr-12 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                  autoFocus
+                  data-testid="input-memory-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                  data-testid="button-toggle-password"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+
+              {error && (
+                <motion.p
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-sm text-destructive font-medium"
+                  data-testid="text-password-error"
+                >
+                  {error}
+                </motion.p>
+              )}
+
+              <button
+                type="submit"
+                disabled={verifyMutation.isPending || !password.trim()}
+                className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                data-testid="button-unlock-memory"
+              >
+                {verifyMutation.isPending ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <>
+                    <ShieldCheck size={18} />
+                    Unlock Memories
+                  </>
+                )}
+              </button>
+            </form>
+          </motion.div>
+        </main>
+
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -28,7 +154,7 @@ export default function Memory() {
           </p>
         </motion.header>
 
-        {isLoading ? (
+        {itemsLoading ? (
           <div className="flex justify-center py-32">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>

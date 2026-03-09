@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, buildUrl, type MemoryItemInput, type MemoryItemUpdateInput } from "@shared/routes";
 
-export function useMemoryItems() {
+export function useMemoryItems(enabled: boolean = true) {
   return useQuery({
     queryKey: [api.memory.list.path],
     queryFn: async () => {
@@ -9,6 +9,7 @@ export function useMemoryItems() {
       if (!res.ok) throw new Error("Failed to fetch memory items");
       return api.memory.list.responses[200].parse(await res.json());
     },
+    enabled,
   });
 }
 
