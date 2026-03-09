@@ -46,7 +46,7 @@ Credentials are configured via environment secrets:
 - **MongoDB** with Mongoose ODM
 - Session-based authentication (express-session + connect-mongo)
 - Multer for file uploads
-- mp3-duration for audio duration extraction
+- music-metadata for audio duration extraction
 - RESTful API design
 
 ### Data Collections (MongoDB)

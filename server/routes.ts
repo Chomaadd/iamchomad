@@ -11,7 +11,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import express from 'express';
-import duration from 'mp3-duration';
+import { parseBuffer } from 'music-metadata';
 
 declare module "express-session" {
   interface SessionData {
@@ -91,28 +91,25 @@ export async function registerRoutes(
     limits: { fileSize: 50 * 1024 * 1024 },
   });
 
-  function extractDurationWithTimeout(filePath: string, timeoutMs = 8000): Promise<string | null> {
-    return new Promise((resolve) => {
-      const timer = setTimeout(() => {
-        console.log(`Duration extraction timed out for ${filePath}`);
-        resolve(null);
-      }, timeoutMs);
-
-      duration(filePath, (err: any, durationSeconds: number) => {
-        clearTimeout(timer);
-        if (err || !durationSeconds || !isFinite(durationSeconds) || isNaN(durationSeconds) || durationSeconds <= 0) {
-          console.log(`Could not extract valid duration: ${err?.message || durationSeconds}`);
-          resolve(null);
-          return;
-        }
-        const totalSeconds = Math.round(durationSeconds);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        const formatted = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        console.log(`Extracted duration ${formatted} from ${path.basename(filePath)}`);
-        resolve(formatted);
-      });
-    });
+  async function extractDuration(filePath: string): Promise<string | null> {
+    try {
+      const buf = await fs.promises.readFile(filePath);
+      const metadata = await parseBuffer(buf);
+      const durationSeconds = metadata.format.duration;
+      if (!durationSeconds || !isFinite(durationSeconds) || isNaN(durationSeconds) || durationSeconds <= 0) {
+        console.log(`No valid duration found for ${path.basename(filePath)}`);
+        return null;
+      }
+      const totalSeconds = Math.round(durationSeconds);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      const formatted = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      console.log(`Duration ${formatted} from ${path.basename(filePath)}`);
+      return formatted;
+    } catch (err: any) {
+      console.log(`Duration extraction error for ${path.basename(filePath)}: ${err?.message}`);
+      return null;
+    }
   }
 
   app.post('/api/upload', requireAuth, upload.single('file'), async (req: any, res: any) => {
@@ -130,7 +127,7 @@ export async function registerRoutes(
                        req.file.filename?.toLowerCase().endsWith('.m4a');
         
         if (isAudio) {
-          fileDuration = await extractDurationWithTimeout(filePath);
+          fileDuration = await extractDuration(filePath);
         }
         
         return res.json({ url, duration: fileDuration });
