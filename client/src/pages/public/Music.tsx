@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useMusicTracks } from "@/hooks/use-music";
-import { Loader2, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Loader2, Play, Pause, Music2, Headphones } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 export default function Music() {
@@ -33,62 +33,83 @@ export default function Music() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <audio ref={audioRef} onEnded={() => setPlaying(null)} />
-      
-      <main className="max-w-4xl mx-auto px-6 lg:px-8 py-24">
-        <header className="mb-20 border-b-2 border-border pb-12 text-center">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="font-serif text-6xl md:text-8xl font-bold"
-          >
-            Soundscapes.
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-xl text-muted-foreground mt-6 mx-auto max-w-2xl"
-          >
+
+      <main className="max-w-4xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
+        <motion.header
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-14 text-center"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider">
+            <Headphones size={14} /> Music
+          </div>
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold" data-testid="text-music-heading">
+            Soundscapes
+          </h1>
+          <p className="text-lg text-muted-foreground mt-3 mx-auto max-w-2xl">
             Choiril Ahmad's favorite that he listens to all the time.
-          </motion.p>
-        </header>
+          </p>
+        </motion.header>
 
         {isLoading ? (
-          <div className="flex justify-center py-32"><Loader2 className="w-8 h-8 animate-spin" /></div>
+          <div className="flex justify-center py-32"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
         ) : (
-          <div className="space-y-4">
-            {tracks?.map((track, i) => (
-              <motion.div 
-                key={track.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className="flex items-center justify-between p-4 border-2 border-border hover:border-primary transition-colors bg-card group"
-              >
-                <div className="flex items-center space-x-6">
-                  <button 
-                    onClick={() => setPlaying(playing === track.id ? null : track.id)}
-                    className="w-12 h-12 flex items-center justify-center rounded-full bg-primary text-primary-foreground hover:scale-105 transition-transform"
+          <div className="space-y-3">
+            {tracks?.map((track, i) => {
+              const isPlaying = playing === track.id;
+              return (
+                <motion.div
+                  key={track.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className={`flex items-center gap-4 p-4 rounded-xl border transition-all duration-200 ${
+                    isPlaying
+                      ? "bg-primary/5 border-primary/30 soft-shadow"
+                      : "bg-card border-border/60 hover:border-border hover:bg-accent/50"
+                  }`}
+                  data-testid={`card-track-${track.id}`}
+                >
+                  <button
+                    onClick={() => setPlaying(isPlaying ? null : track.id)}
+                    className={`w-11 h-11 flex items-center justify-center rounded-full shrink-0 transition-all ${
+                      isPlaying
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                        : "bg-accent text-foreground hover:bg-primary hover:text-primary-foreground"
+                    }`}
+                    data-testid={`button-play-${track.id}`}
                   >
-                    {playing === track.id ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
+                    {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
                   </button>
-                  <div className="flex items-center space-x-4">
-                    {track.albumArt && (
-                      <img src={track.albumArt} alt={track.title} className="w-12 h-12 "/>
+
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    {track.albumArt ? (
+                      <img src={track.albumArt} alt={track.title} className="w-11 h-11 rounded-lg object-cover shrink-0" />
+                    ) : (
+                      <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-primary/10 to-violet-500/10 flex items-center justify-center shrink-0">
+                        <Music2 size={18} className="text-primary/50" />
+                      </div>
                     )}
-                    <div>
-                      <h3 className="font-serif font-bold text-lg leading-tight">{track.title}</h3>
-                      <p className="text-sm text-muted-foreground">{track.artist}</p>
+                    <div className="min-w-0">
+                      <h3 className={`font-semibold text-sm leading-tight truncate ${isPlaying ? "text-primary" : ""}`}>{track.title}</h3>
+                      <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
                     </div>
                   </div>
-                </div>
-                <div className="text-sm font-mono text-muted-foreground">
-                  {track.duration || "—"}
-                </div>
-              </motion.div>
-            ))}
+
+                  <span className="text-xs font-mono text-muted-foreground shrink-0 tabular-nums">
+                    {track.duration || "—"}
+                  </span>
+                </motion.div>
+              );
+            })}
             {tracks?.length === 0 && (
-              <div className="text-center py-24 text-muted-foreground font-serif italic">No tracks uploaded yet.</div>
+              <div className="text-center py-24 bg-card border border-dashed border-border rounded-2xl">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Music2 size={28} className="text-primary" />
+                </div>
+                <p className="font-serif text-xl font-bold">No tracks yet</p>
+                <p className="text-sm text-muted-foreground mt-2">Check back soon.</p>
+              </div>
             )}
           </div>
         )}

@@ -17,13 +17,16 @@ export default function BlogPost() {
 
   const { data: post, isLoading } = usePost(slug);
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!post) return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       <div className="flex-1 flex flex-col items-center justify-center px-6">
-        <p className="font-serif text-2xl mb-4">Article not found</p>
-        <Link href="/blog" className="text-sm font-medium text-primary hover:underline">Return to Blog</Link>
+        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+          <span className="font-serif text-2xl text-primary">?</span>
+        </div>
+        <p className="font-serif text-2xl font-bold mb-2">Article not found</p>
+        <Link href="/blog" className="text-sm font-semibold text-primary hover:underline" data-testid="link-back-blog">Return to Blog</Link>
       </div>
       <Footer />
     </div>
@@ -33,8 +36,8 @@ export default function BlogPost() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto px-6 lg:px-8 py-16">
-        <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary mb-10 transition-colors" data-testid="link-back-to-blog">
+      <main className="max-w-3xl mx-auto px-6 lg:px-8 py-12 lg:py-16">
+        <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary mb-8 transition-colors" data-testid="link-back-to-blog">
           <ArrowLeft size={16} /> Back to Blog
         </Link>
 
@@ -42,28 +45,27 @@ export default function BlogPost() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <header className="mb-12">
-            <div className="flex items-center gap-3 text-xs text-muted-foreground mb-5">
-              <span className="flex items-center gap-1.5">
+          <header className="mb-10">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent">
                 <Calendar size={13} />
                 {new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
               </span>
-              <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
-              <span className="flex items-center gap-1.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent">
                 <Clock size={13} />
                 {estimateReadTime(post.content)} min read
               </span>
             </div>
-            <h1 className="font-serif text-3xl md:text-5xl font-bold leading-tight mb-5" data-testid="text-post-title">
+            <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4" data-testid="text-post-title">
               {post.title}
             </h1>
-            <p className="text-lg text-muted-foreground italic leading-relaxed">
+            <p className="text-lg text-muted-foreground leading-relaxed">
               {post.excerpt}
             </p>
           </header>
 
           {post.imageUrl && (
-            <div className="mb-12 rounded-xl overflow-hidden border border-border aspect-video bg-muted">
+            <div className="mb-10 rounded-2xl overflow-hidden soft-shadow-lg aspect-video bg-muted">
               <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
             </div>
           )}
@@ -88,8 +90,8 @@ export default function BlogPost() {
             })}
           </div>
 
-          <div className="mt-16 pt-8 border-t border-border">
-            <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+          <div className="mt-14 pt-8 border-t border-border/50">
+            <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all">
               <ArrowLeft size={16} /> More articles
             </Link>
           </div>
