@@ -2,65 +2,128 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { usePosts } from "@/hooks/use-blog";
 import { useContactMessages } from "@/hooks/use-contact";
 import { useBrandItems } from "@/hooks/use-brand";
-import { FileText, Mail, Image } from "lucide-react";
+import { useMusicTracks } from "@/hooks/use-music";
+import { useMemoryItems } from "@/hooks/use-memory";
+import { FileText, Mail, Image, Music, Camera, TrendingUp, Clock } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Dashboard() {
   const { data: posts } = usePosts();
   const { data: messages } = useContactMessages();
   const { data: brands } = useBrandItems();
+  const { data: tracks } = useMusicTracks();
+  const { data: memories } = useMemoryItems();
 
   const unreadMessages = messages?.filter(m => !m.read).length || 0;
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
+
+  const stats = [
+    { label: "Journal Entries", value: posts?.length || 0, icon: FileText, href: "/admin/blog", color: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
+    { label: "Inquiries", value: messages?.length || 0, icon: Mail, href: "/admin/messages", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400", badge: unreadMessages > 0 ? `${unreadMessages} new` : undefined },
+    { label: "Brand Assets", value: brands?.length || 0, icon: Image, href: "/admin/brand", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+    { label: "Music Tracks", value: tracks?.length || 0, icon: Music, href: "/admin/music", color: "bg-purple-500/10 text-purple-600 dark:text-purple-400" },
+    { label: "Memories", value: memories?.length || 0, icon: Camera, href: "/admin/memory", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
+  ];
+
+  const recentMessages = messages?.slice(0, 3) || [];
+
   return (
     <AdminLayout>
-      <div className="space-y-8">
+      <div className="space-y-8" data-testid="admin-dashboard">
         <div>
-          <h1 className="text-4xl font-serif font-bold">System Overview</h1>
-          <p className="text-muted-foreground mt-2">Welcome to your operational dashboard.</p>
+          <p className="text-sm text-muted-foreground mb-1">{greeting},</p>
+          <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">System Overview</h1>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Stat Card 1 */}
-          <div className="border-2 border-border p-6 bg-card flex flex-col justify-between">
-            <div className="flex justify-between items-start mb-8">
-              <div className="p-3 bg-primary text-primary-foreground">
-                <FileText size={24} />
-              </div>
-            </div>
-            <div>
-              <p className="text-5xl font-serif font-bold">{posts?.length || 0}</p>
-              <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground mt-2">Total Journal Entries</p>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {stats.map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <Link
+                key={stat.label}
+                href={stat.href}
+                className="group relative border border-border rounded-lg p-5 bg-card hover:border-primary/40 hover:shadow-md transition-all duration-300"
+                data-testid={`stat-card-${stat.label.toLowerCase().replace(/\s/g, '-')}`}
+              >
+                {stat.badge && (
+                  <span className="absolute top-3 right-3 px-2 py-0.5 bg-destructive text-destructive-foreground text-[10px] font-bold uppercase tracking-wider rounded-full">
+                    {stat.badge}
+                  </span>
+                )}
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-4 ${stat.color}`}>
+                  <Icon size={20} />
+                </div>
+                <p className="text-3xl font-serif font-bold tracking-tight">{stat.value}</p>
+                <p className="text-xs font-medium text-muted-foreground mt-1 uppercase tracking-wider">{stat.label}</p>
+                <TrendingUp size={14} className="absolute bottom-4 right-4 text-muted-foreground/30 group-hover:text-primary/50 transition-colors" />
+              </Link>
+            );
+          })}
+        </div>
 
-          {/* Stat Card 2 */}
-          <div className="border-2 border-primary p-6 bg-card flex flex-col justify-between editorial-shadow-sm">
-            <div className="flex justify-between items-start mb-8">
-              <div className="p-3 bg-primary text-primary-foreground">
-                <Mail size={24} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="border border-border rounded-lg bg-card overflow-hidden">
+            <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Mail size={16} className="text-muted-foreground" />
+                <h2 className="font-semibold text-sm">Recent Messages</h2>
               </div>
-              {unreadMessages > 0 && (
-                <span className="px-3 py-1 bg-destructive text-destructive-foreground text-xs font-bold uppercase tracking-widest rounded-full animate-pulse">
-                  {unreadMessages} Unread
-                </span>
+              <Link href="/admin/messages" className="text-xs text-muted-foreground hover:text-primary transition-colors font-medium">
+                View all
+              </Link>
+            </div>
+            <div className="divide-y divide-border">
+              {recentMessages.length > 0 ? recentMessages.map(msg => (
+                <div key={msg.id} className="px-5 py-4 hover:bg-muted/30 transition-colors">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">{msg.subject}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{msg.name} &middot; {msg.email}</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {!msg.read && <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />}
+                      <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                        {new Date(msg.createdAt || Date.now()).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )) : (
+                <div className="px-5 py-8 text-center text-sm text-muted-foreground italic">No messages yet</div>
               )}
             </div>
-            <div>
-              <p className="text-5xl font-serif font-bold">{messages?.length || 0}</p>
-              <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground mt-2">Total Inquiries</p>
-            </div>
           </div>
 
-          {/* Stat Card 3 */}
-          <div className="border-2 border-border p-6 bg-card flex flex-col justify-between">
-            <div className="flex justify-between items-start mb-8">
-              <div className="p-3 bg-primary text-primary-foreground">
-                <Image size={24} />
+          <div className="border border-border rounded-lg bg-card overflow-hidden">
+            <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock size={16} className="text-muted-foreground" />
+                <h2 className="font-semibold text-sm">Recent Posts</h2>
               </div>
+              <Link href="/admin/blog" className="text-xs text-muted-foreground hover:text-primary transition-colors font-medium">
+                View all
+              </Link>
             </div>
-            <div>
-              <p className="text-5xl font-serif font-bold">{brands?.length || 0}</p>
-              <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground mt-2">Brand Assets</p>
+            <div className="divide-y divide-border">
+              {posts && posts.length > 0 ? posts.slice(0, 3).map(post => (
+                <div key={post.id} className="px-5 py-4 hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">{post.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </p>
+                    </div>
+                    <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full shrink-0 ${post.published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground'}`}>
+                      {post.published ? 'Live' : 'Draft'}
+                    </span>
+                  </div>
+                </div>
+              )) : (
+                <div className="px-5 py-8 text-center text-sm text-muted-foreground italic">No posts yet</div>
+              )}
             </div>
           </div>
         </div>

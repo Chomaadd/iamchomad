@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Input, Button, Label } from "@/components/ui/core";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Lock } from "lucide-react";
 import { Redirect } from "wouter";
 
 export default function Login() {
@@ -16,7 +16,6 @@ export default function Login() {
     e.preventDefault();
     try {
       await login(credentials);
-      // Redirect happens naturally via the user state change
       toast({ title: "Login Successful" });
     } catch (error: any) {
       toast({ title: "Access Denied", description: error.message, variant: "destructive" });
@@ -25,36 +24,45 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-md border-2 border-primary p-8 md:p-12 bg-card editorial-shadow-sm">
-        <div className="text-center mb-10">
-          <h1 className="font-serif text-3xl font-bold tracking-tighter mb-2">CHOIRIL AHMAD</h1>
-          <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Authorized Access Only</p>
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-5">
+            <Lock size={22} />
+          </div>
+          <h1 className="font-serif text-2xl font-bold tracking-tight mb-1" data-testid="text-login-title">CHOIRIL AHMAD</h1>
+          <p className="text-xs text-muted-foreground uppercase tracking-[0.2em]">Admin Access</p>
         </div>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input 
-              id="username" 
-              required 
-              value={credentials.username}
-              onChange={e => setCredentials({...credentials, username: e.target.value})}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input 
-              id="password" 
-              type="password" 
-              required 
-              value={credentials.password}
-              onChange={e => setCredentials({...credentials, password: e.target.value})}
-            />
-          </div>
-          <Button type="submit" className="w-full mt-4" disabled={isLoggingIn}>
-            {isLoggingIn ? <Loader2 className="w-4 h-4 animate-spin" /> : "Authenticate"}
-          </Button>
-        </form>
+
+        <div className="border border-border rounded-lg p-6 md:p-8 bg-card">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <Label htmlFor="username" className="text-xs uppercase tracking-wider">Username</Label>
+              <Input
+                id="username"
+                required
+                value={credentials.username}
+                onChange={e => setCredentials({...credentials, username: e.target.value})}
+                className="h-11"
+                data-testid="input-username"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-xs uppercase tracking-wider">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                value={credentials.password}
+                onChange={e => setCredentials({...credentials, password: e.target.value})}
+                className="h-11"
+                data-testid="input-password"
+              />
+            </div>
+            <Button type="submit" className="w-full h-11" disabled={isLoggingIn} data-testid="button-login">
+              {isLoggingIn ? <Loader2 className="w-4 h-4 animate-spin" /> : "Authenticate"}
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );
