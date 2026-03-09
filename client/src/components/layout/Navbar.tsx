@@ -22,7 +22,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full">
-      <div className="glass border-b border-border/50">
+      <div className="glass">
         <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3 group">
             <img src="/logo.png" alt="Logo" className="w-9 h-9 object-contain dark:invert transition-transform group-hover:scale-110" onError={(e) => e.currentTarget.style.display='none'} />
