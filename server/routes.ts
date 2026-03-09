@@ -71,74 +71,113 @@ export async function registerRoutes(
     next();
   };
 
-  const uploadDir = path.join(process.cwd(), 'uploads');
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
-
-  const storageConfig = multer.diskStorage({
-    destination: (req: any, file: any, cb: any) => {
-      cb(null, uploadDir);
-    },
-    filename: (req: any, file: any, cb: any) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, `file-${uniqueSuffix}${ext}`);
-      }
-  });
-
   const upload = multer({
-    storage: storageConfig,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 },
   });
 
-  async function extractDuration(filePath: string): Promise<string | null> {
+  function getGridFSBucket() {
+    const db = mongoose.connection.db;
+    if (!db) throw new Error("MongoDB not connected");
+    return new mongoose.mongo.GridFSBucket(db, { bucketName: 'uploads' });
+  }
+
+  async function extractDurationFromBuffer(buf: Buffer, filename: string): Promise<string | null> {
     try {
-      const buf = await fs.promises.readFile(filePath);
       const metadata = await parseBuffer(buf);
       const durationSeconds = metadata.format.duration;
       if (!durationSeconds || !isFinite(durationSeconds) || isNaN(durationSeconds) || durationSeconds <= 0) {
-        console.log(`No valid duration found for ${path.basename(filePath)}`);
+        console.log(`No valid duration found for ${filename}`);
         return null;
       }
       const totalSeconds = Math.round(durationSeconds);
       const minutes = Math.floor(totalSeconds / 60);
       const seconds = totalSeconds % 60;
       const formatted = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-      console.log(`Duration ${formatted} from ${path.basename(filePath)}`);
+      console.log(`Duration ${formatted} from ${filename}`);
       return formatted;
     } catch (err: any) {
-      console.log(`Duration extraction error for ${path.basename(filePath)}: ${err?.message}`);
+      console.log(`Duration extraction error for ${filename}: ${err?.message}`);
       return null;
     }
   }
 
   app.post('/api/upload', requireAuth, upload.single('file'), async (req: any, res: any) => {
-      try {
-        if (!req.file) {
-          return res.status(400).json({ message: 'No file uploaded' });
-        }
-        const url = `/uploads/${req.file.filename}`;
-        const filePath = path.join(uploadDir, req.file.filename);
-        
-        let fileDuration: string | null = null;
-        const isAudio = req.file.mimetype?.includes('audio') || 
-                       req.file.filename?.toLowerCase().endsWith('.mp3') ||
-                       req.file.filename?.toLowerCase().endsWith('.wav') ||
-                       req.file.filename?.toLowerCase().endsWith('.m4a');
-        
-        if (isAudio) {
-          fileDuration = await extractDuration(filePath);
-        }
-        
-        return res.json({ url, duration: fileDuration });
-      } catch (err) {
-        console.error("Upload route error:", err);
-        return res.status(500).json({ message: "Internal server error during upload" });
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
       }
-    });
 
-  app.use('/uploads', express.static(uploadDir));
+      const bucket = getGridFSBucket();
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      const ext = path.extname(req.file.originalname);
+      const filename = `file-${uniqueSuffix}${ext}`;
+
+      const uploadStream = bucket.openUploadStream(filename, {
+        contentType: req.file.mimetype,
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        uploadStream.end(req.file.buffer, (err: any) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+
+      const url = `/uploads/${filename}`;
+
+      let fileDuration: string | null = null;
+      const isAudio = req.file.mimetype?.includes('audio') ||
+                     req.file.originalname?.toLowerCase().endsWith('.mp3') ||
+                     req.file.originalname?.toLowerCase().endsWith('.wav') ||
+                     req.file.originalname?.toLowerCase().endsWith('.m4a');
+
+      if (isAudio) {
+        fileDuration = await extractDurationFromBuffer(req.file.buffer, filename);
+      }
+
+      return res.json({ url, duration: fileDuration });
+    } catch (err) {
+      console.error("Upload route error:", err);
+      return res.status(500).json({ message: "Internal server error during upload" });
+    }
+  });
+
+  app.get('/uploads/:filename', async (req, res) => {
+    const filename = req.params.filename;
+    const localDir = path.join(process.cwd(), 'uploads');
+    const localPath = path.join(localDir, filename);
+
+    try {
+      const bucket = getGridFSBucket();
+      const files = await bucket.find({ filename }).toArray();
+
+      if (files && files.length > 0) {
+        const file = files[0];
+        if (file.contentType) {
+          res.set('Content-Type', file.contentType);
+        }
+        res.set('Cache-Control', 'public, max-age=31536000');
+
+        const downloadStream = bucket.openDownloadStreamByName(filename);
+        downloadStream.on('error', (err) => {
+          console.error("GridFS download stream error:", err);
+          if (!res.headersSent) {
+            res.status(500).json({ message: "Error streaming file" });
+          }
+        });
+        downloadStream.pipe(res);
+        return;
+      }
+    } catch (err) {
+      console.error("GridFS lookup error, trying local fallback:", err);
+    }
+
+    if (fs.existsSync(localPath)) {
+      return res.sendFile(localPath);
+    }
+    return res.status(404).json({ message: 'File not found' });
+  });
 
   app.post(api.auth.login.path, async (req, res) => {
     try {

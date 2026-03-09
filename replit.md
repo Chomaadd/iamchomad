@@ -116,7 +116,8 @@ Credentials are configured via environment secrets:
 - Production: `node ./dist/index.cjs` serves from `build/` directory
 
 ## Key Implementation Details
-- File uploads saved to `./uploads/`, served at `/uploads/`
+- File uploads stored in MongoDB GridFS (persistent across deployments), served at `/uploads/:filename`
+- Falls back to local `./uploads/` directory for legacy files
 - All upload fetch calls include `credentials: "include"` for session auth
 - Audio files get auto-detected duration formatted as "M:SS"
 - Blog posts use slug-based URLs (not ID-based)
