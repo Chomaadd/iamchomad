@@ -98,10 +98,10 @@ export async function registerRoutes(
         resolve(null);
       }, timeoutMs);
 
-      duration(filePath, true, (err: any, durationSeconds: number) => {
+      duration(filePath, (err: any, durationSeconds: number) => {
         clearTimeout(timer);
-        if (err || !durationSeconds) {
-          console.log(`Could not extract duration: ${err?.message || 'unknown'}`);
+        if (err || !durationSeconds || !isFinite(durationSeconds) || isNaN(durationSeconds) || durationSeconds <= 0) {
+          console.log(`Could not extract valid duration: ${err?.message || durationSeconds}`);
           resolve(null);
           return;
         }
