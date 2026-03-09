@@ -538,6 +538,76 @@ export async function registerRoutes(
     }
   });
 
+  app.get(api.resume.list.path, async (_req, res) => {
+    try {
+      const items = await storage.getResumeItems();
+      res.json(items);
+    } catch (err) {
+      console.error("Resume list error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get(api.resume.get.path, async (req, res) => {
+    try {
+      const item = await storage.getResumeItem(req.params.id);
+      if (!item) {
+        return res.status(404).json({ message: "Resume item not found" });
+      }
+      res.json(item);
+    } catch (err) {
+      console.error("Resume get error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post(api.resume.create.path, requireAuth, async (req, res) => {
+    try {
+      const input = api.resume.create.input.parse(req.body);
+      const item = await storage.createResumeItem(input);
+      res.status(201).json(item);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      console.error("Resume create error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.put(api.resume.update.path, requireAuth, async (req, res) => {
+    try {
+      const input = api.resume.update.input.parse(req.body);
+      const item = await storage.updateResumeItem(req.params.id, input);
+      if (!item) {
+        return res.status(404).json({ message: "Resume item not found" });
+      }
+      res.json(item);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      console.error("Resume update error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.delete(api.resume.delete.path, requireAuth, async (req, res) => {
+    try {
+      await storage.deleteResumeItem(req.params.id);
+      res.status(204).send();
+    } catch (err) {
+      console.error("Resume delete error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   await seedDatabase();
 
   return httpServer;

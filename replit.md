@@ -11,6 +11,7 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 - **Brand** (`/brand`) - Showcase of brand items and projects
 - **Memory** (`/memory`) - Memory/gallery page
 - **Music** (`/music`) - Music collection player with auto-play support
+- **Resume** (`/resume`) - Professional CV/resume with experience, education, skills sections and print/PDF support
 - **Contact** (`/contact`) - Working contact form for visitor messages
 
 ### Admin Dashboard
@@ -20,6 +21,7 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 - **Brand Management** (`/admin/brand`) - Manage brand portfolio items
 - **Memory Management** (`/admin/memory`) - Manage memory/gallery items
 - **Music Management** (`/admin/music`) - Add/manage music tracks with auto-duration detection
+- **Resume Management** (`/admin/resume`) - Manage resume/CV items (experience, education, skills) with ordering
 - **Messages** (`/admin/messages`) - View and manage contact messages
 
 ## Admin Access
@@ -55,6 +57,7 @@ Credentials are configured via environment secrets:
 - `musictracks` - Music collection with duration
 - `branditems` - Brand portfolio
 - `memoryitems` - Memory/gallery items
+- `resumeitems` - Resume/CV items (experience, education, skills)
 
 ## API Endpoints
 
@@ -83,12 +86,12 @@ Credentials are configured via environment secrets:
 - `PUT /api/music/:id` - Update track (auth required)
 - `DELETE /api/music/:id` - Delete track (auth required)
 
-### Brand & Memory (same CRUD pattern)
-- `GET /api/brand` / `GET /api/memory` - List items
-- `GET /api/brand/:id` / `GET /api/memory/:id` - Get item
-- `POST /api/brand` / `POST /api/memory` - Create (auth required)
-- `PUT /api/brand/:id` / `PUT /api/memory/:id` - Update (auth required)
-- `DELETE /api/brand/:id` / `DELETE /api/memory/:id` - Delete (auth required)
+### Brand, Memory & Resume (same CRUD pattern)
+- `GET /api/brand` / `GET /api/memory` / `GET /api/resume` - List items
+- `GET /api/brand/:id` / `GET /api/memory/:id` / `GET /api/resume/:id` - Get item
+- `POST /api/brand` / `POST /api/memory` / `POST /api/resume` - Create (auth required)
+- `PUT /api/brand/:id` / `PUT /api/memory/:id` / `PUT /api/resume/:id` - Update (auth required)
+- `DELETE /api/brand/:id` / `DELETE /api/memory/:id` / `DELETE /api/resume/:id` - Delete (auth required)
 
 ### File Upload
 - `POST /api/upload` - Upload file (auth required, returns URL and duration for audio)

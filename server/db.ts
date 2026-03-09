@@ -67,10 +67,22 @@ import mongoose from 'mongoose';
     featured: { type: Boolean, default: false },
   }, { timestamps: true });
 
+  const resumeItemSchema = new mongoose.Schema({
+    type: { type: String, required: true, enum: ['experience', 'education', 'skill'] },
+    title: { type: String, required: true },
+    subtitle: { type: String },
+    description: { type: String },
+    startDate: { type: String },
+    endDate: { type: String },
+    order: { type: Number, default: 0 },
+    tags: { type: [String], default: [] },
+  }, { timestamps: true });
+
   export const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
   export const BlogPostModel = mongoose.models.BlogPost || mongoose.model('BlogPost', blogPostSchema);
   export const ContactMessageModel = mongoose.models.ContactMessage || mongoose.model('ContactMessage', contactMessageSchema);
   export const MusicTrackModel = mongoose.models.MusicTrack || mongoose.model('MusicTrack', musicTrackSchema);
   export const BrandItemModel = mongoose.models.BrandItem || mongoose.model('BrandItem', brandItemSchema);
   export const MemoryItemModel = mongoose.models.MemoryItem || mongoose.model('MemoryItem', memoryItemSchema);
+  export const ResumeItemModel = mongoose.models.ResumeItem || mongoose.model('ResumeItem', resumeItemSchema);
   

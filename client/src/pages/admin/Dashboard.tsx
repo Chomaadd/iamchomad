@@ -4,7 +4,8 @@ import { useContactMessages } from "@/hooks/use-contact";
 import { useBrandItems } from "@/hooks/use-brand";
 import { useMusicTracks } from "@/hooks/use-music";
 import { useMemoryItems } from "@/hooks/use-memory";
-import { FileText, Mail, Image, Music, Camera, TrendingUp, Clock } from "lucide-react";
+import { useResumeItems } from "@/hooks/use-resume";
+import { FileText, Mail, Image, Music, Camera, TrendingUp, Clock, ScrollText } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Dashboard() {
@@ -13,6 +14,7 @@ export default function Dashboard() {
   const { data: brands } = useBrandItems();
   const { data: tracks } = useMusicTracks();
   const { data: memories } = useMemoryItems();
+  const { data: resumeItems } = useResumeItems();
 
   const unreadMessages = messages?.filter(m => !m.read).length || 0;
 
@@ -25,6 +27,7 @@ export default function Dashboard() {
     { label: "Brand Assets", value: brands?.length || 0, icon: Image, href: "/admin/brand", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
     { label: "Music Tracks", value: tracks?.length || 0, icon: Music, href: "/admin/music", color: "bg-purple-500/10 text-purple-600 dark:text-purple-400" },
     { label: "Memories", value: memories?.length || 0, icon: Camera, href: "/admin/memory", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
+    { label: "Resume Items", value: resumeItems?.length || 0, icon: ScrollText, href: "/admin/resume", color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400" },
   ];
 
   const recentMessages = messages?.slice(0, 3) || [];
@@ -37,7 +40,7 @@ export default function Dashboard() {
           <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">System Overview</h1>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (

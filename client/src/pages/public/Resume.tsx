@@ -1,0 +1,187 @@
+import { motion } from "framer-motion";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { useResumeItems } from "@/hooks/use-resume";
+import { Loader2, Download, Briefcase, GraduationCap, Lightbulb, Calendar, MapPin } from "lucide-react";
+import type { ResumeItem } from "@shared/schema";
+
+export default function Resume() {
+  const { data: items, isLoading } = useResumeItems();
+
+  const experience = items?.filter(i => i.type === "experience") || [];
+  const education = items?.filter(i => i.type === "education") || [];
+  const skills = items?.filter(i => i.type === "skill") || [];
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+
+      <main className="max-w-4xl mx-auto px-6 lg:px-8 py-24 print:py-8 print:px-4">
+        <motion.header
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-16 print:mb-8"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="font-serif text-5xl md:text-6xl font-bold tracking-tight" data-testid="text-resume-title">
+                Choiril Ahmad
+              </h1>
+              <p className="text-lg text-muted-foreground mt-3 max-w-xl">
+                Entrepreneur & Software Developer crafting digital experiences with precision and purpose.
+              </p>
+              <div className="flex flex-wrap gap-4 mt-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1.5"><MapPin size={14} /> Indonesia</span>
+                <span>iamchoirilfk@gmail.com</span>
+              </div>
+            </div>
+            <button
+              onClick={handlePrint}
+              className="shrink-0 print:hidden inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border border-border rounded-md hover:bg-accent transition-colors"
+              data-testid="button-download-resume"
+            >
+              <Download size={16} />
+              <span className="hidden sm:inline">Print / Save PDF</span>
+            </button>
+          </div>
+          <div className="h-px bg-border mt-8" />
+        </motion.header>
+
+        {isLoading ? (
+          <div className="flex justify-center py-32"><Loader2 className="w-8 h-8 animate-spin" /></div>
+        ) : (
+          <div className="space-y-16 print:space-y-8">
+            {experience.length > 0 && (
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                <div className="flex items-center gap-3 mb-8 print:mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center print:bg-gray-100">
+                    <Briefcase size={20} className="text-blue-600 print:text-gray-700" />
+                  </div>
+                  <h2 className="font-serif text-2xl font-bold">Experience</h2>
+                </div>
+
+                <div className="space-y-0">
+                  {experience.map((item, i) => (
+                    <ResumeEntry key={item.id} item={item} isLast={i === experience.length - 1} />
+                  ))}
+                </div>
+              </motion.section>
+            )}
+
+            {education.length > 0 && (
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                <div className="flex items-center gap-3 mb-8 print:mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center print:bg-gray-100">
+                    <GraduationCap size={20} className="text-emerald-600 print:text-gray-700" />
+                  </div>
+                  <h2 className="font-serif text-2xl font-bold">Education</h2>
+                </div>
+
+                <div className="space-y-0">
+                  {education.map((item, i) => (
+                    <ResumeEntry key={item.id} item={item} isLast={i === education.length - 1} />
+                  ))}
+                </div>
+              </motion.section>
+            )}
+
+            {skills.length > 0 && (
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                <div className="flex items-center gap-3 mb-8 print:mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center print:bg-gray-100">
+                    <Lightbulb size={20} className="text-purple-600 print:text-gray-700" />
+                  </div>
+                  <h2 className="font-serif text-2xl font-bold">Skills</h2>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {skills.map((item) => (
+                    <div
+                      key={item.id}
+                      className="border border-border rounded-lg p-4 hover:border-primary/30 transition-colors print:border-gray-300"
+                      data-testid={`card-skill-${item.id}`}
+                    >
+                      <h3 className="font-semibold text-sm">{item.title}</h3>
+                      {item.subtitle && <p className="text-xs text-muted-foreground mt-0.5">{item.subtitle}</p>}
+                      {item.description && <p className="text-xs text-muted-foreground mt-2">{item.description}</p>}
+                      {item.tags && item.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-3">
+                          {item.tags.map((tag, i) => (
+                            <span key={i} className="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] font-medium rounded print:border print:border-gray-300">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </motion.section>
+            )}
+
+            {!experience.length && !education.length && !skills.length && (
+              <div className="text-center py-24 text-muted-foreground">
+                <p className="font-serif text-xl italic">Resume content coming soon.</p>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      <div className="print:hidden">
+        <Footer />
+      </div>
+    </div>
+  );
+}
+
+function ResumeEntry({ item, isLast }: { item: ResumeItem; isLast: boolean }) {
+  const dateRange = [item.startDate, item.endDate].filter(Boolean).join(" — ") || "";
+
+  return (
+    <div className="flex gap-4" data-testid={`card-resume-${item.id}`}>
+      <div className="flex flex-col items-center pt-1.5">
+        <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0 print:bg-gray-700" />
+        {!isLast && <div className="w-px flex-1 bg-border mt-1 print:bg-gray-300" />}
+      </div>
+      <div className={`pb-8 ${isLast ? '' : ''} min-w-0`}>
+        <h3 className="font-semibold">{item.title}</h3>
+        {item.subtitle && <p className="text-sm text-muted-foreground mt-0.5">{item.subtitle}</p>}
+        {dateRange && (
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+            <Calendar size={12} />
+            {dateRange}
+          </p>
+        )}
+        {item.description && (
+          <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{item.description}</p>
+        )}
+        {item.tags && item.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {item.tags.map((tag, i) => (
+              <span key={i} className="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] font-medium rounded print:border print:border-gray-300">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -16,6 +16,7 @@ export function Navbar() {
     { href: "/brand", label: "Brand" },
     { href: "/memory", label: "Memory"},
     { href: "/music", label: "Sound" },
+    { href: "/resume", label: "Resume" },
     { href: "/contact", label: "Contact" },
   ];
 

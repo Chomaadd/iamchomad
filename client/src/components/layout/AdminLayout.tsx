@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, Camera } from "lucide-react";
+import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, Camera, ScrollText } from "lucide-react";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -23,6 +23,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { href: "/admin/brand", label: "Brand", icon: Image },
     { href: "/admin/music", label: "Music", icon: Music },
     { href: "/admin/memory", label: "Memory", icon: Camera },
+    { href: "/admin/resume", label: "Resume", icon: ScrollText },
     { href: "/admin/messages", label: "Messages", icon: Mail },
   ];
 

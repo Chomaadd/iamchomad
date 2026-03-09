@@ -103,6 +103,27 @@ export type CreateMemoryItemRequest = InsertMemoryItem;
 export type UpdateMemoryItemRequest = Partial<InsertMemoryItem>;
 export type MemoryItemResponse = MemoryItem;
 
+export const resumeItemSchema = z.object({
+  id: z.string(),
+  type: z.enum(["experience", "education", "skill"]),
+  title: z.string(),
+  subtitle: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  startDate: z.string().nullable().optional(),
+  endDate: z.string().nullable().optional(),
+  order: z.number().default(0),
+  tags: z.array(z.string()).default([]),
+  createdAt: z.union([z.date(), z.string()]).optional(),
+  updatedAt: z.union([z.date(), z.string()]).optional(),
+});
+export const insertResumeItemSchema = resumeItemSchema.omit({ id: true, createdAt: true, updatedAt: true });
+
+export type ResumeItem = z.infer<typeof resumeItemSchema>;
+export type InsertResumeItem = z.infer<typeof insertResumeItemSchema>;
+export type CreateResumeItemRequest = InsertResumeItem;
+export type UpdateResumeItemRequest = Partial<InsertResumeItem>;
+export type ResumeItemResponse = ResumeItem;
+
 export interface LoginRequest {
   username: string;
   password: string;

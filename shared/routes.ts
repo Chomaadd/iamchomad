@@ -5,11 +5,13 @@ import {
   insertMusicTrackSchema,
   insertBrandItemSchema,
   insertMemoryItemSchema,
+  insertResumeItemSchema,
   blogPostSchema,
   contactMessageSchema,
   musicTrackSchema,
   brandItemSchema,
   memoryItemSchema,
+  resumeItemSchema,
 } from './schema';
 
 export const errorSchemas = {
@@ -301,6 +303,53 @@ export const api = {
       },
     },
   },
+  resume: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/resume' as const,
+      responses: {
+        200: z.array(resumeItemSchema),
+      },
+    },
+    get: {
+      method: 'GET' as const,
+      path: '/api/resume/:id' as const,
+      responses: {
+        200: resumeItemSchema,
+        404: errorSchemas.notFound,
+      },
+    },
+    create: {
+      method: 'POST' as const,
+      path: '/api/resume' as const,
+      input: insertResumeItemSchema,
+      responses: {
+        201: resumeItemSchema,
+        400: errorSchemas.validation,
+        401: errorSchemas.unauthorized,
+      },
+    },
+    update: {
+      method: 'PUT' as const,
+      path: '/api/resume/:id' as const,
+      input: insertResumeItemSchema.partial(),
+      responses: {
+        200: resumeItemSchema,
+        400: errorSchemas.validation,
+        401: errorSchemas.unauthorized,
+        404: errorSchemas.notFound,
+      },
+    },
+    delete: {
+      method: 'DELETE' as const,
+      path: '/api/resume/:id' as const,
+      responses: {
+        204: z.void(),
+        401: errorSchemas.unauthorized,
+        404: errorSchemas.notFound,
+      },
+    },
+  },
 };
 
 export function buildUrl(path: string, params?: Record<string, string | number>): string {
@@ -337,3 +386,7 @@ export type BrandItemResponse = z.infer<typeof api.brand.create.responses[201]>;
 export type MemoryItemInput = z.infer<typeof api.memory.create.input>;
 export type MemoryItemUpdateInput = z.infer<typeof api.memory.update.input>;
 export type MemoryItemResponse = z.infer<typeof api.memory.create.responses[201]>;
+
+export type ResumeItemInput = z.infer<typeof api.resume.create.input>;
+export type ResumeItemUpdateInput = z.infer<typeof api.resume.update.input>;
+export type ResumeItemResponse = z.infer<typeof api.resume.create.responses[201]>;

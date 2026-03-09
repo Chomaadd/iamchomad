@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
     type MusicTrack,
     type BrandItem,
     type MemoryItem,
+    type ResumeItem,
     type CreateBlogPostRequest,
     type UpdateBlogPostRequest,
     type CreateContactMessageRequest,
@@ -15,6 +16,8 @@ import mongoose from 'mongoose';
     type UpdateBrandItemRequest,
     type CreateMemoryItemRequest,
     type UpdateMemoryItemRequest,
+    type CreateResumeItemRequest,
+    type UpdateResumeItemRequest,
   } from "@shared/schema";
   import { 
     AdminModel, 
@@ -22,7 +25,8 @@ import mongoose from 'mongoose';
     ContactMessageModel, 
     MusicTrackModel, 
     BrandItemModel, 
-    MemoryItemModel 
+    MemoryItemModel,
+    ResumeItemModel 
   } from "./db";
 
   export interface IStorage {
@@ -58,6 +62,12 @@ import mongoose from 'mongoose';
     createMemoryItem(item: CreateMemoryItemRequest): Promise<MemoryItem>;
     updateMemoryItem(id: string, updates: UpdateMemoryItemRequest): Promise<MemoryItem>;
     deleteMemoryItem(id: string): Promise<void>;
+
+    getResumeItems(): Promise<ResumeItem[]>;
+    getResumeItem(id: string): Promise<ResumeItem | undefined>;
+    createResumeItem(item: CreateResumeItemRequest): Promise<ResumeItem>;
+    updateResumeItem(id: string, updates: UpdateResumeItemRequest): Promise<ResumeItem>;
+    deleteResumeItem(id: string): Promise<void>;
   }
 
   function mapId<T>(doc: any): T {
@@ -237,6 +247,35 @@ import mongoose from 'mongoose';
 
     async deleteMemoryItem(id: string): Promise<void> {
       await MemoryItemModel.findByIdAndDelete(id);
+    }
+
+    async getResumeItems(): Promise<ResumeItem[]> {
+      const items = await ResumeItemModel.find().sort({ order: 1, createdAt: -1 });
+      return items.map(i => mapId<ResumeItem>(i));
+    }
+
+    async getResumeItem(id: string): Promise<ResumeItem | undefined> {
+      const item = await ResumeItemModel.findById(id);
+      return item ? mapId(item) : undefined;
+    }
+
+    async createResumeItem(item: CreateResumeItemRequest): Promise<ResumeItem> {
+      const created = await ResumeItemModel.create(item);
+      return mapId(created);
+    }
+
+    async updateResumeItem(id: string, updates: UpdateResumeItemRequest): Promise<ResumeItem> {
+      const updated = await ResumeItemModel.findByIdAndUpdate(
+        id,
+        { ...updates, updatedAt: new Date() },
+        { new: true }
+      );
+      if (!updated) throw new Error('Resume item not found');
+      return mapId(updated);
+    }
+
+    async deleteResumeItem(id: string): Promise<void> {
+      await ResumeItemModel.findByIdAndDelete(id);
     }
   }
 
