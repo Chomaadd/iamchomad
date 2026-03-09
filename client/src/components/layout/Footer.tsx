@@ -9,7 +9,7 @@ export function Footer() {
           <span className="opacity-30 hidden md:inline">/</span>
           <span className="text-foreground font-semibold">Choiril Ahmad</span>
           <span className="opacity-30 hidden md:inline">/</span>
-          <span className="italic">Crafting digital experiences with precision</span>
+          <span className="italic">© Choomad Group. All Right Reserved.</span>
         </div>
 
         <div className="flex items-center gap-6">
