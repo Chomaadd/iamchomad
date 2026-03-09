@@ -86,7 +86,34 @@ export async function registerRoutes(
       }
   });
 
-  const upload = multer({ storage: storageConfig });
+  const upload = multer({
+    storage: storageConfig,
+    limits: { fileSize: 50 * 1024 * 1024 },
+  });
+
+  function extractDurationWithTimeout(filePath: string, timeoutMs = 8000): Promise<string | null> {
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        console.log(`Duration extraction timed out for ${filePath}`);
+        resolve(null);
+      }, timeoutMs);
+
+      duration(filePath, true, (err: any, durationSeconds: number) => {
+        clearTimeout(timer);
+        if (err || !durationSeconds) {
+          console.log(`Could not extract duration: ${err?.message || 'unknown'}`);
+          resolve(null);
+          return;
+        }
+        const totalSeconds = Math.round(durationSeconds);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const formatted = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        console.log(`Extracted duration ${formatted} from ${path.basename(filePath)}`);
+        resolve(formatted);
+      });
+    });
+  }
 
   app.post('/api/upload', requireAuth, upload.single('file'), async (req: any, res: any) => {
       try {
@@ -96,26 +123,14 @@ export async function registerRoutes(
         const url = `/uploads/${req.file.filename}`;
         const filePath = path.join(uploadDir, req.file.filename);
         
-        let fileDuration = null;
-        // Try to extract duration for audio files only
+        let fileDuration: string | null = null;
         const isAudio = req.file.mimetype?.includes('audio') || 
                        req.file.filename?.toLowerCase().endsWith('.mp3') ||
                        req.file.filename?.toLowerCase().endsWith('.wav') ||
                        req.file.filename?.toLowerCase().endsWith('.m4a');
         
         if (isAudio) {
-          try {
-            const durationSeconds = await duration(filePath);
-            // Convert seconds to formatted string "M:SS"
-            const totalSeconds = Math.round(durationSeconds);
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
-            fileDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            console.log(`Extracted duration ${fileDuration} from ${req.file.filename}`);
-          } catch (durationError) {
-            console.log(`Could not extract duration from ${req.file.filename}:`, durationError);
-            fileDuration = null;
-          }
+          fileDuration = await extractDurationWithTimeout(filePath);
         }
         
         return res.json({ url, duration: fileDuration });
