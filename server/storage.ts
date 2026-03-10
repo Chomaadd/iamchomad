@@ -7,6 +7,8 @@ import mongoose from 'mongoose';
     type BrandItem,
     type MemoryItem,
     type ResumeItem,
+    type SiteSettings,
+    type UpdateSiteSettings,
     type CreateBlogPostRequest,
     type UpdateBlogPostRequest,
     type CreateContactMessageRequest,
@@ -26,7 +28,8 @@ import mongoose from 'mongoose';
     MusicTrackModel, 
     BrandItemModel, 
     MemoryItemModel,
-    ResumeItemModel 
+    ResumeItemModel,
+    SiteSettingsModel,
   } from "./db";
 
   export interface IStorage {
@@ -68,6 +71,9 @@ import mongoose from 'mongoose';
     createResumeItem(item: CreateResumeItemRequest): Promise<ResumeItem>;
     updateResumeItem(id: string, updates: UpdateResumeItemRequest): Promise<ResumeItem>;
     deleteResumeItem(id: string): Promise<void>;
+
+    getSiteSettings(): Promise<SiteSettings>;
+    updateSiteSettings(updates: UpdateSiteSettings): Promise<SiteSettings>;
   }
 
   function mapId<T>(doc: any): T {
@@ -276,6 +282,27 @@ import mongoose from 'mongoose';
 
     async deleteResumeItem(id: string): Promise<void> {
       await ResumeItemModel.findByIdAndDelete(id);
+    }
+
+    async getSiteSettings(): Promise<SiteSettings> {
+      const doc = await SiteSettingsModel.findOne();
+      if (!doc) {
+        const created = await SiteSettingsModel.create({
+          availabilityStatus: 'open',
+          availabilityLabel: 'Open to Work',
+        });
+        return mapId(created);
+      }
+      return mapId(doc);
+    }
+
+    async updateSiteSettings(updates: UpdateSiteSettings): Promise<SiteSettings> {
+      const doc = await SiteSettingsModel.findOneAndUpdate(
+        {},
+        { $set: updates },
+        { new: true, upsert: true }
+      );
+      return mapId(doc);
     }
   }
 

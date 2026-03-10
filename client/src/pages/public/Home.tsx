@@ -6,11 +6,27 @@ import { usePosts } from "@/hooks/use-blog";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { SeoHead } from "@/components/seometa/SeoHead";
+import { useSiteSettings } from "@/hooks/use-settings";
+
+const statusColors = {
+  open: "bg-emerald-500",
+  busy: "bg-amber-500",
+  unavailable: "bg-red-500",
+};
+
+const statusRingColors = {
+  open: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  busy: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  unavailable: "bg-red-500/10 text-red-700 dark:text-red-400",
+};
 
 export default function Home() {
   const { data: posts } = usePosts();
   const featuredPosts = posts?.slice(0, 3) || [];
   const { t, language } = useLanguage();
+  const { data: settings } = useSiteSettings();
+  const status = settings?.availabilityStatus ?? "open";
+  const label = settings?.availabilityLabel ?? "Open to Work";
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -52,10 +68,11 @@ export default function Home() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6"
+                className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mb-6 ${statusRingColors[status]}`}
+                data-testid="badge-availability"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                {t("home.badge")}
+                <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${statusColors[status]}`} />
+                {label}
               </motion.div>
 
               <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-balance leading-[1.1] max-w-4xl mx-auto" data-testid="text-hero-heading">

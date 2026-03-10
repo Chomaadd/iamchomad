@@ -124,6 +124,18 @@ export type CreateResumeItemRequest = InsertResumeItem;
 export type UpdateResumeItemRequest = Partial<InsertResumeItem>;
 export type ResumeItemResponse = ResumeItem;
 
+export const availabilityStatusSchema = z.enum(["open", "busy", "unavailable"]);
+export const siteSettingsSchema = z.object({
+  id: z.string(),
+  availabilityStatus: availabilityStatusSchema.default("open"),
+  availabilityLabel: z.string().default("Open to Work"),
+});
+export const updateSiteSettingsSchema = siteSettingsSchema.omit({ id: true }).partial();
+
+export type SiteSettings = z.infer<typeof siteSettingsSchema>;
+export type UpdateSiteSettings = z.infer<typeof updateSiteSettingsSchema>;
+export type AvailabilityStatus = z.infer<typeof availabilityStatusSchema>;
+
 export interface LoginRequest {
   username: string;
   password: string;

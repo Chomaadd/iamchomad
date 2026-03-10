@@ -767,6 +767,27 @@ ${blogEntries}
     }
   });
 
+  app.get('/api/settings', async (_req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      res.json(settings);
+    } catch (err) {
+      console.error("Settings get error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.put('/api/settings', requireAuth, async (req, res) => {
+    try {
+      const { availabilityStatus, availabilityLabel } = req.body;
+      const settings = await storage.updateSiteSettings({ availabilityStatus, availabilityLabel });
+      res.json(settings);
+    } catch (err) {
+      console.error("Settings update error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   await seedDatabase();
 
   return httpServer;

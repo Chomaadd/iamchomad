@@ -78,6 +78,11 @@ import mongoose from 'mongoose';
     tags: { type: [String], default: [] },
   }, { timestamps: true });
 
+  const siteSettingsSchema = new mongoose.Schema({
+    availabilityStatus: { type: String, enum: ['open', 'busy', 'unavailable'], default: 'open' },
+    availabilityLabel: { type: String, default: 'Open to Work' },
+  });
+
   export const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
   export const BlogPostModel = mongoose.models.BlogPost || mongoose.model('BlogPost', blogPostSchema);
   export const ContactMessageModel = mongoose.models.ContactMessage || mongoose.model('ContactMessage', contactMessageSchema);
@@ -85,4 +90,5 @@ import mongoose from 'mongoose';
   export const BrandItemModel = mongoose.models.BrandItem || mongoose.model('BrandItem', brandItemSchema);
   export const MemoryItemModel = mongoose.models.MemoryItem || mongoose.model('MemoryItem', memoryItemSchema);
   export const ResumeItemModel = mongoose.models.ResumeItem || mongoose.model('ResumeItem', resumeItemSchema);
+  export const SiteSettingsModel = mongoose.models.SiteSettings || mongoose.model('SiteSettings', siteSettingsSchema);
   

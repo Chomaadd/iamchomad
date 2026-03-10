@@ -5,8 +5,17 @@ import { useBrandItems } from "@/hooks/use-brand";
 import { useMusicTracks } from "@/hooks/use-music";
 import { useMemoryItems } from "@/hooks/use-memory";
 import { useResumeItems } from "@/hooks/use-resume";
-import { FileText, Mail, Image, Music, Camera, TrendingUp, Clock, ScrollText } from "lucide-react";
+import { useSiteSettings, useUpdateSiteSettings } from "@/hooks/use-settings";
+import { FileText, Mail, Image, Music, Camera, TrendingUp, Clock, ScrollText, Briefcase } from "lucide-react";
 import { Link } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import type { AvailabilityStatus } from "@shared/schema";
+
+const availabilityOptions: { value: AvailabilityStatus; label: string; color: string; dot: string }[] = [
+  { value: "open", label: "Open to Work", color: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-500" },
+  { value: "busy", label: "Currently Busy", color: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400", dot: "bg-amber-500" },
+  { value: "unavailable", label: "Not Available", color: "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-400", dot: "bg-red-500" },
+];
 
 export default function Dashboard() {
   const { data: posts } = usePosts();
@@ -15,11 +24,23 @@ export default function Dashboard() {
   const { data: tracks } = useMusicTracks();
   const { data: memories } = useMemoryItems();
   const { data: resumeItems } = useResumeItems();
+  const { data: settings } = useSiteSettings();
+  const { mutateAsync: updateSettings, isPending } = useUpdateSiteSettings();
+  const { toast } = useToast();
 
   const unreadMessages = messages?.filter(m => !m.read).length || 0;
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
+
+  const handleStatusChange = async (value: AvailabilityStatus, label: string) => {
+    try {
+      await updateSettings({ availabilityStatus: value, availabilityLabel: label });
+      toast({ title: "Status updated", description: `Now showing "${label}" on your homepage.` });
+    } catch {
+      toast({ title: "Failed to update", variant: "destructive" });
+    }
+  };
 
   const stats = [
     { label: "Journal Entries", value: posts?.length || 0, icon: FileText, href: "/admin/blog", color: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
@@ -64,6 +85,38 @@ export default function Dashboard() {
               </Link>
             );
           })}
+        </div>
+
+        <div className="border border-border rounded-lg bg-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-border flex items-center gap-2">
+            <Briefcase size={16} className="text-muted-foreground" />
+            <h2 className="font-semibold text-sm">Availability Status</h2>
+            {settings && (
+              <span className="ml-auto text-xs text-muted-foreground">
+                Currently: <span className="font-medium text-foreground">{settings.availabilityLabel}</span>
+              </span>
+            )}
+          </div>
+          <div className="p-5 flex flex-wrap gap-3">
+            {availabilityOptions.map((opt) => {
+              const isActive = settings?.availabilityStatus === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => handleStatusChange(opt.value, opt.label)}
+                  disabled={isPending || isActive}
+                  data-testid={`button-availability-${opt.value}`}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all
+                    ${isActive ? `${opt.color} border-2 ring-2 ring-offset-1 ring-offset-card` : "border-border bg-muted/30 text-muted-foreground hover:border-primary/30"}
+                    disabled:opacity-60 disabled:cursor-not-allowed`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${isActive ? opt.dot : "bg-muted-foreground/40"} ${isActive ? "animate-pulse" : ""}`} />
+                  {opt.label}
+                  {isActive && <span className="text-[10px] font-bold uppercase tracking-wider ml-1">Active</span>}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
