@@ -7,11 +7,11 @@ import { api } from "@shared/routes";
 import { log } from "./index";
 import { z } from "zod";
 import bcrypt from "bcrypt";
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import express from 'express';
-import { parseBuffer } from 'music-metadata';
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import express from "express";
+import { parseBuffer } from "music-metadata";
 
 declare module "express-session" {
   interface SessionData {
@@ -22,13 +22,14 @@ declare module "express-session" {
 
 export async function registerRoutes(
   httpServer: Server,
-  app: Express
+  app: Express,
 ): Promise<Server> {
   // Configure session store - use MongoDB in production, memory store in development/fallback
   let store: session.Store;
   if (process.env.NODE_ENV === "production") {
     try {
-      const mongoUrl = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/portfolio';
+      const mongoUrl =
+        process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/portfolio";
       const connectMongo = require("connect-mongo");
       const MongoStore = connectMongo.default || connectMongo;
       store = new MongoStore({
@@ -37,7 +38,10 @@ export async function registerRoutes(
       });
       log("Using MongoDB session store", "express");
     } catch (error) {
-      log(`Failed to initialize MongoDB store: ${error}, falling back to MemoryStore`, "express");
+      log(
+        `Failed to initialize MongoDB store: ${error}, falling back to MemoryStore`,
+        "express",
+      );
       store = new session.MemoryStore();
     }
   } else {
@@ -52,7 +56,8 @@ export async function registerRoutes(
   app.use(
     session({
       store: store,
-      secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
+      secret:
+        process.env.SESSION_SECRET || "your-secret-key-change-in-production",
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -61,7 +66,7 @@ export async function registerRoutes(
         sameSite: "lax",
         maxAge: 1000 * 60 * 60 * 24 * 7,
       },
-    })
+    }),
   );
 
   const requireAuth = (req: any, res: any, next: any) => {
@@ -79,21 +84,29 @@ export async function registerRoutes(
   function getGridFSBucket() {
     const db = mongoose.connection.db;
     if (!db) throw new Error("MongoDB not connected");
-    return new mongoose.mongo.GridFSBucket(db, { bucketName: 'uploads' });
+    return new mongoose.mongo.GridFSBucket(db, { bucketName: "uploads" });
   }
 
-  async function extractDurationFromBuffer(buf: Buffer, filename: string): Promise<string | null> {
+  async function extractDurationFromBuffer(
+    buf: Buffer,
+    filename: string,
+  ): Promise<string | null> {
     try {
       const metadata = await parseBuffer(buf);
       const durationSeconds = metadata.format.duration;
-      if (!durationSeconds || !isFinite(durationSeconds) || isNaN(durationSeconds) || durationSeconds <= 0) {
+      if (
+        !durationSeconds ||
+        !isFinite(durationSeconds) ||
+        isNaN(durationSeconds) ||
+        durationSeconds <= 0
+      ) {
         console.log(`No valid duration found for ${filename}`);
         return null;
       }
       const totalSeconds = Math.round(durationSeconds);
       const minutes = Math.floor(totalSeconds / 60);
       const seconds = totalSeconds % 60;
-      const formatted = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      const formatted = `${minutes}:${seconds.toString().padStart(2, "0")}`;
       console.log(`Duration ${formatted} from ${filename}`);
       return formatted;
     } catch (err: any) {
@@ -102,50 +115,60 @@ export async function registerRoutes(
     }
   }
 
-  app.post('/api/upload', requireAuth, upload.single('file'), async (req: any, res: any) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: 'No file uploaded' });
-      }
+  app.post(
+    "/api/upload",
+    requireAuth,
+    upload.single("file"),
+    async (req: any, res: any) => {
+      try {
+        if (!req.file) {
+          return res.status(400).json({ message: "No file uploaded" });
+        }
 
-      const bucket = getGridFSBucket();
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      const ext = path.extname(req.file.originalname);
-      const filename = `file-${uniqueSuffix}${ext}`;
+        const bucket = getGridFSBucket();
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        const ext = path.extname(req.file.originalname);
+        const filename = `file-${uniqueSuffix}${ext}`;
 
-      const uploadStream = bucket.openUploadStream(filename, {
-        contentType: req.file.mimetype,
-      });
-
-      await new Promise<void>((resolve, reject) => {
-        uploadStream.end(req.file.buffer, (err: any) => {
-          if (err) reject(err);
-          else resolve();
+        const uploadStream = bucket.openUploadStream(filename, {
+          contentType: req.file.mimetype,
         });
-      });
 
-      const url = `/uploads/${filename}`;
+        await new Promise<void>((resolve, reject) => {
+          uploadStream.on('finish', resolve);
+          uploadStream.on('error', reject);
+          uploadStream.end(req.file.buffer);
+        });
 
-      let fileDuration: string | null = null;
-      const isAudio = req.file.mimetype?.includes('audio') ||
-                     req.file.originalname?.toLowerCase().endsWith('.mp3') ||
-                     req.file.originalname?.toLowerCase().endsWith('.wav') ||
-                     req.file.originalname?.toLowerCase().endsWith('.m4a');
+        const url = `/uploads/${filename}`;
 
-      if (isAudio) {
-        fileDuration = await extractDurationFromBuffer(req.file.buffer, filename);
+        let fileDuration: string | null = null;
+        const isAudio =
+          req.file.mimetype?.includes("audio") ||
+          req.file.originalname?.toLowerCase().endsWith(".mp3") ||
+          req.file.originalname?.toLowerCase().endsWith(".wav") ||
+          req.file.originalname?.toLowerCase().endsWith(".m4a");
+
+        if (isAudio) {
+          fileDuration = await extractDurationFromBuffer(
+            req.file.buffer,
+            filename,
+          );
+        }
+
+        return res.json({ url, duration: fileDuration });
+      } catch (err) {
+        console.error("Upload route error:", err);
+        return res
+          .status(500)
+          .json({ message: "Internal server error during upload" });
       }
+    },
+  );
 
-      return res.json({ url, duration: fileDuration });
-    } catch (err) {
-      console.error("Upload route error:", err);
-      return res.status(500).json({ message: "Internal server error during upload" });
-    }
-  });
-
-  app.get('/uploads/:filename', async (req, res) => {
+  app.get("/uploads/:filename", async (req, res) => {
     const filename = req.params.filename;
-    const localDir = path.join(process.cwd(), 'uploads');
+    const localDir = path.join(process.cwd(), "uploads");
     const localPath = path.join(localDir, filename);
 
     try {
@@ -155,12 +178,12 @@ export async function registerRoutes(
       if (files && files.length > 0) {
         const file = files[0];
         if (file.contentType) {
-          res.set('Content-Type', file.contentType);
+          res.set("Content-Type", file.contentType);
         }
-        res.set('Cache-Control', 'public, max-age=31536000');
+        res.set("Cache-Control", "public, max-age=31536000");
 
         const downloadStream = bucket.openDownloadStreamByName(filename);
-        downloadStream.on('error', (err) => {
+        downloadStream.on("error", (err) => {
           console.error("GridFS download stream error:", err);
           if (!res.headersSent) {
             res.status(500).json({ message: "Error streaming file" });
@@ -176,13 +199,13 @@ export async function registerRoutes(
     if (fs.existsSync(localPath)) {
       return res.sendFile(localPath);
     }
-    return res.status(404).json({ message: 'File not found' });
+    return res.status(404).json({ message: "File not found" });
   });
 
   app.post(api.auth.login.path, async (req, res) => {
     try {
       const input = api.auth.login.input.parse(req.body);
-      
+
       const adminUsername = process.env.ADMIN_USERNAME || "user";
       const adminPassword = process.env.ADMIN_PASSWORD || "Makanseblak123#";
 
@@ -216,7 +239,7 @@ export async function registerRoutes(
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       console.error("Login error:", err);
@@ -239,7 +262,7 @@ export async function registerRoutes(
     }
 
     const adminUsername = process.env.ADMIN_USERNAME || "admin";
-    
+
     res.json({
       id: "1",
       username: adminUsername,
@@ -258,52 +281,60 @@ export async function registerRoutes(
     }
   });
 
-  app.get('/robots.txt', (_req, res) => {
-    res.setHeader('Content-Type', 'text/plain');
-    res.send(`User-agent: *\nAllow: /\n\nSitemap: https://iamchomad.my.id/sitemap.xml\n`);
+  app.get("/robots.txt", (_req, res) => {
+    res.setHeader("Content-Type", "text/plain");
+    res.send(
+      `User-agent: *\nAllow: /\n\nSitemap: https://iamchomad.my.id/sitemap.xml\n`,
+    );
   });
 
-  app.get('/sitemap.xml', async (_req, res) => {
-    const SITE_URL = 'https://iamchomad.my.id';
-    const today = new Date().toISOString().split('T')[0];
+  app.get("/sitemap.xml", async (_req, res) => {
+    const SITE_URL = "https://iamchomad.my.id";
+    const today = new Date().toISOString().split("T")[0];
 
     const staticPages = [
-      { url: '/', priority: '1.0', changefreq: 'weekly' },
-      { url: '/about', priority: '0.8', changefreq: 'monthly' },
-      { url: '/blog', priority: '0.9', changefreq: 'daily' },
-      { url: '/brand', priority: '0.7', changefreq: 'monthly' },
-      { url: '/music', priority: '0.7', changefreq: 'monthly' },
-      { url: '/resume', priority: '0.8', changefreq: 'monthly' },
-      { url: '/contact', priority: '0.6', changefreq: 'yearly' },
+      { url: "/", priority: "1.0", changefreq: "weekly" },
+      { url: "/about", priority: "0.8", changefreq: "monthly" },
+      { url: "/blog", priority: "0.9", changefreq: "daily" },
+      { url: "/brand", priority: "0.7", changefreq: "monthly" },
+      { url: "/music", priority: "0.7", changefreq: "monthly" },
+      { url: "/resume", priority: "0.8", changefreq: "monthly" },
+      { url: "/contact", priority: "0.6", changefreq: "yearly" },
     ];
 
-    let blogEntries = '';
+    let blogEntries = "";
     try {
       const posts = await storage.getBlogPosts();
       const published = posts.filter((p: any) => p.published);
-      blogEntries = published.map((post: any) => {
-        const lastmod = post.updatedAt
-          ? new Date(post.updatedAt).toISOString().split('T')[0]
-          : post.createdAt
-          ? new Date(post.createdAt).toISOString().split('T')[0]
-          : today;
-        return `  <url>
+      blogEntries = published
+        .map((post: any) => {
+          const lastmod = post.updatedAt
+            ? new Date(post.updatedAt).toISOString().split("T")[0]
+            : post.createdAt
+              ? new Date(post.createdAt).toISOString().split("T")[0]
+              : today;
+          return `  <url>
     <loc>${SITE_URL}/blog/${post.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>`;
-      }).join('\n');
+        })
+        .join("\n");
     } catch {
-      blogEntries = '';
+      blogEntries = "";
     }
 
-    const staticEntries = staticPages.map(p => `  <url>
+    const staticEntries = staticPages
+      .map(
+        (p) => `  <url>
     <loc>${SITE_URL}${p.url}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${p.changefreq}</changefreq>
     <priority>${p.priority}</priority>
-  </url>`).join('\n');
+  </url>`,
+      )
+      .join("\n");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -311,7 +342,7 @@ ${staticEntries}
 ${blogEntries}
 </urlset>`;
 
-    res.setHeader('Content-Type', 'application/xml');
+    res.setHeader("Content-Type", "application/xml");
     res.send(xml);
   });
 
@@ -337,14 +368,14 @@ ${blogEntries}
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       console.error("Blog create error:", err);
       res.status(500).json({ message: "Internal server error" });
     }
   });
-    
+
   app.put(api.blog.update.path, requireAuth, async (req, res) => {
     try {
       const input = api.blog.update.input.parse(req.body);
@@ -357,7 +388,7 @@ ${blogEntries}
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       console.error("Blog update error:", err);
@@ -394,7 +425,7 @@ ${blogEntries}
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       console.error("Contact create error:", err);
@@ -457,7 +488,7 @@ ${blogEntries}
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       console.error("Music create error:", err);
@@ -477,7 +508,7 @@ ${blogEntries}
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       console.error("Music update error:", err);
@@ -527,7 +558,7 @@ ${blogEntries}
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       console.error("Brand create error:", err);
@@ -547,7 +578,7 @@ ${blogEntries}
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       console.error("Brand update error:", err);
@@ -564,13 +595,15 @@ ${blogEntries}
       res.status(500).json({ message: "Internal server error" });
     }
   });
-  
-  app.post('/api/memory/verify', (req, res) => {
+
+  app.post("/api/memory/verify", (req, res) => {
     const { password } = req.body;
     const memoryPassword = process.env.MEMORY_PASSWORD;
 
     if (!memoryPassword) {
-      return res.status(500).json({ message: "Memory password not configured" });
+      return res
+        .status(500)
+        .json({ message: "Memory password not configured" });
     }
 
     if (password === memoryPassword) {
@@ -581,8 +614,10 @@ ${blogEntries}
     return res.status(401).json({ message: "Incorrect password" });
   });
 
-  app.get('/api/memory/status', (req, res) => {
-    res.json({ unlocked: !!req.session.memoryUnlocked || !!req.session.adminId });
+  app.get("/api/memory/status", (req, res) => {
+    res.json({
+      unlocked: !!req.session.memoryUnlocked || !!req.session.adminId,
+    });
   });
 
   const requireMemoryAccess = (req: any, res: any, next: any) => {
@@ -624,7 +659,7 @@ ${blogEntries}
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       console.error("Memory create error:", err);
@@ -644,7 +679,7 @@ ${blogEntries}
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       console.error("Memory update error:", err);
@@ -694,7 +729,7 @@ ${blogEntries}
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       console.error("Resume create error:", err);
@@ -714,7 +749,7 @@ ${blogEntries}
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       console.error("Resume update error:", err);
@@ -745,9 +780,11 @@ async function seedDatabase() {
       await storage.createBlogPost({
         title: "Welcome to Choiril Ahmad's Website",
         slug: "welcome-to-my-blog",
-        content: "This is my personal platform built with elegance and precision.",
+        content:
+          "This is my personal platform built with elegance and precision.",
         excerpt: "Welcome to my personal website and journal.",
-        imageUrl: "https://images.unsplash.com/photo-1499750310107-5fef28a66643",
+        imageUrl:
+          "https://images.unsplash.com/photo-1499750310107-5fef28a66643",
         published: true,
       });
     }
@@ -758,8 +795,10 @@ async function seedDatabase() {
       await storage.createMusicTrack({
         title: "eńau feat. Ari Lesmana - Sesi Potret",
         artist: "eńau",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-        albumArt: "https://images.unsplash.com/photo-1511379938547-c1f69419868d",
+        audioUrl:
+          "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        albumArt:
+          "https://images.unsplash.com/photo-1511379938547-c1f69419868d",
         duration: "4:00",
         isAutoPlay: true,
       });
@@ -770,7 +809,8 @@ async function seedDatabase() {
       log("Seeding brand items...");
       await storage.createBrandItem({
         title: "Professional Consulting Services",
-        description: "Offering expert consulting in business strategy, digital transformation, and leadership development. Helping organizations navigate change and achieve sustainable growth.",
+        description:
+          "Offering expert consulting in business strategy, digital transformation, and leadership development. Helping organizations navigate change and achieve sustainable growth.",
         imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978",
         category: "Services",
         featured: true,
@@ -782,7 +822,8 @@ async function seedDatabase() {
       log("Seeding memory items...");
       await storage.createMemoryItem({
         title: "Erlangga Solid Victory",
-        description: "It is an extraordinary trust to be able to join PT Penerbit Elangga and meet good people.",
+        description:
+          "It is an extraordinary trust to be able to join PT Penerbit Elangga and meet good people.",
         imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978",
         category: "Life",
         featured: true,
