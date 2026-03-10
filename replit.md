@@ -4,6 +4,13 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 
 ## Features
 
+### Multi-Language Support
+- English (EN) and Indonesian (ID) with toggle in navbar
+- Language preference persisted in localStorage
+- All public page UI text translated; dynamic content from DB stays as-is
+- Date formatting adapts to selected locale
+- Translation system: `client/src/lib/i18n.ts` + `client/src/hooks/use-language.tsx`
+
 ### Public Pages
 - **Home** (`/`) - Landing page with featured content
 - **About** (`/about`) - Personal information and professional background

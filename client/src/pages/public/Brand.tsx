@@ -3,9 +3,11 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useBrandItems } from "@/hooks/use-brand";
 import { Loader2, ArrowUpRight, Layers } from "lucide-react";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function Memory() {
   const { data: items, isLoading } = useBrandItems();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background">
@@ -18,13 +20,13 @@ export default function Memory() {
           className="mb-14"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider">
-            <Layers size={14} /> Portfolio
+            <Layers size={14} /> {t("brand.badge")}
           </div>
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold" data-testid="text-brand-heading">
-            Brand & Work
+            {t("brand.heading")}
           </h1>
           <p className="text-lg text-muted-foreground mt-3 max-w-2xl">
-            Selected projects, visual identities, and architectural concepts.
+            {t("brand.description")}
           </p>
         </motion.header>
 
@@ -81,8 +83,8 @@ export default function Memory() {
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <Layers size={28} className="text-primary" />
                 </div>
-                <p className="font-serif text-xl font-bold">No projects yet</p>
-                <p className="text-sm text-muted-foreground mt-2">Check back soon.</p>
+                <p className="font-serif text-xl font-bold">{t("brand.empty.title")}</p>
+                <p className="text-sm text-muted-foreground mt-2">{t("brand.empty.desc")}</p>
               </div>
             )}
           </div>

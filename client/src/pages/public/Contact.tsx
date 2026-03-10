@@ -5,11 +5,13 @@ import { Footer } from "@/components/layout/Footer";
 import { Input, Textarea, Button, Label } from "@/components/ui/core";
 import { useCreateContactMessage } from "@/hooks/use-contact";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/use-language";
 import { Loader2, Mail, MapPin, Send, MessageCircle } from "lucide-react";
 
 export default function Contact() {
   const { mutateAsync: sendMessage, isPending } = useCreateContactMessage();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const [form, setForm] = useState({
     name: "",
@@ -23,14 +25,14 @@ export default function Contact() {
     try {
       await sendMessage(form);
       toast({
-        title: "Message Sent",
-        description: "Your transmission has been received.",
+        title: t("contact.toast.success.title"),
+        description: t("contact.toast.success.desc"),
       });
       setForm({ name: "", email: "", subject: "", message: "" });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to send message.",
+        title: t("contact.toast.error.title"),
+        description: t("contact.toast.error.desc"),
         variant: "destructive",
       });
     }
@@ -47,16 +49,15 @@ export default function Contact() {
             animate={{ opacity: 1, x: 0 }}
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider">
-              <MessageCircle size={14} /> Get in Touch
+              <MessageCircle size={14} /> {t("contact.badge")}
             </div>
 
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight" data-testid="text-contact-heading">
-              Let's work
-              <span className="gradient-text"> together.</span>
+              {t("contact.heading")}
+              <span className="gradient-text">{t("contact.heading.highlight")}</span>
             </h1>
             <p className="text-lg text-muted-foreground mb-10">
-              Have a project in mind or just want to say hello? I'm currently
-              open for new opportunities.
+              {t("contact.description")}
             </p>
 
             <div className="space-y-5">
@@ -66,7 +67,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                    Email
+                    {t("contact.email")}
                   </p>
                   <a
                     href="mailto:iamchoirilfk@outlook.co.id"
@@ -82,10 +83,10 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                    Location
+                    {t("contact.location")}
                   </p>
                   <p className="font-semibold">
-                    North Sumatra, Pematangsiantar City, ID.
+                    {t("contact.locationValue")}
                   </p>
                 </div>
               </div>
@@ -98,14 +99,14 @@ export default function Contact() {
             transition={{ delay: 0.2 }}
           >
             <div className="bg-card border border-border/60 rounded-2xl p-6 md:p-8 soft-shadow-lg">
-              <h2 className="font-serif text-xl font-bold mb-6">Send a message</h2>
+              <h2 className="font-serif text-xl font-bold mb-6">{t("contact.form.title")}</h2>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-1.5">
-                  <Label htmlFor="name" className="text-sm font-medium">Name</Label>
+                  <Label htmlFor="name" className="text-sm font-medium">{t("contact.form.name")}</Label>
                   <Input
                     id="name"
                     required
-                    placeholder="Your name"
+                    placeholder={t("contact.form.name.placeholder")}
                     className="rounded-lg"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -113,12 +114,12 @@ export default function Contact() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                  <Label htmlFor="email" className="text-sm font-medium">{t("contact.form.email")}</Label>
                   <Input
                     id="email"
                     type="email"
                     required
-                    placeholder="your@email.com"
+                    placeholder={t("contact.form.email.placeholder")}
                     className="rounded-lg"
                     value={form.email}
                     onChange={(e) =>
@@ -128,11 +129,11 @@ export default function Contact() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="subject" className="text-sm font-medium">Subject</Label>
+                  <Label htmlFor="subject" className="text-sm font-medium">{t("contact.form.subject")}</Label>
                   <Input
                     id="subject"
                     required
-                    placeholder="What's this about?"
+                    placeholder={t("contact.form.subject.placeholder")}
                     className="rounded-lg"
                     value={form.subject}
                     onChange={(e) =>
@@ -142,11 +143,11 @@ export default function Contact() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="message" className="text-sm font-medium">Message</Label>
+                  <Label htmlFor="message" className="text-sm font-medium">{t("contact.form.message")}</Label>
                   <Textarea
                     id="message"
                     required
-                    placeholder="Tell me about your project..."
+                    placeholder={t("contact.form.message.placeholder")}
                     className="rounded-lg min-h-[120px]"
                     value={form.message}
                     onChange={(e) =>
@@ -165,7 +166,7 @@ export default function Contact() {
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <span className="inline-flex items-center gap-2">
-                      <Send size={16} /> Send Message
+                      <Send size={16} /> {t("contact.form.submit")}
                     </span>
                   )}
                 </Button>

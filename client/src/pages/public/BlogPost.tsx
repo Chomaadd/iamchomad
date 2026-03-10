@@ -2,6 +2,7 @@ import { useRoute } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { usePost } from "@/hooks/use-blog";
+import { useLanguage } from "@/hooks/use-language";
 import { Loader2, ArrowLeft, Clock, Calendar } from "lucide-react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
@@ -14,6 +15,8 @@ function estimateReadTime(content: string): number {
 export default function BlogPost() {
   const [, params] = useRoute("/blog/:slug");
   const slug = params?.slug ?? "";
+  const { t, language } = useLanguage();
+  const dateLocale = language === "id" ? "id-ID" : "en-US";
 
   const { data: post, isLoading } = usePost(slug);
 
@@ -25,8 +28,8 @@ export default function BlogPost() {
         <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
           <span className="font-serif text-2xl text-primary">?</span>
         </div>
-        <p className="font-serif text-2xl font-bold mb-2">Article not found</p>
-        <Link href="/blog" className="text-sm font-semibold text-primary hover:underline" data-testid="link-back-blog">Return to Blog</Link>
+        <p className="font-serif text-2xl font-bold mb-2">{t("blogpost.notFound")}</p>
+        <Link href="/blog" className="text-sm font-semibold text-primary hover:underline" data-testid="link-back-blog">{t("blogpost.return")}</Link>
       </div>
       <Footer />
     </div>
@@ -38,7 +41,7 @@ export default function BlogPost() {
 
       <main className="max-w-3xl mx-auto px-6 lg:px-8 py-12 lg:py-16">
         <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary mb-8 transition-colors" data-testid="link-back-to-blog">
-          <ArrowLeft size={16} /> Back to Blog
+          <ArrowLeft size={16} /> {t("blogpost.back")}
         </Link>
 
         <motion.article
@@ -49,11 +52,11 @@ export default function BlogPost() {
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-4">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent">
                 <Calendar size={13} />
-                {new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                {new Date(post.createdAt || Date.now()).toLocaleDateString(dateLocale, { month: 'long', day: 'numeric', year: 'numeric' })}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent">
                 <Clock size={13} />
-                {estimateReadTime(post.content)} min read
+                {estimateReadTime(post.content)} {t("blogpost.minRead")}
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4" data-testid="text-post-title">
@@ -92,7 +95,7 @@ export default function BlogPost() {
 
           <div className="mt-14 pt-8 border-t border-border/50">
             <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all">
-              <ArrowLeft size={16} /> More articles
+              <ArrowLeft size={16} /> {t("blogpost.more")}
             </Link>
           </div>
         </motion.article>

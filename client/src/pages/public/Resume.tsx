@@ -2,11 +2,13 @@ import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useResumeItems } from "@/hooks/use-resume";
+import { useLanguage } from "@/hooks/use-language";
 import { Loader2, Download, Briefcase, GraduationCap, Lightbulb, Calendar, MapPin, FileText } from "lucide-react";
 import type { ResumeItem } from "@shared/schema";
 
 export default function Resume() {
   const { data: items, isLoading } = useResumeItems();
+  const { t } = useLanguage();
 
   const experience = items?.filter(i => i.type === "experience") || [];
   const education = items?.filter(i => i.type === "education") || [];
@@ -29,16 +31,16 @@ export default function Resume() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider print:hidden">
-                <FileText size={14} /> Resume
+                <FileText size={14} /> {t("resume.badge")}
               </div>
               <h1 className="font-serif text-4xl md:text-5xl font-bold tracking-tight" data-testid="text-resume-title">
                 Choiril Ahmad
               </h1>
               <p className="text-base text-muted-foreground mt-2 max-w-xl">
-                Entrepreneur & Software Developer crafting digital experiences with precision and purpose.
+                {t("resume.subtitle")}
               </p>
               <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5"><MapPin size={14} /> Indonesia</span>
+                <span className="flex items-center gap-1.5"><MapPin size={14} /> {t("resume.location")}</span>
                 <span>iamchoirilfk@gmail.com</span>
               </div>
             </div>
@@ -48,7 +50,7 @@ export default function Resume() {
               data-testid="button-download-resume"
             >
               <Download size={16} />
-              <span className="hidden sm:inline">Save PDF</span>
+              <span className="hidden sm:inline">{t("resume.savePdf")}</span>
             </button>
           </div>
         </motion.header>
@@ -67,7 +69,7 @@ export default function Resume() {
                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center print:bg-gray-100">
                     <Briefcase size={20} className="text-blue-600 dark:text-blue-400 print:text-gray-700" />
                   </div>
-                  <h2 className="font-serif text-2xl font-bold">Experience</h2>
+                  <h2 className="font-serif text-2xl font-bold">{t("resume.experience")}</h2>
                 </div>
 
                 <div className="space-y-0">
@@ -88,7 +90,7 @@ export default function Resume() {
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center print:bg-gray-100">
                     <GraduationCap size={20} className="text-emerald-600 dark:text-emerald-400 print:text-gray-700" />
                   </div>
-                  <h2 className="font-serif text-2xl font-bold">Education</h2>
+                  <h2 className="font-serif text-2xl font-bold">{t("resume.education")}</h2>
                 </div>
 
                 <div className="space-y-0">
@@ -109,7 +111,7 @@ export default function Resume() {
                   <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center print:bg-gray-100">
                     <Lightbulb size={20} className="text-purple-600 dark:text-purple-400 print:text-gray-700" />
                   </div>
-                  <h2 className="font-serif text-2xl font-bold">Skills</h2>
+                  <h2 className="font-serif text-2xl font-bold">{t("resume.skills")}</h2>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -142,8 +144,8 @@ export default function Resume() {
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <FileText size={28} className="text-primary" />
                 </div>
-                <p className="font-serif text-xl font-bold">Resume content coming soon</p>
-                <p className="text-sm text-muted-foreground mt-2">Check back later for updates.</p>
+                <p className="font-serif text-xl font-bold">{t("resume.empty.title")}</p>
+                <p className="text-sm text-muted-foreground mt-2">{t("resume.empty.desc")}</p>
               </div>
             )}
           </div>

@@ -4,10 +4,12 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { usePosts } from "@/hooks/use-blog";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function Home() {
   const { data: posts } = usePosts();
   const featuredPosts = posts?.slice(0, 3) || [];
+  const { t, language } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -51,17 +53,16 @@ export default function Home() {
                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                Available for work
+                {t("home.badge")}
               </motion.div>
 
               <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-balance leading-[1.1] max-w-4xl mx-auto" data-testid="text-hero-heading">
-                Building digital products,
-                <span className="gradient-text"> brands</span>, and experience.
+                {t("home.heading")}
+                <span className="gradient-text">{t("home.heading.highlight")}</span>{t("home.heading.end")}
               </h1>
 
               <p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-                A Frontend Developer and Visual Designer with experience in web
-                design, brand identity and product design.
+                {t("home.description")}
               </p>
 
               <div className="mt-10 flex flex-wrap gap-4 justify-center">
@@ -70,7 +71,7 @@ export default function Home() {
                   className="inline-flex items-center justify-center gap-2 px-7 py-3 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all rounded-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5"
                   data-testid="link-cta-connect"
                 >
-                  Connect with me
+                  {t("home.cta.connect")}
                   <ArrowRight size={16} />
                 </Link>
                 <Link
@@ -78,7 +79,7 @@ export default function Home() {
                   className="inline-flex items-center justify-center gap-2 px-7 py-3 text-sm font-semibold border border-border hover:bg-accent transition-all rounded-full"
                   data-testid="link-cta-about"
                 >
-                  Learn more
+                  {t("home.cta.learn")}
                 </Link>
               </div>
             </motion.div>
@@ -89,15 +90,15 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="flex justify-between items-end mb-12">
               <div>
-                <p className="text-sm font-semibold text-primary mb-2 uppercase tracking-wider">From the blog</p>
-                <h2 className="font-serif text-3xl lg:text-4xl font-bold">Latest Posts</h2>
+                <p className="text-sm font-semibold text-primary mb-2 uppercase tracking-wider">{t("home.blog.label")}</p>
+                <h2 className="font-serif text-3xl lg:text-4xl font-bold">{t("home.blog.heading")}</h2>
               </div>
               <Link
                 href="/blog"
                 className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all"
                 data-testid="link-view-all-posts"
               >
-                View all <ArrowRight size={16} />
+                {t("home.blog.viewAll")} <ArrowRight size={16} />
               </Link>
             </div>
 
@@ -127,7 +128,7 @@ export default function Home() {
                       </div>
                       <div className="p-5 space-y-3">
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          {new Date(post.createdAt).toLocaleDateString("en-US", {
+                          {new Date(post.createdAt).toLocaleDateString(language === "id" ? "id-ID" : "en-US", {
                             month: "long",
                             day: "numeric",
                             year: "numeric",
@@ -148,7 +149,7 @@ export default function Home() {
 
             <div className="mt-8 text-center sm:hidden">
               <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                View all posts <ArrowRight size={16} />
+                {t("home.blog.viewAllPosts")} <ArrowRight size={16} />
               </Link>
             </div>
           </div>

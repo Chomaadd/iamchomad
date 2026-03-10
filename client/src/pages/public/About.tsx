@@ -2,12 +2,15 @@ import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Palette, Code, PenTool } from "lucide-react";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function About() {
+  const { t } = useLanguage();
+
   const highlights = [
-    { icon: Palette, title: "Creative Direction", desc: "Guiding brand vision from conception to execution." },
-    { icon: Code, title: "Digital Architecture", desc: "Structuring complex systems with intuitive grace." },
-    { icon: PenTool, title: "Editorial Design", desc: "Crafting typography-driven narrative experiences." },
+    { icon: Palette, title: t("about.highlight.creative"), desc: t("about.highlight.creative.desc") },
+    { icon: Code, title: t("about.highlight.digital"), desc: t("about.highlight.digital.desc") },
+    { icon: PenTool, title: t("about.highlight.editorial"), desc: t("about.highlight.editorial.desc") },
   ];
 
   return (
@@ -49,40 +52,31 @@ export default function About() {
             className="lg:col-span-7"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-6 uppercase tracking-wider">
-              About Me
+              {t("about.badge")}
             </div>
 
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight" data-testid="text-about-heading">
-              Beginner Entrepreneur <br />
+              {t("about.heading")} <br />
               <span className="gradient-text">
-                & Software Developer.
+                {t("about.heading.highlight")}
               </span>
             </h1>
 
             <div className="space-y-6 text-muted-foreground leading-relaxed">
               <p className="text-lg font-medium text-foreground">
-                With over a decade of experience bridging the gap between
-                brutalist function and elegant form, I craft identities that
-                resonate on a visceral level.
+                {t("about.intro")}
               </p>
 
               <p>
-                My philosophy is simple: design is not just about making things
-                look good. It is about distilling complexity into its purest,
-                most potent form. Every line, every shadow, every code must
-                prove its existence in the line.
+                {t("about.philosophy")}
               </p>
 
               <div className="bg-card border border-border/60 rounded-2xl p-6 my-8 soft-shadow">
                 <h3 className="font-serif text-xl font-bold text-foreground mb-4">
-                  Experience & Philosophy
+                  {t("about.experience.title")}
                 </h3>
                 <p className="text-muted-foreground">
-                  I have collaborated with forward-thinking startups and
-                  established luxury brands, redefining their digital presence. By
-                  adopting a strict monochromatic foundation, I ensure that the
-                  content itself takes center stage, supported by flawless
-                  typography and structural integrity.
+                  {t("about.experience.desc")}
                 </p>
               </div>
 

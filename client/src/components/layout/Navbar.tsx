@@ -1,24 +1,30 @@
 import { Link, useLocation } from "wouter";
-import { Moon, Sun, Menu, X } from "lucide-react";
+import { Moon, Sun, Menu, X, Globe } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
+import { useLanguage } from "@/hooks/use-language";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function Navbar() {
   const [location] = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const links = [
-    { href: "/", label: "Home" },
-    { href: "/about", label: "About" },
-    { href: "/blog", label: "Blog" },
-    { href: "/brand", label: "Brand" },
-    { href: "/memory", label: "Memory"},
-    { href: "/music", label: "Sound" },
-    { href: "/resume", label: "Resume" },
-    { href: "/contact", label: "Contact" },
+    { href: "/", label: t("nav.home") },
+    { href: "/about", label: t("nav.about") },
+    { href: "/blog", label: t("nav.blog") },
+    { href: "/brand", label: t("nav.brand") },
+    { href: "/memory", label: t("nav.memory") },
+    { href: "/music", label: t("nav.music") },
+    { href: "/resume", label: t("nav.resume") },
+    { href: "/contact", label: t("nav.contact") },
   ];
+
+  const toggleLanguage = () => {
+    setLanguage(language === "en" ? "id" : "en");
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full">
@@ -48,6 +54,14 @@ export function Navbar() {
             })}
             <div className="w-px h-6 bg-border mx-2" />
             <button
+              onClick={toggleLanguage}
+              className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-full hover:bg-accent transition-colors text-muted-foreground hover:text-foreground text-xs font-semibold"
+              data-testid="button-language-toggle"
+            >
+              <Globe size={16} />
+              {language.toUpperCase()}
+            </button>
+            <button
               onClick={toggleTheme}
               className="p-2.5 rounded-full hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
               data-testid="button-theme-toggle"
@@ -57,6 +71,14 @@ export function Navbar() {
           </nav>
 
           <div className="flex lg:hidden items-center gap-2">
+            <button
+              onClick={toggleLanguage}
+              className="inline-flex items-center gap-1 px-2 py-2 rounded-full hover:bg-accent transition-colors text-xs font-semibold"
+              data-testid="button-language-toggle-mobile"
+            >
+              <Globe size={16} />
+              {language.toUpperCase()}
+            </button>
             <button onClick={toggleTheme} className="p-2.5 rounded-full hover:bg-accent transition-colors" data-testid="button-theme-toggle-mobile">
               {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
             </button>

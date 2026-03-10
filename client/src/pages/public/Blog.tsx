@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { usePosts } from "@/hooks/use-blog";
+import { useLanguage } from "@/hooks/use-language";
 import { Loader2, ArrowRight, Clock, BookOpen } from "lucide-react";
 
 function estimateReadTime(content: string): number {
@@ -12,6 +13,8 @@ function estimateReadTime(content: string): number {
 
 export default function Blog() {
   const { data: posts, isLoading } = usePosts();
+  const { t, language } = useLanguage();
+  const dateLocale = language === "id" ? "id-ID" : "en-US";
   const publishedPosts = posts?.filter(post => post.published);
 
   const featuredPost = publishedPosts?.[0];
@@ -28,13 +31,13 @@ export default function Blog() {
           className="mb-12"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider">
-            <BookOpen size={14} /> Blog
+            <BookOpen size={14} /> {t("blog.badge")}
           </div>
           <h1 className="font-serif text-4xl md:text-5xl font-bold tracking-tight" data-testid="text-blog-heading">
-            Thoughts & Stories
+            {t("blog.heading")}
           </h1>
           <p className="text-lg text-muted-foreground mt-3 max-w-xl">
-            Thoughts, essays, and observations on design, technology, and the creative process.
+            {t("blog.description")}
           </p>
         </motion.header>
 
@@ -65,14 +68,14 @@ export default function Blog() {
                       </div>
                       <div className="p-6 lg:p-10 flex flex-col justify-center">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 w-fit">
-                          Featured
+                          {t("blog.featured")}
                         </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
                           <span className="font-medium">
-                            {new Date(featuredPost.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                            {new Date(featuredPost.createdAt || Date.now()).toLocaleDateString(dateLocale, { month: 'long', day: 'numeric', year: 'numeric' })}
                           </span>
                           <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
-                          <span className="flex items-center gap-1"><Clock size={12} /> {estimateReadTime(featuredPost.content)} min read</span>
+                          <span className="flex items-center gap-1"><Clock size={12} /> {estimateReadTime(featuredPost.content)} {t("blog.minRead")}</span>
                         </div>
                         <h2 className="font-serif text-2xl lg:text-3xl font-bold leading-tight group-hover:text-primary transition-colors mb-3">
                           {featuredPost.title}
@@ -81,7 +84,7 @@ export default function Blog() {
                           {featuredPost.excerpt}
                         </p>
                         <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary group-hover:gap-3 transition-all">
-                          Read article <ArrowRight size={16} />
+                          {t("blog.readArticle")} <ArrowRight size={16} />
                         </span>
                       </div>
                     </div>
@@ -116,10 +119,10 @@ export default function Blog() {
                         <div className="p-5 flex flex-col flex-1">
                           <div className="flex items-center gap-2 text-[11px] text-muted-foreground mb-3">
                             <span className="font-medium">
-                              {new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              {new Date(post.createdAt || Date.now()).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}
                             </span>
                             <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
-                            <span>{estimateReadTime(post.content)} min</span>
+                            <span>{estimateReadTime(post.content)} {t("blog.minRead")}</span>
                           </div>
                           <h3 className="font-serif text-lg font-bold leading-snug group-hover:text-primary transition-colors line-clamp-2">
                             {post.title}
@@ -128,7 +131,7 @@ export default function Blog() {
                             {post.excerpt}
                           </p>
                           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary mt-4 group-hover:gap-2.5 transition-all">
-                            Read more <ArrowRight size={14} />
+                            {t("blog.readMore")} <ArrowRight size={14} />
                           </span>
                         </div>
                       </div>
@@ -143,8 +146,8 @@ export default function Blog() {
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <BookOpen size={28} className="text-primary" />
                 </div>
-                <p className="font-serif text-xl font-bold">No published posts yet</p>
-                <p className="text-sm text-muted-foreground mt-2">Check back soon for new content.</p>
+                <p className="font-serif text-xl font-bold">{t("blog.empty.title")}</p>
+                <p className="text-sm text-muted-foreground mt-2">{t("blog.empty.desc")}</p>
               </div>
             )}
           </>

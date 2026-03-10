@@ -4,9 +4,11 @@ import { Footer } from "@/components/layout/Footer";
 import { useMusicTracks } from "@/hooks/use-music";
 import { Loader2, Play, Pause, Music2, Headphones } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function Music() {
   const { data: tracks, isLoading } = useMusicTracks();
+  const { t } = useLanguage();
   const [playing, setPlaying] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -41,13 +43,13 @@ export default function Music() {
           className="mb-14 text-center"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider">
-            <Headphones size={14} /> Music
+            <Headphones size={14} /> {t("music.badge")}
           </div>
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold" data-testid="text-music-heading">
-            Soundscapes
+            {t("music.heading")}
           </h1>
           <p className="text-lg text-muted-foreground mt-3 mx-auto max-w-2xl">
-            Choiril Ahmad's favorite that he listens to all the time.
+            {t("music.description")}
           </p>
         </motion.header>
 
@@ -107,8 +109,8 @@ export default function Music() {
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <Music2 size={28} className="text-primary" />
                 </div>
-                <p className="font-serif text-xl font-bold">No tracks yet</p>
-                <p className="text-sm text-muted-foreground mt-2">Check back soon.</p>
+                <p className="font-serif text-xl font-bold">{t("music.empty.title")}</p>
+                <p className="text-sm text-muted-foreground mt-2">{t("music.empty.desc")}</p>
               </div>
             )}
           </div>

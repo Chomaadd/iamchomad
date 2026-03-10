@@ -2,8 +2,11 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { ArrowLeft, Home, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function NotFound() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background text-foreground overflow-hidden relative">
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
@@ -23,16 +26,16 @@ export default function NotFound() {
         </div>
 
         <h1 className="font-serif text-8xl md:text-9xl font-bold tracking-tighter mb-2 gradient-text" data-testid="text-404">404</h1>
-        <h2 className="font-serif text-2xl md:text-3xl font-bold mb-6">Page not found</h2>
+        <h2 className="font-serif text-2xl md:text-3xl font-bold mb-6">{t("notfound.heading")}</h2>
 
         <p className="text-lg text-muted-foreground max-w-md mx-auto mb-10 leading-relaxed">
-          The page you're looking for doesn't exist or has been moved to a different location.
+          {t("notfound.description")}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/">
             <Button size="lg" className="w-full sm:w-auto gap-2 rounded-full h-12 px-8 shadow-lg shadow-primary/25">
-              <Home className="w-4 h-4" /> Return Home
+              <Home className="w-4 h-4" /> {t("notfound.home")}
             </Button>
           </Link>
           <Button
@@ -41,7 +44,7 @@ export default function NotFound() {
             className="w-full sm:w-auto gap-2 rounded-full h-12 px-8"
             onClick={() => window.history.back()}
           >
-            <ArrowLeft className="w-4 h-4" /> Go Back
+            <ArrowLeft className="w-4 h-4" /> {t("notfound.back")}
           </Button>
         </div>
       </motion.div>

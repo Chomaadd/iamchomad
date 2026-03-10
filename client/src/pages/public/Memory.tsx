@@ -6,6 +6,7 @@ import { useMemoryItems } from "@/hooks/use-memory";
 import { Loader2, ArrowUpRight, Camera, Lock, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useLanguage } from "@/hooks/use-language";
 
 function useMemoryStatus() {
   return useQuery<{ unlocked: boolean }>({
@@ -20,6 +21,7 @@ export default function Memory() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const { t } = useLanguage();
 
   const verifyMutation = useMutation({
     mutationFn: async (pwd: string) => {
@@ -32,7 +34,7 @@ export default function Memory() {
       queryClient.invalidateQueries({ queryKey: ["/api/memory/status"] });
     },
     onError: () => {
-      setError("Incorrect password. Please try again.");
+      setError(t("memory.locked.error"));
     },
   });
 
@@ -71,10 +73,10 @@ export default function Memory() {
             </div>
 
             <h1 className="font-serif text-3xl md:text-4xl font-bold mb-3" data-testid="text-memory-locked">
-              Protected Memories
+              {t("memory.locked.heading")}
             </h1>
             <p className="text-muted-foreground mb-8">
-              This page is private. Enter the password to view these memories.
+              {t("memory.locked.desc")}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -83,7 +85,7 @@ export default function Memory() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setError(""); }}
-                  placeholder="Enter password"
+                  placeholder={t("memory.locked.placeholder")}
                   className="w-full px-4 py-3 pr-12 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                   autoFocus
                   data-testid="input-memory-password"
@@ -120,7 +122,7 @@ export default function Memory() {
                 ) : (
                   <>
                     <ShieldCheck size={18} />
-                    Unlock Memories
+                    {t("memory.locked.button")}
                   </>
                 )}
               </button>
@@ -144,13 +146,13 @@ export default function Memory() {
           className="mb-14"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider">
-            <Camera size={14} /> Gallery
+            <Camera size={14} /> {t("memory.badge")}
           </div>
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold" data-testid="text-memory-heading">
-            Memories Immortalized
+            {t("memory.heading")}
           </h1>
           <p className="text-lg text-muted-foreground mt-3 max-w-2xl">
-            Sharing memorable moments with people you meet in this life.
+            {t("memory.description")}
           </p>
         </motion.header>
 
@@ -215,8 +217,8 @@ export default function Memory() {
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <Camera size={28} className="text-primary" />
                 </div>
-                <p className="font-serif text-xl font-bold">No memories yet</p>
-                <p className="text-sm text-muted-foreground mt-2">Check back soon.</p>
+                <p className="font-serif text-xl font-bold">{t("memory.empty.title")}</p>
+                <p className="text-sm text-muted-foreground mt-2">{t("memory.empty.desc")}</p>
               </div>
             )}
           </div>
