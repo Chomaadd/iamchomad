@@ -38,7 +38,7 @@ export default function Home() {
               >
                 <div className="w-32 h-32 lg:w-40 lg:h-40 mx-auto overflow-hidden rounded-full ring-4 ring-primary/20 ring-offset-4 ring-offset-background shadow-lg">
                   <img
-                    src="/image/hiarill.jpg"
+                    src="/image/hellomaddy.jpg"
                     alt="Choiril Ahmad"
                     className="w-full h-full object-cover"
                   />
