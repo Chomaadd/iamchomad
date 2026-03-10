@@ -157,3 +157,31 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.5);
 }
+
+@page {
+  margin: 0;
+  size: A4;
+}
+
+@media print {
+  body {
+    padding: 1.5cm 2cm;
+    background: #fff !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  * {
+    color: #000 !important;
+    background-color: transparent !important;
+    border-color: #ccc !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+}
