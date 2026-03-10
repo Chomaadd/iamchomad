@@ -258,6 +258,63 @@ export async function registerRoutes(
     }
   });
 
+  app.get('/robots.txt', (_req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.send(`User-agent: *\nAllow: /\n\nSitemap: https://iamchomad.my.id/sitemap.xml\n`);
+  });
+
+  app.get('/sitemap.xml', async (_req, res) => {
+    const SITE_URL = 'https://iamchomad.my.id';
+    const today = new Date().toISOString().split('T')[0];
+
+    const staticPages = [
+      { url: '/', priority: '1.0', changefreq: 'weekly' },
+      { url: '/about', priority: '0.8', changefreq: 'monthly' },
+      { url: '/blog', priority: '0.9', changefreq: 'daily' },
+      { url: '/brand', priority: '0.7', changefreq: 'monthly' },
+      { url: '/music', priority: '0.7', changefreq: 'monthly' },
+      { url: '/resume', priority: '0.8', changefreq: 'monthly' },
+      { url: '/contact', priority: '0.6', changefreq: 'yearly' },
+    ];
+
+    let blogEntries = '';
+    try {
+      const posts = await storage.getBlogPosts();
+      const published = posts.filter((p: any) => p.published);
+      blogEntries = published.map((post: any) => {
+        const lastmod = post.updatedAt
+          ? new Date(post.updatedAt).toISOString().split('T')[0]
+          : post.createdAt
+          ? new Date(post.createdAt).toISOString().split('T')[0]
+          : today;
+        return `  <url>
+    <loc>${SITE_URL}/blog/${post.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`;
+      }).join('\n');
+    } catch {
+      blogEntries = '';
+    }
+
+    const staticEntries = staticPages.map(p => `  <url>
+    <loc>${SITE_URL}${p.url}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${p.changefreq}</changefreq>
+    <priority>${p.priority}</priority>
+  </url>`).join('\n');
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${staticEntries}
+${blogEntries}
+</urlset>`;
+
+    res.setHeader('Content-Type', 'application/xml');
+    res.send(xml);
+  });
+
   app.get(api.blog.get.path, async (req, res) => {
     try {
       const post = await storage.getBlogPost(req.params.slug);
