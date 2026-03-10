@@ -5,7 +5,7 @@ import { useResumeItems } from "@/hooks/use-resume";
 import { useLanguage } from "@/hooks/use-language";
 import { Loader2, Download, Briefcase, GraduationCap, Lightbulb, Calendar, MapPin, FileText } from "lucide-react";
 import type { ResumeItem } from "@shared/schema";
-import { SeoHead } from "@/components/SeoHead";
+import { SeoHead } from "@/components/seometa/SeoHead";
 
 export default function Resume() {
   const { data: items, isLoading } = useResumeItems();

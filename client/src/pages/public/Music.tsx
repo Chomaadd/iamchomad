@@ -5,7 +5,7 @@ import { useMusicTracks } from "@/hooks/use-music";
 import { Loader2, Play, Pause, Music2, Headphones } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/hooks/use-language";
-import { SeoHead } from "@/components/SeoHead";
+import { SeoHead } from "@/components/seometa/SeoHead";
 
 export default function Music() {
   const { data: tracks, isLoading } = useMusicTracks();

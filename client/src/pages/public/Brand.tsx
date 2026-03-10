@@ -4,7 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { useBrandItems } from "@/hooks/use-brand";
 import { Loader2, ArrowUpRight, Layers } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
-import { SeoHead } from "@/components/SeoHead";
+import { SeoHead } from "@/components/seometa/SeoHead";
 
 export default function Memory() {
   const { data: items, isLoading } = useBrandItems();

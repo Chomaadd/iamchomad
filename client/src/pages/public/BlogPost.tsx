@@ -6,7 +6,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { Loader2, ArrowLeft, Clock, Calendar } from "lucide-react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { SeoHead } from "@/components/SeoHead";
+import { SeoHead } from "@/components/seometa/SeoHead";
 
 function estimateReadTime(content: string): number {
   const words = content.trim().split(/\s+/).length;

@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { usePosts } from "@/hooks/use-blog";
 import { useLanguage } from "@/hooks/use-language";
 import { Loader2, ArrowRight, Clock, BookOpen } from "lucide-react";
-import { SeoHead } from "@/components/SeoHead";
+import { SeoHead } from "@/components/seometa/SeoHead";
 
 function estimateReadTime(content: string): number {
   const words = content.trim().split(/\s+/).length;

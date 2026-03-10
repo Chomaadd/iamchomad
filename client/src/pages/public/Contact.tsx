@@ -7,7 +7,7 @@ import { useCreateContactMessage } from "@/hooks/use-contact";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
 import { Loader2, Mail, MapPin, Send, MessageCircle } from "lucide-react";
-import { SeoHead } from "@/components/SeoHead";
+import { SeoHead } from "@/components/seometa/SeoHead";
 
 export default function Contact() {
   const { mutateAsync: sendMessage, isPending } = useCreateContactMessage();

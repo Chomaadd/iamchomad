@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { ArrowLeft, Home, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
-import { SeoHead } from "@/components/SeoHead";
+import { SeoHead } from "@/components/seometa/SeoHead";
 
 export default function NotFound() {
   const { t } = useLanguage();

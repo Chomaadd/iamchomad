@@ -3,7 +3,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Palette, Code, PenTool } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
-import { SeoHead } from "@/components/SeoHead";
+import { SeoHead } from "@/components/seometa/SeoHead";
 
 export default function About() {
   const { t } = useLanguage();
