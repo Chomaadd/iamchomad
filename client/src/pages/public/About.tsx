@@ -3,6 +3,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Palette, Code, PenTool } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
+import { SeoHead } from "@/components/SeoHead";
 
 export default function About() {
   const { t } = useLanguage();
@@ -15,6 +16,11 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead
+        title="About"
+        description="Learn about Choiril Ahmad — Entrepreneur & Software Developer from Indonesia, crafting digital experiences with precision and purpose."
+        url="/about"
+      />
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">

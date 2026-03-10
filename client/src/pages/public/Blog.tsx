@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { usePosts } from "@/hooks/use-blog";
 import { useLanguage } from "@/hooks/use-language";
 import { Loader2, ArrowRight, Clock, BookOpen } from "lucide-react";
+import { SeoHead } from "@/components/SeoHead";
 
 function estimateReadTime(content: string): number {
   const words = content.trim().split(/\s+/).length;
@@ -22,6 +23,11 @@ export default function Blog() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead
+        title="Blog"
+        description="Thoughts, stories, and ideas from Choiril Ahmad on entrepreneurship, software development, and creativity."
+        url="/blog"
+      />
       <Navbar />
 
       <main className="max-w-6xl mx-auto px-6 lg:px-8 py-16 lg:py-24">

@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { usePosts } from "@/hooks/use-blog";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
+import { SeoHead } from "@/components/SeoHead";
 
 export default function Home() {
   const { data: posts } = usePosts();
@@ -13,6 +14,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SeoHead url="/" />
       <Navbar />
 
       <main>

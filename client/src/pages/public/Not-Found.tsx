@@ -3,12 +3,14 @@ import { Link } from "wouter";
 import { ArrowLeft, Home, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
+import { SeoHead } from "@/components/SeoHead";
 
 export default function NotFound() {
   const { t } = useLanguage();
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background text-foreground overflow-hidden relative">
+      <SeoHead title="Page Not Found" description="This page doesn't exist on Choiril Ahmad's website." />
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full bg-violet-500/5 blur-3xl" />

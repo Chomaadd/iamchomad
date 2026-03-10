@@ -5,6 +5,7 @@ import { useResumeItems } from "@/hooks/use-resume";
 import { useLanguage } from "@/hooks/use-language";
 import { Loader2, Download, Briefcase, GraduationCap, Lightbulb, Calendar, MapPin, FileText } from "lucide-react";
 import type { ResumeItem } from "@shared/schema";
+import { SeoHead } from "@/components/SeoHead";
 
 export default function Resume() {
   const { data: items, isLoading } = useResumeItems();
@@ -20,6 +21,11 @@ export default function Resume() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead
+        title="Resume"
+        description="Professional resume of Choiril Ahmad — experience, education, and skills as an Entrepreneur & Software Developer."
+        url="/resume"
+      />
       <Navbar />
 
       <main className="max-w-4xl mx-auto px-6 lg:px-8 py-16 lg:py-24 print:py-8 print:px-4">

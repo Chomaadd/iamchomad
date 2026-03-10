@@ -7,6 +7,7 @@ import { useCreateContactMessage } from "@/hooks/use-contact";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
 import { Loader2, Mail, MapPin, Send, MessageCircle } from "lucide-react";
+import { SeoHead } from "@/components/SeoHead";
 
 export default function Contact() {
   const { mutateAsync: sendMessage, isPending } = useCreateContactMessage();
@@ -40,6 +41,11 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead
+        title="Contact"
+        description="Get in touch with Choiril Ahmad — send a message for collaborations, projects, or just to say hello."
+        url="/contact"
+      />
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">

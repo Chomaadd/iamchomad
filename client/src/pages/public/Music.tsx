@@ -5,6 +5,7 @@ import { useMusicTracks } from "@/hooks/use-music";
 import { Loader2, Play, Pause, Music2, Headphones } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/hooks/use-language";
+import { SeoHead } from "@/components/SeoHead";
 
 export default function Music() {
   const { data: tracks, isLoading } = useMusicTracks();
@@ -33,6 +34,11 @@ export default function Music() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead
+        title="Sound"
+        description="Music and audio collection by Choiril Ahmad — a personal selection of sounds and compositions."
+        url="/music"
+      />
       <Navbar />
       <audio ref={audioRef} onEnded={() => setPlaying(null)} />
 

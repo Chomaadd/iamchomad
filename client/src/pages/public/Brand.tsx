@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { useBrandItems } from "@/hooks/use-brand";
 import { Loader2, ArrowUpRight, Layers } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
+import { SeoHead } from "@/components/SeoHead";
 
 export default function Memory() {
   const { data: items, isLoading } = useBrandItems();
@@ -11,6 +12,11 @@ export default function Memory() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead
+        title="Brand"
+        description="Brand projects and creative work by Choiril Ahmad — a showcase of design, identity, and visual storytelling."
+        url="/brand"
+      />
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">

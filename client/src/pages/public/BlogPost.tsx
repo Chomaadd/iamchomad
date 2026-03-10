@@ -6,6 +6,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { Loader2, ArrowLeft, Clock, Calendar } from "lucide-react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { SeoHead } from "@/components/SeoHead";
 
 function estimateReadTime(content: string): number {
   const words = content.trim().split(/\s+/).length;
@@ -37,6 +38,15 @@ export default function BlogPost() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead
+        title={post.title}
+        description={post.excerpt || post.content.slice(0, 160).replace(/\n/g, " ")}
+        url={`/blog/${slug}`}
+        type="article"
+        article={{
+          publishedTime: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+        }}
+      />
       <Navbar />
 
       <main className="max-w-3xl mx-auto px-6 lg:px-8 py-12 lg:py-16">
