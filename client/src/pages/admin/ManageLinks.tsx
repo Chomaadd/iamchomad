@@ -2,8 +2,9 @@ import { useState } from "react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useLinkItems, useCreateLinkItem, useUpdateLinkItem, useDeleteLinkItem } from "@/hooks/use-links";
 import { Button, Input, Label, Modal } from "@/components/ui/core";
-import { Plus, Edit2, Trash2, ExternalLink, GripVertical, Eye, EyeOff } from "lucide-react";
+import { Plus, Edit2, Trash2, GripVertical, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { LinkIcon, LinkIconPreview } from "@/lib/social-icons";
 import type { LinkItem } from "@shared/schema";
 
 const emptyForm = {
@@ -93,7 +94,12 @@ export default function ManageLinks() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-links-title">Links</h1>
-          <p className="text-sm text-muted-foreground mt-1">{sorted.length} link{sorted.length !== 1 ? "s" : ""} · <a href="/links" target="_blank" className="underline underline-offset-2 hover:text-foreground transition-colors">View page ↗</a></p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {sorted.length} link{sorted.length !== 1 ? "s" : ""} ·{" "}
+            <a href="/links" target="_blank" className="underline underline-offset-2 hover:text-foreground transition-colors">
+              View page ↗
+            </a>
+          </p>
         </div>
         <Button onClick={openCreate} className="gap-2" data-testid="button-add-link">
           <Plus size={16} /> Add Link
@@ -104,18 +110,18 @@ export default function ManageLinks() {
         {sorted.map((link) => (
           <div
             key={link.id}
-            className={`group flex items-center gap-4 border rounded-xl p-4 bg-card transition-all duration-200 ${link.isActive ? "border-border hover:border-primary/40 hover:shadow-sm" : "border-dashed border-border opacity-50"}`}
+            className={`group flex items-center gap-4 border rounded-xl p-4 bg-card transition-all duration-200 ${
+              link.isActive
+                ? "border-border hover:border-primary/40 hover:shadow-sm"
+                : "border-dashed border-border opacity-50"
+            }`}
             data-testid={`card-link-${link.id}`}
           >
             <GripVertical size={16} className="text-muted-foreground/40 shrink-0 cursor-grab" />
 
-            {link.icon ? (
-              <span className="text-2xl shrink-0">{link.icon}</span>
-            ) : (
-              <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                <ExternalLink size={14} className="text-muted-foreground" />
-              </div>
-            )}
+            <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-lg bg-muted">
+              <LinkIcon url={link.url} emoji={link.icon} size={20} />
+            </div>
 
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm truncate">{link.title}</p>
@@ -166,6 +172,21 @@ export default function ManageLinks() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? "Edit Link" : "Add Link"}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
+            <Label>URL <span className="text-destructive">*</span></Label>
+            <Input
+              required
+              placeholder="https://instagram.com/username"
+              value={form.url}
+              onChange={e => setForm({ ...form, url: e.target.value })}
+              data-testid="input-link-url"
+            />
+            {form.url && (
+              <div className="mt-2">
+                <LinkIconPreview url={form.url} emoji={form.icon} />
+              </div>
+            )}
+          </div>
+          <div>
             <Label>Title <span className="text-destructive">*</span></Label>
             <Input
               required
@@ -173,17 +194,6 @@ export default function ManageLinks() {
               value={form.title}
               onChange={e => setForm({ ...form, title: e.target.value })}
               data-testid="input-link-title"
-            />
-          </div>
-          <div>
-            <Label>URL <span className="text-destructive">*</span></Label>
-            <Input
-              required
-              type="url"
-              placeholder="https://..."
-              value={form.url}
-              onChange={e => setForm({ ...form, url: e.target.value })}
-              data-testid="input-link-url"
             />
           </div>
           <div>
@@ -196,9 +206,11 @@ export default function ManageLinks() {
             />
           </div>
           <div>
-            <Label>Icon / Emoji <span className="text-xs text-muted-foreground">(optional)</span></Label>
+            <Label>
+              Custom Emoji <span className="text-xs text-muted-foreground">(opsional — kosongkan untuk otomatis)</span>
+            </Label>
             <Input
-              placeholder="e.g. 📸 or 🎵"
+              placeholder="e.g. 📸 🎵 ✉️ — kosongkan untuk auto-detect"
               value={form.icon}
               onChange={e => setForm({ ...form, icon: e.target.value })}
               data-testid="input-link-icon"
