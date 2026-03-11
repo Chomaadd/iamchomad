@@ -406,6 +406,15 @@ ${blogEntries}
     }
   });
 
+  app.post("/api/blog/:slug/view", async (req, res) => {
+    try {
+      const post = await storage.incrementViewCount(req.params.slug);
+      res.json({ viewCount: post.viewCount });
+    } catch (err) {
+      res.status(404).json({ message: "Blog post not found" });
+    }
+  });
+
   app.get(api.contact.list.path, requireAuth, async (req, res) => {
     try {
       const messages = await storage.getContactMessages();

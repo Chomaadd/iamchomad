@@ -44,6 +44,7 @@ import mongoose from 'mongoose';
     createBlogPost(post: CreateBlogPostRequest): Promise<BlogPost>;
     updateBlogPost(id: string, updates: UpdateBlogPostRequest): Promise<BlogPost>;
     deleteBlogPost(id: string): Promise<void>;
+    incrementViewCount(slug: string): Promise<BlogPost>;
     
     getContactMessages(): Promise<ContactMessage[]>;
     createContactMessage(message: CreateContactMessageRequest): Promise<ContactMessage>;
@@ -141,6 +142,16 @@ import mongoose from 'mongoose';
 
     async deleteBlogPost(id: string): Promise<void> {
       await BlogPostModel.findByIdAndDelete(id);
+    }
+
+    async incrementViewCount(slug: string): Promise<BlogPost> {
+      const updated = await BlogPostModel.findOneAndUpdate(
+        { slug },
+        { $inc: { viewCount: 1 } },
+        { new: true }
+      );
+      if (!updated) throw new Error('Blog post not found');
+      return mapId(updated);
     }
 
     async getContactMessages(): Promise<ContactMessage[]> {

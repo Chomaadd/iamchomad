@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRoute } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { usePost } from "@/hooks/use-blog";
 import { useLanguage } from "@/hooks/use-language";
-import { Loader2, ArrowLeft, Clock, Calendar, Share2, Link2, Check } from "lucide-react";
+import { Loader2, ArrowLeft, Clock, Calendar, Share2, Link2, Check, Eye } from "lucide-react";
 import { SiWhatsapp, SiX } from "react-icons/si";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { SeoHead } from "@/components/seometa/SeoHead";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 function estimateReadTime(content: string): number {
   const words = content.trim().split(/\s+/).length;
@@ -23,6 +25,19 @@ export default function BlogPost() {
 
   const { data: post, isLoading } = usePost(slug);
   const [copied, setCopied] = useState(false);
+  const [liveViewCount, setLiveViewCount] = useState<number | null>(null);
+
+  const viewMutation = useMutation({
+    mutationFn: () => apiRequest("POST", `/api/blog/${slug}/view`),
+    onSuccess: async (res) => {
+      const data = await res.json();
+      setLiveViewCount(data.viewCount);
+    },
+  });
+
+  useEffect(() => {
+    if (slug) viewMutation.mutate();
+  }, [slug]);
 
   const pageUrl = `https://iamchomad.my.id/blog/${slug}`;
 
@@ -86,6 +101,10 @@ export default function BlogPost() {
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent">
                 <Clock size={13} />
                 {estimateReadTime(post.content)} {t("blogpost.minRead")}
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent" data-testid="text-view-count">
+                <Eye size={13} />
+                {(liveViewCount ?? post.viewCount ?? 0).toLocaleString()} views
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4" data-testid="text-post-title">

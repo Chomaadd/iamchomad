@@ -18,10 +18,11 @@ export const blogPostSchema = z.object({
   imageUrl: z.string().nullable().optional(),
   published: z.boolean().default(false),
   tags: z.array(z.string()).default([]),
+  viewCount: z.number().default(0),
   createdAt: z.union([z.date(), z.string()]).optional(),
   updatedAt: z.union([z.date(), z.string()]).optional(),
 });
-export const insertBlogPostSchema = blogPostSchema.omit({ id: true, createdAt: true, updatedAt: true });
+export const insertBlogPostSchema = blogPostSchema.omit({ id: true, createdAt: true, updatedAt: true, viewCount: true });
 
 export const contactMessageSchema = z.object({
   id: z.string(),

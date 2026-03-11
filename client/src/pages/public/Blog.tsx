@@ -5,7 +5,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { usePosts } from "@/hooks/use-blog";
 import { useLanguage } from "@/hooks/use-language";
-import { Loader2, ArrowRight, Clock, BookOpen, Search, X } from "lucide-react";
+import { Loader2, ArrowRight, Clock, BookOpen, Search, X, Eye } from "lucide-react";
 import { SeoHead } from "@/components/seometa/SeoHead";
 
 function estimateReadTime(content: string): number {
@@ -170,6 +170,8 @@ export default function Blog() {
                           </span>
                           <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
                           <span className="flex items-center gap-1"><Clock size={12} /> {estimateReadTime(featuredPost.content)} {t("blog.minRead")}</span>
+                          <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
+                          <span className="flex items-center gap-1"><Eye size={12} /> {(featuredPost.viewCount ?? 0).toLocaleString()}</span>
                         </div>
                         <h2 className="font-serif text-2xl lg:text-3xl font-bold leading-tight group-hover:text-primary transition-colors mb-3">
                           {featuredPost.title}
@@ -227,6 +229,8 @@ export default function Blog() {
                             </span>
                             <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
                             <span>{estimateReadTime(post.content)} {t("blog.minRead")}</span>
+                            <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
+                            <span className="flex items-center gap-1"><Eye size={11} /> {(post.viewCount ?? 0).toLocaleString()}</span>
                           </div>
                           <h3 className="font-serif text-lg font-bold leading-snug group-hover:text-primary transition-colors line-clamp-2">
                             {post.title}
