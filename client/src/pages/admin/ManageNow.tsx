@@ -167,7 +167,7 @@ export default function ManageNow() {
         ))}
       </div>
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? "Edit Item" : "Add Now Item"}>
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? "Edit Item" : "Add Now Item"}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label>Category</Label>
