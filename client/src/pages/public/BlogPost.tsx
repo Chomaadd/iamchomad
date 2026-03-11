@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useRoute } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { usePost } from "@/hooks/use-blog";
 import { useLanguage } from "@/hooks/use-language";
-import { Loader2, ArrowLeft, Clock, Calendar } from "lucide-react";
+import { Loader2, ArrowLeft, Clock, Calendar, Share2, Link2, Check } from "lucide-react";
+import { SiWhatsapp, SiX } from "react-icons/si";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { SeoHead } from "@/components/seometa/SeoHead";
@@ -20,6 +22,23 @@ export default function BlogPost() {
   const dateLocale = language === "id" ? "id-ID" : "en-US";
 
   const { data: post, isLoading } = usePost(slug);
+  const [copied, setCopied] = useState(false);
+
+  const pageUrl = `https://iamchomad.my.id/blog/${slug}`;
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(pageUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shareWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(post?.title + " — " + pageUrl)}`, "_blank", "noopener");
+  };
+
+  const shareX = () => {
+    window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(post?.title ?? "")}&url=${encodeURIComponent(pageUrl)}`, "_blank", "noopener");
+  };
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!post) return (
@@ -103,7 +122,41 @@ export default function BlogPost() {
             })}
           </div>
 
-          <div className="mt-14 pt-8 border-t border-border/50">
+          <div className="mt-14 pt-8 border-t border-border/50 space-y-6">
+            <div>
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">
+                <Share2 size={13} /> Share this article
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={shareWhatsApp}
+                  data-testid="button-share-whatsapp"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium text-foreground hover:bg-green-500 hover:text-white hover:border-green-500 transition-all duration-200"
+                >
+                  <SiWhatsapp size={15} /> WhatsApp
+                </button>
+                <button
+                  onClick={shareX}
+                  data-testid="button-share-x"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium text-foreground hover:bg-black hover:text-white hover:border-black dark:hover:bg-white dark:hover:text-black dark:hover:border-white transition-all duration-200"
+                >
+                  <SiX size={14} /> Share on X
+                </button>
+                <button
+                  onClick={handleCopy}
+                  data-testid="button-copy-link"
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all duration-200 ${
+                    copied
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'border-border bg-card text-foreground hover:bg-accent hover:border-foreground/20'
+                  }`}
+                >
+                  {copied ? <Check size={14} /> : <Link2 size={14} />}
+                  {copied ? "Copied!" : "Copy Link"}
+                </button>
+              </div>
+            </div>
+
             <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all">
               <ArrowLeft size={16} /> {t("blogpost.more")}
             </Link>
