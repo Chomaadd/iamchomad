@@ -18,7 +18,6 @@ export function Navbar() {
     { href: "/brand", label: t("nav.brand") },
     { href: "/memory", label: t("nav.memory") },
     { href: "/music", label: t("nav.music") },
-    { href: "/now", label: t("nav.now") },
     { href: "/resume", label: t("nav.resume") },
     { href: "/contact", label: t("nav.contact") },
   ];

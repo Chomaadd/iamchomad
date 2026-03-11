@@ -21,7 +21,6 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 - **Music** (`/music`) - Music collection player with auto-play support
 - **Resume** (`/resume`) - Professional CV/resume with experience, education, skills sections and print/PDF support
 - **Contact** (`/contact`) - Working contact form for visitor messages
-- **Now** (`/now`) - "What I'm Up To" page: a personal snapshot of current projects, books, music, shows, and thoughts. Items grouped by category, shows last-updated date. Managed from admin panel.
 
 ### Admin Dashboard
 - **Secure Authentication** - Session-based login (no public registration)
@@ -32,7 +31,6 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 - **Memory Management** (`/admin/memory`) - Manage memory/gallery items
 - **Music Management** (`/admin/music`) - Add/manage music tracks with auto-duration detection
 - **Resume Management** (`/admin/resume`) - Manage resume/CV items (experience, education, skills) with ordering
-- **Now Management** (`/admin/now`) - Add/edit/delete Now page items with category (Building/Reading/Listening/Watching/Thoughts), title, description, image, link, custom emoji, order, and visibility toggle
 - **Messages** (`/admin/messages`) - View and manage contact messages
 
 ## Admin Access

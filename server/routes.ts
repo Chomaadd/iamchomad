@@ -836,42 +836,6 @@ ${blogEntries}
     }
   });
 
-  app.get('/api/now', async (_req, res) => {
-    try {
-      const items = await storage.getNowItems();
-      res.json(items);
-    } catch (err) {
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.post('/api/now', requireAuth, async (req, res) => {
-    try {
-      const item = await storage.createNowItem(req.body);
-      res.status(201).json(item);
-    } catch (err) {
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.put('/api/now/:id', requireAuth, async (req, res) => {
-    try {
-      const item = await storage.updateNowItem(req.params.id, req.body);
-      res.json(item);
-    } catch (err) {
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.delete('/api/now/:id', requireAuth, async (req, res) => {
-    try {
-      await storage.deleteNowItem(req.params.id);
-      res.status(204).send();
-    } catch (err) {
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
   await seedDatabase();
 
   return httpServer;

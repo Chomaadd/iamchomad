@@ -130,25 +130,6 @@ export type CreateResumeItemRequest = InsertResumeItem;
 export type UpdateResumeItemRequest = Partial<InsertResumeItem>;
 export type ResumeItemResponse = ResumeItem;
 
-export const nowItemSchema = z.object({
-  id: z.string(),
-  category: z.enum(['project', 'reading', 'listening', 'watching', 'note']),
-  title: z.string(),
-  description: z.string().nullable().optional(),
-  imageUrl: z.string().nullable().optional(),
-  link: z.string().nullable().optional(),
-  emoji: z.string().nullable().optional(),
-  order: z.number().default(0),
-  isActive: z.boolean().default(true),
-  updatedAt: z.union([z.date(), z.string()]).optional(),
-});
-export const insertNowItemSchema = nowItemSchema.omit({ id: true, updatedAt: true });
-
-export type NowItem = z.infer<typeof nowItemSchema>;
-export type InsertNowItem = z.infer<typeof insertNowItemSchema>;
-export type CreateNowItemRequest = InsertNowItem;
-export type UpdateNowItemRequest = Partial<InsertNowItem>;
-
 export const pageViewSchema = z.object({
   id: z.string(),
   page: z.string(),

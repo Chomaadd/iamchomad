@@ -16,8 +16,6 @@ import Memory from "./pages/public/Memory";
 import Contact from "./pages/public/Contact";
 import Music from "./pages/public/Music";
 import Resume from "./pages/public/Resume";
-import Now from "./pages/public/Now";
-
 // Admin Pages
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
@@ -28,7 +26,6 @@ import ManageMemory from "./pages/admin/ManageMemory";
 import ManageMessages from "./pages/admin/ManageMessages";
 import ManageMusic from "./pages/admin/ManageMusic";
 import ManageResume from "./pages/admin/ManageResume";
-import ManageNow from "./pages/admin/ManageNow";
 
 // Base Fallback
 import NotFound from "@/pages/public/Not-Found";
@@ -49,7 +46,6 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/music" component={Music} />
       <Route path="/resume" component={Resume} />
-      <Route path="/now" component={Now} />
 
       {/* Admin Routes */}
       <Route path="/login" component={Login} />
@@ -61,7 +57,6 @@ function Router() {
       <Route path="/admin/messages" component={ManageMessages} />
       <Route path="/admin/music" component={ManageMusic} />
       <Route path="/admin/resume" component={ManageResume} />
-      <Route path="/admin/now" component={ManageNow} />
 
       {/* Fallback */}
       <Route component={NotFound} />
