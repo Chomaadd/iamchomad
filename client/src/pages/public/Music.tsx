@@ -32,6 +32,13 @@ export default function Music() {
     }
   }, [playing, tracks]);
 
+  const handleTrackEnd = () => {
+    if (!tracks || tracks.length === 0) return;
+    const currentIndex = tracks.findIndex(t => t.id === playing);
+    const nextIndex = (currentIndex + 1) % tracks.length;
+    setPlaying(tracks[nextIndex].id);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <SeoHead
@@ -40,7 +47,7 @@ export default function Music() {
         url="/music"
       />
       <Navbar />
-      <audio ref={audioRef} onEnded={() => setPlaying(null)} />
+      <audio ref={audioRef} onEnded={handleTrackEnd} />
 
       <main className="max-w-4xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
         <motion.header
