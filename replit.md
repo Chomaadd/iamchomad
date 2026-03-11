@@ -14,7 +14,7 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 ### Public Pages
 - **Home** (`/`) - Landing page with featured content
 - **About** (`/about`) - Personal information and professional background
-- **Blog** (`/blog`) - Article listing with slug-based URLs (`/blog/:slug`)
+- **Blog** (`/blog`) - Article listing with slug-based URLs (`/blog/:slug`), search bar, and category tag filter
 - **Brand** (`/brand`) - Showcase of brand items and projects
 - **Memory** (`/memory`) - Password-protected memory/gallery page (requires `MEMORY_PASSWORD` to view)
 - **Music** (`/music`) - Music collection player with auto-play support

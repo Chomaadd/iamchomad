@@ -1,10 +1,11 @@
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { usePosts } from "@/hooks/use-blog";
 import { useLanguage } from "@/hooks/use-language";
-import { Loader2, ArrowRight, Clock, BookOpen } from "lucide-react";
+import { Loader2, ArrowRight, Clock, BookOpen, Search, X } from "lucide-react";
 import { SeoHead } from "@/components/seometa/SeoHead";
 
 function estimateReadTime(content: string): number {
@@ -16,10 +17,37 @@ export default function Blog() {
   const { data: posts, isLoading } = usePosts();
   const { t, language } = useLanguage();
   const dateLocale = language === "id" ? "id-ID" : "en-US";
-  const publishedPosts = posts?.filter(post => post.published);
 
-  const featuredPost = publishedPosts?.[0];
-  const remainingPosts = publishedPosts?.slice(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTag, setActiveTag] = useState<string | null>(null);
+
+  const publishedPosts = useMemo(() => posts?.filter(p => p.published) ?? [], [posts]);
+
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    publishedPosts.forEach(p => (p.tags ?? []).forEach(t => tagSet.add(t)));
+    return Array.from(tagSet).sort();
+  }, [publishedPosts]);
+
+  const filteredPosts = useMemo(() => {
+    let result = publishedPosts;
+    if (activeTag) {
+      result = result.filter(p => (p.tags ?? []).includes(activeTag));
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(p =>
+        p.title.toLowerCase().includes(q) ||
+        p.excerpt.toLowerCase().includes(q) ||
+        (p.tags ?? []).some(tag => tag.toLowerCase().includes(q))
+      );
+    }
+    return result;
+  }, [publishedPosts, activeTag, searchQuery]);
+
+  const isFiltering = !!activeTag || !!searchQuery.trim();
+  const featuredPost = isFiltering ? undefined : filteredPosts[0];
+  const remainingPosts = isFiltering ? filteredPosts : filteredPosts.slice(1);
 
   return (
     <div className="min-h-screen bg-background">
@@ -34,7 +62,7 @@ export default function Blog() {
         <motion.header
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          className="mb-10"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider">
             <BookOpen size={14} /> {t("blog.badge")}
@@ -47,10 +75,70 @@ export default function Blog() {
           </p>
         </motion.header>
 
+        {/* Search & Filter Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-10 space-y-4"
+        >
+          <div className="relative max-w-lg">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search articles..."
+              data-testid="input-blog-search"
+              className="w-full pl-10 pr-10 py-2.5 text-sm bg-card border border-border rounded-xl outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-muted-foreground"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                data-testid="button-clear-search"
+              >
+                <X size={15} />
+              </button>
+            )}
+          </div>
+
+          {allTags.length > 0 && (
+            <div className="flex flex-wrap gap-2" data-testid="list-tag-filters">
+              <button
+                onClick={() => setActiveTag(null)}
+                data-testid="button-tag-all"
+                className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
+                  !activeTag
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-foreground'
+                }`}
+              >
+                All
+              </button>
+              {allTags.map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                  data-testid={`button-tag-${tag}`}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
+                    activeTag === tag
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-foreground'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          )}
+        </motion.div>
+
         {isLoading ? (
           <div className="flex justify-center py-32"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
         ) : (
           <>
+            {/* Featured Post (only when not filtering) */}
             {featuredPost && (
               <motion.article
                 initial={{ opacity: 0, y: 20 }}
@@ -86,9 +174,18 @@ export default function Blog() {
                         <h2 className="font-serif text-2xl lg:text-3xl font-bold leading-tight group-hover:text-primary transition-colors mb-3">
                           {featuredPost.title}
                         </h2>
-                        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3 mb-5">
+                        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3 mb-4">
                           {featuredPost.excerpt}
                         </p>
+                        {(featuredPost.tags ?? []).length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-5">
+                            {(featuredPost.tags ?? []).map(tag => (
+                              <span key={tag} className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[11px] font-medium">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary group-hover:gap-3 transition-all">
                           {t("blog.readArticle")} <ArrowRight size={16} />
                         </span>
@@ -99,7 +196,8 @@ export default function Blog() {
               </motion.article>
             )}
 
-            {remainingPosts && remainingPosts.length > 0 && (
+            {/* Post Grid */}
+            {remainingPosts.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {remainingPosts.map((post, i) => (
                   <motion.article
@@ -136,6 +234,15 @@ export default function Blog() {
                           <p className="text-sm text-muted-foreground mt-2 leading-relaxed line-clamp-2 flex-1">
                             {post.excerpt}
                           </p>
+                          {(post.tags ?? []).length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-3">
+                              {(post.tags ?? []).map(tag => (
+                                <span key={tag} className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary mt-4 group-hover:gap-2.5 transition-all">
                             {t("blog.readMore")} <ArrowRight size={14} />
                           </span>
@@ -147,13 +254,29 @@ export default function Blog() {
               </div>
             )}
 
-            {publishedPosts?.length === 0 && (
+            {/* Empty state */}
+            {filteredPosts.length === 0 && !isLoading && (
               <div className="text-center py-24 bg-card border border-dashed border-border rounded-2xl">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <BookOpen size={28} className="text-primary" />
+                  {isFiltering ? <Search size={28} className="text-primary" /> : <BookOpen size={28} className="text-primary" />}
                 </div>
-                <p className="font-serif text-xl font-bold">{t("blog.empty.title")}</p>
-                <p className="text-sm text-muted-foreground mt-2">{t("blog.empty.desc")}</p>
+                {isFiltering ? (
+                  <>
+                    <p className="font-serif text-xl font-bold">No results found</p>
+                    <p className="text-sm text-muted-foreground mt-2">Try a different search or category.</p>
+                    <button
+                      onClick={() => { setSearchQuery(""); setActiveTag(null); }}
+                      className="mt-4 text-xs font-semibold text-primary hover:underline"
+                    >
+                      Clear filters
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-serif text-xl font-bold">{t("blog.empty.title")}</p>
+                    <p className="text-sm text-muted-foreground mt-2">{t("blog.empty.desc")}</p>
+                  </>
+                )}
               </div>
             )}
           </>

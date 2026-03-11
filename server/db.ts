@@ -30,6 +30,7 @@ import mongoose from 'mongoose';
     excerpt: { type: String, required: true },
     imageUrl: { type: String },
     published: { type: Boolean, default: false },
+    tags: { type: [String], default: [] },
   }, { timestamps: true });
 
   const contactMessageSchema = new mongoose.Schema({

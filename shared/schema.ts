@@ -17,6 +17,7 @@ export const blogPostSchema = z.object({
   excerpt: z.string(),
   imageUrl: z.string().nullable().optional(),
   published: z.boolean().default(false),
+  tags: z.array(z.string()).default([]),
   createdAt: z.union([z.date(), z.string()]).optional(),
   updatedAt: z.union([z.date(), z.string()]).optional(),
 });

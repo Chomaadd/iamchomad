@@ -21,6 +21,7 @@ export default function ManageBlog() {
     excerpt: "",
     content: "",
     imageUrl: "",
+    tags: "",
     published: true
   });
 
@@ -55,7 +56,7 @@ export default function ManageBlog() {
 
   const openCreate = () => {
     setEditingId(null);
-    setForm({ title: "", slug: "", excerpt: "", content: "", imageUrl: "", published: true });
+    setForm({ title: "", slug: "", excerpt: "", content: "", imageUrl: "", tags: "", published: true });
     setModalOpen(true);
   };
 
@@ -67,6 +68,7 @@ export default function ManageBlog() {
       excerpt: post.excerpt,
       content: post.content,
       imageUrl: post.imageUrl || "",
+      tags: (post.tags ?? []).join(", "),
       published: post.published
     });
     setModalOpen(true);
@@ -82,18 +84,22 @@ export default function ManageBlog() {
     }
   }, [form.title, form.slug, editingId]);
 
+  const parseTags = (raw: string) =>
+    raw.split(",").map(t => t.trim()).filter(Boolean);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const tags = parseTags(form.tags);
     try {
       if (editingId) {
         const { title, slug, excerpt, content, imageUrl, published } = form;
         await updatePost({ 
           id: editingId, 
-          title, slug, excerpt, content, imageUrl, published
+          title, slug, excerpt, content, imageUrl, published, tags
         });
         toast({ title: "Entry updated successfully." });
       } else {
-        await createPost({ ...form, slug: form.slug.trim(), published: Boolean(form.published) });
+        await createPost({ ...form, slug: form.slug.trim(), published: Boolean(form.published), tags });
         toast({ title: "Entry created successfully." });
       }
       setModalOpen(false);
@@ -148,7 +154,15 @@ export default function ManageBlog() {
                     )}
                     <div className="min-w-0">
                       <p className="font-semibold truncate">{post.title}</p>
-                      <p className="text-xs text-muted-foreground truncate mt-0.5 max-w-[200px]">{post.excerpt}</p>
+                      {(post.tags ?? []).length > 0 ? (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {(post.tags ?? []).slice(0, 3).map((tag: string) => (
+                            <span key={tag} className="px-1.5 py-px rounded text-[10px] bg-muted text-muted-foreground font-medium">{tag}</span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground truncate mt-0.5 max-w-[200px]">{post.excerpt}</p>
+                      )}
                     </div>
                   </div>
                 </td>
@@ -190,6 +204,16 @@ export default function ManageBlog() {
           <div>
             <Label>Content</Label>
             <Textarea className="min-h-[200px]" required value={form.content} onChange={e => setForm({...form, content: e.target.value})} data-testid="input-blog-content" />
+          </div>
+          <div>
+            <Label>Tags</Label>
+            <Input
+              value={form.tags}
+              onChange={e => setForm({...form, tags: e.target.value})}
+              placeholder="e.g. Technology, Design, Life (comma-separated)"
+              data-testid="input-blog-tags"
+            />
+            <p className="text-xs text-muted-foreground mt-1">Separate multiple tags with commas.</p>
           </div>
           <div>
             <Label>Cover Image</Label>
