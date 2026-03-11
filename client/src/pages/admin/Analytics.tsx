@@ -5,7 +5,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { Eye, TrendingUp, Calendar, Monitor, Smartphone, Globe } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import SeoHead from "@/components/seometa/SeoHead";
+import { SeoHead } from "@/components/seometa/SeoHead";
 
 const chartConfig = {
   views: { label: "Views", color: "hsl(var(--foreground))" },
