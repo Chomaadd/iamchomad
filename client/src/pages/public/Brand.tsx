@@ -109,19 +109,19 @@ export default function Brand() {
                     data-testid={`card-brand-featured-${item.id}`}
                   >
                     <div className="group relative bg-card border border-border/60 rounded-3xl overflow-hidden hover:border-border transition-all duration-300 soft-shadow hover:shadow-xl">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[340px]">
+                      <div className="grid grid-cols-1 lg:grid-cols-2">
                         {/* Image */}
-                        <div className="relative overflow-hidden bg-muted order-2 lg:order-1">
+                        <div className="relative overflow-hidden bg-muted/60 order-2 lg:order-1 flex items-center justify-center" style={{ minHeight: 220, maxHeight: 280 }}>
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
                               alt={item.title}
-                              className="w-full h-full object-contain p-8 group-hover:scale-[1.03] transition-transform duration-700"
-                              style={{ minHeight: 280 }}
+                              className="w-full h-full object-contain p-10 group-hover:scale-[1.04] transition-transform duration-700"
+                              style={{ maxHeight: 280 }}
                             />
                           ) : (
-                            <div className="w-full h-full min-h-[280px] flex items-center justify-center bg-gradient-to-br from-primary/5 to-violet-500/5">
-                              <Layers size={48} className="text-muted-foreground/20" />
+                            <div className="w-full flex items-center justify-center py-12 bg-gradient-to-br from-primary/5 to-violet-500/5">
+                              <Layers size={40} className="text-muted-foreground/20" />
                             </div>
                           )}
                         </div>
@@ -185,7 +185,7 @@ export default function Brand() {
                     >
                       <div className="group bg-card border border-border/60 rounded-2xl overflow-hidden hover:border-border hover:shadow-lg transition-all duration-300 soft-shadow h-full flex flex-col">
                         {/* Logo / Image */}
-                        <div className="aspect-square overflow-hidden bg-muted/50 relative flex items-center justify-center p-6">
+                        <div className="aspect-[3/2] overflow-hidden bg-muted/50 relative flex items-center justify-center p-5">
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
@@ -194,7 +194,7 @@ export default function Brand() {
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-violet-500/5 rounded-xl">
-                              <Layers size={32} className="text-muted-foreground/20" />
+                              <Layers size={28} className="text-muted-foreground/20" />
                             </div>
                           )}
                           {item.link && (
