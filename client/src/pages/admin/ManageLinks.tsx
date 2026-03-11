@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import Cropper from "react-easy-crop";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useLinkItems, useCreateLinkItem, useUpdateLinkItem, useDeleteLinkItem } from "@/hooks/use-links";
 import { useSiteSettings, useUpdateSiteSettings } from "@/hooks/use-settings";
 import { Button, Input, Label, Modal } from "@/components/ui/core";
-import { Plus, Edit2, Trash2, GripVertical, Eye, EyeOff, Upload, User, Loader2 } from "lucide-react";
+import { Plus, Edit2, Trash2, GripVertical, Eye, EyeOff, Upload, User, Loader2, CropIcon, ZoomIn, ZoomOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LinkIcon, LinkIconPreview } from "@/lib/social-icons";
 import type { LinkItem } from "@shared/schema";
@@ -17,6 +18,37 @@ const emptyForm = {
   isActive: true,
 };
 
+async function getCroppedBlob(
+  imageSrc: string,
+  pixelCrop: { x: number; y: number; width: number; height: number }
+): Promise<Blob> {
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = imageSrc;
+  });
+  const canvas = document.createElement("canvas");
+  const size = Math.min(pixelCrop.width, pixelCrop.height, 800);
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    size,
+    size
+  );
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(blob => (blob ? resolve(blob) : reject(new Error("Canvas empty"))), "image/jpeg", 0.92);
+  });
+}
+
 export default function ManageLinks() {
   const { data: links } = useLinkItems();
   const { data: settings } = useSiteSettings();
@@ -29,14 +61,22 @@ export default function ManageLinks() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
-  const [uploading, setUploading] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [profile, setProfile] = useState({
     linksAvatarUrl: "",
     linksName: "",
     linksBio: "",
   });
+
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{
+    x: number; y: number; width: number; height: number;
+  } | null>(null);
+  const [uploadingCrop, setUploadingCrop] = useState(false);
 
   useEffect(() => {
     if (settings) {
@@ -48,22 +88,48 @@ export default function ManageLinks() {
     }
   }, [settings]);
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onCropComplete = useCallback((_: unknown, pixels: { x: number; y: number; width: number; height: number }) => {
+    setCroppedAreaPixels(pixels);
+  }, []);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropSrc(reader.result as string);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleCropConfirm = async () => {
+    if (!cropSrc || !croppedAreaPixels) return;
+    setUploadingCrop(true);
     try {
+      const blob = await getCroppedBlob(cropSrc, croppedAreaPixels);
+      const formData = new FormData();
+      formData.append("file", blob, "avatar.jpg");
       const res = await fetch("/api/upload", { method: "POST", body: formData, credentials: "include" });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
-      setProfile(prev => ({ ...prev, linksAvatarUrl: data.url }));
-      toast({ title: "Foto berhasil diupload." });
+      const newUrl = data.url as string;
+
+      await updateSettings({
+        linksAvatarUrl: newUrl,
+        linksName: profile.linksName || null,
+        linksBio: profile.linksBio || null,
+      });
+
+      setProfile(prev => ({ ...prev, linksAvatarUrl: newUrl }));
+      setCropSrc(null);
+      toast({ title: "Foto profil berhasil disimpan." });
     } catch {
-      toast({ title: "Upload gagal.", variant: "destructive" });
+      toast({ title: "Gagal mengupload foto.", variant: "destructive" });
     } finally {
-      setUploading(false);
+      setUploadingCrop(false);
     }
   };
 
@@ -177,17 +243,18 @@ export default function ManageLinks() {
             <label
               htmlFor="avatar-upload"
               className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity shadow-md"
-              title="Upload foto"
+              title="Upload & crop foto"
               data-testid="button-upload-avatar"
             >
-              {uploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+              <CropIcon size={12} />
             </label>
             <input
+              ref={fileInputRef}
               id="avatar-upload"
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={handleAvatarUpload}
+              onChange={handleFileSelect}
               data-testid="input-avatar-upload"
             />
           </div>
@@ -290,6 +357,52 @@ export default function ManageLinks() {
           </div>
         )}
       </div>
+
+      <Modal isOpen={!!cropSrc} onClose={() => setCropSrc(null)} title="Crop Foto Profil">
+        <div className="space-y-4">
+          <div className="relative w-full bg-black rounded-lg overflow-hidden" style={{ height: 320 }}>
+            {cropSrc && (
+              <Cropper
+                image={cropSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                cropShape="round"
+                showGrid={false}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            )}
+          </div>
+
+          <div className="flex items-center gap-3 px-1">
+            <ZoomOut size={16} className="text-muted-foreground shrink-0" />
+            <input
+              type="range"
+              min={1}
+              max={3}
+              step={0.05}
+              value={zoom}
+              onChange={e => setZoom(Number(e.target.value))}
+              className="flex-1 accent-primary cursor-pointer"
+              data-testid="slider-crop-zoom"
+            />
+            <ZoomIn size={16} className="text-muted-foreground shrink-0" />
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1" onClick={() => setCropSrc(null)} disabled={uploadingCrop}>
+              Batal
+            </Button>
+            <Button className="flex-1" onClick={handleCropConfirm} disabled={uploadingCrop} data-testid="button-confirm-crop">
+              {uploadingCrop
+                ? <><Loader2 size={14} className="animate-spin mr-2" />Menyimpan...</>
+                : "Gunakan Foto"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? "Edit Link" : "Add Link"}>
         <form onSubmit={handleSubmit} className="space-y-4">
