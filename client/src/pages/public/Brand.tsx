@@ -111,16 +111,15 @@ export default function Brand() {
                     <div className="group relative bg-card border border-border/60 rounded-3xl overflow-hidden hover:border-border transition-all duration-300 soft-shadow hover:shadow-xl">
                       <div className="grid grid-cols-1 lg:grid-cols-2">
                         {/* Image */}
-                        <div className="relative overflow-hidden bg-muted/60 order-2 lg:order-1 flex items-center justify-center" style={{ minHeight: 200, maxHeight: 240 }}>
+                        <div className="relative overflow-hidden bg-muted/60 order-2 lg:order-1" style={{ minHeight: 260 }}>
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
                               alt={item.title}
-                              className="w-full h-full object-contain p-8 group-hover:scale-[1.04] transition-transform duration-700"
-                              style={{ maxHeight: 240 }}
+                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700"
                             />
                           ) : (
-                            <div className="w-full flex items-center justify-center py-10 bg-gradient-to-br from-primary/5 to-violet-500/5">
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-violet-500/5">
                               <Layers size={36} className="text-muted-foreground/20" />
                             </div>
                           )}
@@ -185,12 +184,12 @@ export default function Brand() {
                     >
                       <div className="group bg-card border border-border/60 rounded-2xl overflow-hidden hover:border-border hover:shadow-lg transition-all duration-300 soft-shadow h-full flex flex-col">
                         {/* Logo / Image */}
-                        <div className="aspect-[4/3] overflow-hidden bg-muted/50 relative flex items-center justify-center p-5">
+                        <div className="aspect-[4/3] overflow-hidden bg-muted/50 relative">
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
                               alt={item.title}
-                              className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-violet-500/5 rounded-xl">
