@@ -32,6 +32,10 @@ import mongoose from 'mongoose';
     published: { type: Boolean, default: false },
     tags: { type: [String], default: [] },
     viewCount: { type: Number, default: 0 },
+    reactions: {
+      thumbsUp: { type: Number, default: 0 },
+      heart: { type: Number, default: 0 },
+    },
   }, { timestamps: true });
 
   const contactMessageSchema = new mongoose.Schema({

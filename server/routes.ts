@@ -415,6 +415,19 @@ ${blogEntries}
     }
   });
 
+  app.post("/api/blog/:slug/react", async (req, res) => {
+    try {
+      const { type } = req.body;
+      if (!['thumbsUp', 'heart'].includes(type)) {
+        return res.status(400).json({ message: "Invalid reaction type" });
+      }
+      const post = await storage.reactToBlogPost(req.params.slug, type as 'thumbsUp' | 'heart');
+      res.json({ reactions: post.reactions });
+    } catch (err) {
+      res.status(404).json({ message: "Blog post not found" });
+    }
+  });
+
   app.get(api.contact.list.path, requireAuth, async (req, res) => {
     try {
       const messages = await storage.getContactMessages();

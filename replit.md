@@ -15,6 +15,7 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 - **Home** (`/`) - Landing page with featured content
 - **About** (`/about`) - Personal information and professional background
 - **Blog** (`/blog`) - Article listing with slug-based URLs (`/blog/:slug`), search bar, and category tag filter
+  - Each article has: view count, share buttons (WhatsApp, X, copy link), reaction buttons (👍 ❤️), and Table of Contents sidebar (auto-extracted from headings, visible on desktop for articles with 2+ sections)
 - **Brand** (`/brand`) - Showcase of brand items and projects
 - **Memory** (`/memory`) - Password-protected memory/gallery page (requires `MEMORY_PASSWORD` to view)
 - **Music** (`/music`) - Music collection player with auto-play support
@@ -80,6 +81,8 @@ Credentials are configured via environment secrets:
 - `POST /api/blog` - Create post (auth required)
 - `PUT /api/blog/:id` - Update post (auth required)
 - `DELETE /api/blog/:id` - Delete post (auth required)
+- `POST /api/blog/:slug/view` - Increment view count (public)
+- `POST /api/blog/:slug/react` - Add reaction `{ type: 'thumbsUp' | 'heart' }` (public, localStorage prevents duplicates)
 
 ### Contact
 - `POST /api/contact` - Submit message

@@ -45,6 +45,7 @@ import mongoose from 'mongoose';
     updateBlogPost(id: string, updates: UpdateBlogPostRequest): Promise<BlogPost>;
     deleteBlogPost(id: string): Promise<void>;
     incrementViewCount(slug: string): Promise<BlogPost>;
+    reactToBlogPost(slug: string, type: 'thumbsUp' | 'heart'): Promise<BlogPost>;
     
     getContactMessages(): Promise<ContactMessage[]>;
     createContactMessage(message: CreateContactMessageRequest): Promise<ContactMessage>;
@@ -148,6 +149,16 @@ import mongoose from 'mongoose';
       const updated = await BlogPostModel.findOneAndUpdate(
         { slug },
         { $inc: { viewCount: 1 } },
+        { new: true }
+      );
+      if (!updated) throw new Error('Blog post not found');
+      return mapId(updated);
+    }
+
+    async reactToBlogPost(slug: string, type: 'thumbsUp' | 'heart'): Promise<BlogPost> {
+      const updated = await BlogPostModel.findOneAndUpdate(
+        { slug },
+        { $inc: { [`reactions.${type}`]: 1 } },
         { new: true }
       );
       if (!updated) throw new Error('Blog post not found');
