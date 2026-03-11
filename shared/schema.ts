@@ -172,6 +172,9 @@ export const siteSettingsSchema = z.object({
   id: z.string(),
   availabilityStatus: availabilityStatusSchema.default("open"),
   availabilityLabel: z.string().default("Open to Work"),
+  linksAvatarUrl: z.string().nullable().optional(),
+  linksName: z.string().nullable().optional(),
+  linksBio: z.string().nullable().optional(),
 });
 export const updateSiteSettingsSchema = siteSettingsSchema.omit({ id: true }).partial();
 

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useLinkItems, useCreateLinkItem, useUpdateLinkItem, useDeleteLinkItem } from "@/hooks/use-links";
+import { useSiteSettings, useUpdateSiteSettings } from "@/hooks/use-settings";
 import { Button, Input, Label, Modal } from "@/components/ui/core";
-import { Plus, Edit2, Trash2, GripVertical, Eye, EyeOff } from "lucide-react";
+import { Plus, Edit2, Trash2, GripVertical, Eye, EyeOff, Upload, User, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LinkIcon, LinkIconPreview } from "@/lib/social-icons";
 import type { LinkItem } from "@shared/schema";
@@ -18,14 +19,69 @@ const emptyForm = {
 
 export default function ManageLinks() {
   const { data: links } = useLinkItems();
+  const { data: settings } = useSiteSettings();
   const { mutateAsync: createLink } = useCreateLinkItem();
   const { mutateAsync: updateLink } = useUpdateLinkItem();
   const { mutateAsync: deleteLink } = useDeleteLinkItem();
+  const { mutateAsync: updateSettings } = useUpdateSiteSettings();
   const { toast } = useToast();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [uploading, setUploading] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  const [profile, setProfile] = useState({
+    linksAvatarUrl: "",
+    linksName: "",
+    linksBio: "",
+  });
+
+  useEffect(() => {
+    if (settings) {
+      setProfile({
+        linksAvatarUrl: settings.linksAvatarUrl || "",
+        linksName: settings.linksName || "",
+        linksBio: settings.linksBio || "",
+      });
+    }
+  }, [settings]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await fetch("/api/upload", { method: "POST", body: formData, credentials: "include" });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      setProfile(prev => ({ ...prev, linksAvatarUrl: data.url }));
+      toast({ title: "Foto berhasil diupload." });
+    } catch {
+      toast({ title: "Upload gagal.", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    setSavingProfile(true);
+    try {
+      await updateSettings({
+        linksAvatarUrl: profile.linksAvatarUrl || null,
+        linksName: profile.linksName || null,
+        linksBio: profile.linksBio || null,
+      });
+      toast({ title: "Profil halaman Links disimpan." });
+    } catch {
+      toast({ title: "Gagal menyimpan profil.", variant: "destructive" });
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   const openCreate = () => {
     setEditingId(null);
@@ -103,6 +159,72 @@ export default function ManageLinks() {
         </div>
         <Button onClick={openCreate} className="gap-2" data-testid="button-add-link">
           <Plus size={16} /> Add Link
+        </Button>
+      </div>
+
+      <div className="mb-8 border border-border rounded-xl p-5 bg-card space-y-5">
+        <h2 className="text-base font-semibold">Profil Halaman</h2>
+
+        <div className="flex items-start gap-5">
+          <div className="relative shrink-0">
+            <div className="w-20 h-20 rounded-full border-2 border-border overflow-hidden bg-muted flex items-center justify-center">
+              {profile.linksAvatarUrl ? (
+                <img src={profile.linksAvatarUrl} alt="Avatar" className="w-full h-full object-cover" data-testid="img-profile-preview" />
+              ) : (
+                <User size={28} className="text-muted-foreground" />
+              )}
+            </div>
+            <label
+              htmlFor="avatar-upload"
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity shadow-md"
+              title="Upload foto"
+              data-testid="button-upload-avatar"
+            >
+              {uploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+            </label>
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+              data-testid="input-avatar-upload"
+            />
+          </div>
+
+          <div className="flex-1 space-y-3">
+            <div>
+              <Label>Nama</Label>
+              <Input
+                placeholder="Choiril Ahmad"
+                value={profile.linksName}
+                onChange={e => setProfile(p => ({ ...p, linksName: e.target.value }))}
+                data-testid="input-profile-name"
+              />
+            </div>
+            <div>
+              <Label>Bio / Deskripsi</Label>
+              <Input
+                placeholder="Frontend Developer & Visual Designer"
+                value={profile.linksBio}
+                onChange={e => setProfile(p => ({ ...p, linksBio: e.target.value }))}
+                data-testid="input-profile-bio"
+              />
+            </div>
+            <div>
+              <Label>URL Foto <span className="text-xs text-muted-foreground">(atau masukkan URL langsung)</span></Label>
+              <Input
+                placeholder="https://..."
+                value={profile.linksAvatarUrl}
+                onChange={e => setProfile(p => ({ ...p, linksAvatarUrl: e.target.value }))}
+                data-testid="input-profile-avatar-url"
+              />
+            </div>
+          </div>
+        </div>
+
+        <Button onClick={handleSaveProfile} disabled={savingProfile} className="w-full" data-testid="button-save-profile">
+          {savingProfile ? <><Loader2 size={14} className="animate-spin mr-2" />Menyimpan...</> : "Simpan Profil"}
         </Button>
       </div>
 
@@ -207,10 +329,10 @@ export default function ManageLinks() {
           </div>
           <div>
             <Label>
-              Custom Emoji <span className="text-xs text-muted-foreground">(opsional — kosongkan untuk otomatis)</span>
+              Custom Emoji <span className="text-xs text-muted-foreground">(kosongkan untuk auto-detect)</span>
             </Label>
             <Input
-              placeholder="e.g. 📸 🎵 ✉️ — kosongkan untuk auto-detect"
+              placeholder="e.g. 📸 🎵 ✉️"
               value={form.icon}
               onChange={e => setForm({ ...form, icon: e.target.value })}
               data-testid="input-link-icon"

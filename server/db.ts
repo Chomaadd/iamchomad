@@ -102,6 +102,9 @@ import mongoose from 'mongoose';
   const siteSettingsSchema = new mongoose.Schema({
     availabilityStatus: { type: String, enum: ['open', 'busy', 'unavailable'], default: 'open' },
     availabilityLabel: { type: String, default: 'Open to Work' },
+    linksAvatarUrl: { type: String },
+    linksName: { type: String },
+    linksBio: { type: String },
   });
 
   export const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
