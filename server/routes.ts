@@ -836,6 +836,42 @@ ${blogEntries}
     }
   });
 
+  app.get('/api/links', async (_req, res) => {
+    try {
+      const items = await storage.getLinkItems();
+      res.json(items);
+    } catch (err) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post('/api/links', requireAuth, async (req, res) => {
+    try {
+      const item = await storage.createLinkItem(req.body);
+      res.status(201).json(item);
+    } catch (err) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.put('/api/links/:id', requireAuth, async (req, res) => {
+    try {
+      const item = await storage.updateLinkItem(req.params.id, req.body);
+      res.json(item);
+    } catch (err) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.delete('/api/links/:id', requireAuth, async (req, res) => {
+    try {
+      await storage.deleteLinkItem(req.params.id);
+      res.status(204).send();
+    } catch (err) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   await seedDatabase();
 
   return httpServer;

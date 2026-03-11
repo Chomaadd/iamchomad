@@ -130,6 +130,23 @@ export type CreateResumeItemRequest = InsertResumeItem;
 export type UpdateResumeItemRequest = Partial<InsertResumeItem>;
 export type ResumeItemResponse = ResumeItem;
 
+export const linkItemSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  url: z.string(),
+  description: z.string().nullable().optional(),
+  icon: z.string().nullable().optional(),
+  order: z.number().default(0),
+  isActive: z.boolean().default(true),
+});
+export const insertLinkItemSchema = linkItemSchema.omit({ id: true });
+
+export type LinkItem = z.infer<typeof linkItemSchema>;
+export type InsertLinkItem = z.infer<typeof insertLinkItemSchema>;
+export type CreateLinkItemRequest = InsertLinkItem;
+export type UpdateLinkItemRequest = Partial<InsertLinkItem>;
+export type LinkItemResponse = LinkItem;
+
 export const pageViewSchema = z.object({
   id: z.string(),
   page: z.string(),

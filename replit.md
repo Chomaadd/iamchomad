@@ -21,6 +21,7 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 - **Music** (`/music`) - Music collection player with auto-play support
 - **Resume** (`/resume`) - Professional CV/resume with experience, education, skills sections and print/PDF support
 - **Contact** (`/contact`) - Working contact form for visitor messages
+- **Links** (`/links`) - Linktree-style page listing all important links with emoji icons, manageable from admin
 
 ### Admin Dashboard
 - **Secure Authentication** - Session-based login (no public registration)
@@ -31,6 +32,7 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 - **Memory Management** (`/admin/memory`) - Manage memory/gallery items
 - **Music Management** (`/admin/music`) - Add/manage music tracks with auto-duration detection
 - **Resume Management** (`/admin/resume`) - Manage resume/CV items (experience, education, skills) with ordering
+- **Links Management** (`/admin/links`) - Add/edit/delete links with title, URL, emoji icon, description, order, and visibility toggle
 - **Messages** (`/admin/messages`) - View and manage contact messages
 
 ## Admin Access

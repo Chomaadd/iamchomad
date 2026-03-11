@@ -84,6 +84,15 @@ import mongoose from 'mongoose';
     tags: { type: [String], default: [] },
   }, { timestamps: true });
 
+  const linkItemSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    url: { type: String, required: true },
+    description: { type: String },
+    icon: { type: String },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+  });
+
   const pageViewSchema = new mongoose.Schema({
     page: { type: String, required: true },
     userAgent: { type: String },
@@ -102,6 +111,7 @@ import mongoose from 'mongoose';
   export const BrandItemModel = mongoose.models.BrandItem || mongoose.model('BrandItem', brandItemSchema);
   export const MemoryItemModel = mongoose.models.MemoryItem || mongoose.model('MemoryItem', memoryItemSchema);
   export const ResumeItemModel = mongoose.models.ResumeItem || mongoose.model('ResumeItem', resumeItemSchema);
+  export const LinkItemModel = mongoose.models.LinkItem || mongoose.model('LinkItem', linkItemSchema);
   export const SiteSettingsModel = mongoose.models.SiteSettings || mongoose.model('SiteSettings', siteSettingsSchema);
   export const PageViewModel = mongoose.models.PageView || mongoose.model('PageView', pageViewSchema);
   

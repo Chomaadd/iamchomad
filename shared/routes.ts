@@ -6,6 +6,8 @@ import {
   insertBrandItemSchema,
   insertMemoryItemSchema,
   insertResumeItemSchema,
+  insertLinkItemSchema,
+  linkItemSchema,
   blogPostSchema,
   contactMessageSchema,
   musicTrackSchema,
@@ -13,6 +15,7 @@ import {
   memoryItemSchema,
   resumeItemSchema,
 } from './schema';
+
 
 export const errorSchemas = {
   validation: z.object({
@@ -303,6 +306,45 @@ export const api = {
       },
     },
   },
+  links: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/links' as const,
+      responses: {
+        200: z.array(linkItemSchema),
+      },
+    },
+    create: {
+      method: 'POST' as const,
+      path: '/api/links' as const,
+      input: insertLinkItemSchema,
+      responses: {
+        201: linkItemSchema,
+        400: errorSchemas.validation,
+        401: errorSchemas.unauthorized,
+      },
+    },
+    update: {
+      method: 'PUT' as const,
+      path: '/api/links/:id' as const,
+      input: insertLinkItemSchema.partial(),
+      responses: {
+        200: linkItemSchema,
+        400: errorSchemas.validation,
+        401: errorSchemas.unauthorized,
+        404: errorSchemas.notFound,
+      },
+    },
+    delete: {
+      method: 'DELETE' as const,
+      path: '/api/links/:id' as const,
+      responses: {
+        204: z.void(),
+        401: errorSchemas.unauthorized,
+        404: errorSchemas.notFound,
+      },
+    },
+  },
   resume: {
     list: {
       method: 'GET' as const,
@@ -390,4 +432,8 @@ export type MemoryItemResponse = z.infer<typeof api.memory.create.responses[201]
 export type ResumeItemInput = z.infer<typeof api.resume.create.input>;
 export type ResumeItemUpdateInput = z.infer<typeof api.resume.update.input>;
 export type ResumeItemResponse = z.infer<typeof api.resume.create.responses[201]>;
+
+export type LinkItemInput = z.infer<typeof api.links.create.input>;
+export type LinkItemUpdateInput = z.infer<typeof api.links.update.input>;
+export type LinkItemResponse = z.infer<typeof api.links.create.responses[201]>;
 

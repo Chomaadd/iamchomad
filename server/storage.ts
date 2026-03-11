@@ -21,6 +21,9 @@ import mongoose from 'mongoose';
     type UpdateMemoryItemRequest,
     type CreateResumeItemRequest,
     type UpdateResumeItemRequest,
+    type LinkItem,
+    type CreateLinkItemRequest,
+    type UpdateLinkItemRequest,
   } from "@shared/schema";
   import { 
     AdminModel, 
@@ -30,6 +33,7 @@ import mongoose from 'mongoose';
     BrandItemModel, 
     MemoryItemModel,
     ResumeItemModel,
+    LinkItemModel,
     SiteSettingsModel,
     PageViewModel,
   } from "./db";
@@ -75,6 +79,11 @@ import mongoose from 'mongoose';
     createResumeItem(item: CreateResumeItemRequest): Promise<ResumeItem>;
     updateResumeItem(id: string, updates: UpdateResumeItemRequest): Promise<ResumeItem>;
     deleteResumeItem(id: string): Promise<void>;
+
+    getLinkItems(): Promise<LinkItem[]>;
+    createLinkItem(item: CreateLinkItemRequest): Promise<LinkItem>;
+    updateLinkItem(id: string, updates: UpdateLinkItemRequest): Promise<LinkItem>;
+    deleteLinkItem(id: string): Promise<void>;
 
     getSiteSettings(): Promise<SiteSettings>;
     updateSiteSettings(updates: UpdateSiteSettings): Promise<SiteSettings>;
@@ -309,6 +318,26 @@ import mongoose from 'mongoose';
 
     async deleteResumeItem(id: string): Promise<void> {
       await ResumeItemModel.findByIdAndDelete(id);
+    }
+
+    async getLinkItems(): Promise<LinkItem[]> {
+      const items = await LinkItemModel.find().sort({ order: 1 });
+      return items.map(i => mapId<LinkItem>(i));
+    }
+
+    async createLinkItem(item: CreateLinkItemRequest): Promise<LinkItem> {
+      const created = await LinkItemModel.create(item);
+      return mapId(created);
+    }
+
+    async updateLinkItem(id: string, updates: UpdateLinkItemRequest): Promise<LinkItem> {
+      const updated = await LinkItemModel.findByIdAndUpdate(id, updates, { new: true });
+      if (!updated) throw new Error('Link item not found');
+      return mapId(updated);
+    }
+
+    async deleteLinkItem(id: string): Promise<void> {
+      await LinkItemModel.findByIdAndDelete(id);
     }
 
     async getSiteSettings(): Promise<SiteSettings> {
