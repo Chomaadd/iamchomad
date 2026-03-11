@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { useResumeItems } from "@/hooks/use-resume";
 import { useLanguage } from "@/hooks/use-language";
 import { Loader2, Download, Briefcase, GraduationCap, Lightbulb, Calendar, MapPin, FileText } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import type { ResumeItem } from "@shared/schema";
 import { SeoHead } from "@/components/seometa/SeoHead";
 
@@ -50,14 +51,28 @@ export default function Resume() {
                 <span>iamchoirilfk@gmail.com</span>
               </div>
             </div>
-            <button
-              onClick={handlePrint}
-              className="shrink-0 print:hidden inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-all shadow-lg shadow-primary/25"
-              data-testid="button-download-resume"
-            >
-              <Download size={16} />
-              <span className="hidden sm:inline">{t("resume.savePdf")}</span>
-            </button>
+            <div className="flex flex-col items-end gap-3">
+              <button
+                onClick={handlePrint}
+                className="shrink-0 print:hidden inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-all shadow-lg shadow-primary/25"
+                data-testid="button-download-resume"
+              >
+                <Download size={16} />
+                <span className="hidden sm:inline">{t("resume.savePdf")}</span>
+              </button>
+              <div className="hidden print:flex flex-col items-center gap-1.5" data-testid="div-resume-qr">
+                <div className="p-1.5 bg-white border border-gray-200 rounded-lg">
+                  <QRCodeSVG
+                    value="https://iamchomad.my.id/links"
+                    size={72}
+                    bgColor="#ffffff"
+                    fgColor="#18181b"
+                    level="M"
+                  />
+                </div>
+                <p className="text-[9px] text-gray-400 text-center leading-tight">iamchomad.my.id/links</p>
+              </div>
+            </div>
           </div>
         </motion.header>
 

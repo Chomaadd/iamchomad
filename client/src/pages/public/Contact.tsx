@@ -6,7 +6,8 @@ import { Input, Textarea, Button, Label } from "@/components/ui/core";
 import { useCreateContactMessage } from "@/hooks/use-contact";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
-import { Loader2, Mail, MapPin, Send, MessageCircle } from "lucide-react";
+import { Loader2, Mail, MapPin, Send, MessageCircle, QrCode } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { SeoHead } from "@/components/seometa/SeoHead";
 
 export default function Contact() {
@@ -94,6 +95,26 @@ export default function Contact() {
                   <p className="font-semibold">
                     {t("contact.locationValue")}
                   </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-5 p-4 bg-card border border-border/60 rounded-xl soft-shadow" data-testid="card-contact-qr">
+                <div className="p-2 bg-white rounded-lg shrink-0 shadow-sm">
+                  <QRCodeSVG
+                    value="https://iamchomad.my.id/links"
+                    size={80}
+                    bgColor="#ffffff"
+                    fgColor="#18181b"
+                    level="M"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <QrCode size={14} className="text-primary" />
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Scan QR</p>
+                  </div>
+                  <p className="font-semibold text-sm">iamchomad.my.id/links</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Semua link dalam satu tempat</p>
                 </div>
               </div>
             </div>
