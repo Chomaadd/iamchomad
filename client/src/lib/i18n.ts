@@ -8,6 +8,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.brand": "Brand",
     "nav.memory": "Memory",
     "nav.music": "Sound",
+    "nav.now": "Now",
     "nav.resume": "Resume",
     "nav.contact": "Contact",
 
@@ -110,6 +111,18 @@ const translations: Record<Language, Record<string, string>> = {
     "contact.toast.error.title": "Error",
     "contact.toast.error.desc": "Failed to send message.",
 
+    "now.badge": "Now",
+    "now.heading": "What I'm Up To",
+    "now.description": "A snapshot of what I'm currently focused on — projects, books, music, and life.",
+    "now.lastUpdated": "Last updated",
+    "now.category.project": "Building",
+    "now.category.reading": "Reading",
+    "now.category.listening": "Listening",
+    "now.category.watching": "Watching",
+    "now.category.note": "Thoughts",
+    "now.empty.title": "Nothing here yet",
+    "now.empty.desc": "Check back soon.",
+
     "notfound.heading": "Page not found",
     "notfound.description": "The page you're looking for doesn't exist or has been moved to a different location.",
     "notfound.home": "Return Home",
@@ -122,6 +135,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.brand": "Brand",
     "nav.memory": "Kenangan",
     "nav.music": "Musik",
+    "nav.now": "Now",
     "nav.resume": "Resume",
     "nav.contact": "Kontak",
 
@@ -223,6 +237,18 @@ const translations: Record<Language, Record<string, string>> = {
     "contact.toast.success.desc": "Pesan Anda telah diterima.",
     "contact.toast.error.title": "Kesalahan",
     "contact.toast.error.desc": "Gagal mengirim pesan.",
+
+    "now.badge": "Now",
+    "now.heading": "Aktivitas Saat Ini",
+    "now.description": "Snapshot dari apa yang sedang saya fokuskan — proyek, buku, musik, dan kehidupan.",
+    "now.lastUpdated": "Terakhir diperbarui",
+    "now.category.project": "Sedang Dibangun",
+    "now.category.reading": "Sedang Dibaca",
+    "now.category.listening": "Sedang Didengar",
+    "now.category.watching": "Sedang Ditonton",
+    "now.category.note": "Pemikiran",
+    "now.empty.title": "Belum ada konten",
+    "now.empty.desc": "Kunjungi kembali nanti.",
 
     "notfound.heading": "Halaman tidak ditemukan",
     "notfound.description": "Halaman yang Anda cari tidak ada atau telah dipindahkan ke lokasi lain.",

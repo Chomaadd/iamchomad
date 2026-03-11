@@ -84,6 +84,17 @@ import mongoose from 'mongoose';
     tags: { type: [String], default: [] },
   }, { timestamps: true });
 
+  const nowItemSchema = new mongoose.Schema({
+    category: { type: String, required: true, enum: ['project', 'reading', 'listening', 'watching', 'note'] },
+    title: { type: String, required: true },
+    description: { type: String },
+    imageUrl: { type: String },
+    link: { type: String },
+    emoji: { type: String },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+  }, { timestamps: { createdAt: false, updatedAt: true } });
+
   const pageViewSchema = new mongoose.Schema({
     page: { type: String, required: true },
     userAgent: { type: String },
@@ -102,6 +113,7 @@ import mongoose from 'mongoose';
   export const BrandItemModel = mongoose.models.BrandItem || mongoose.model('BrandItem', brandItemSchema);
   export const MemoryItemModel = mongoose.models.MemoryItem || mongoose.model('MemoryItem', memoryItemSchema);
   export const ResumeItemModel = mongoose.models.ResumeItem || mongoose.model('ResumeItem', resumeItemSchema);
+  export const NowItemModel = mongoose.models.NowItem || mongoose.model('NowItem', nowItemSchema);
   export const SiteSettingsModel = mongoose.models.SiteSettings || mongoose.model('SiteSettings', siteSettingsSchema);
   export const PageViewModel = mongoose.models.PageView || mongoose.model('PageView', pageViewSchema);
   

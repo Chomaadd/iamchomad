@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
     type BrandItem,
     type MemoryItem,
     type ResumeItem,
+    type NowItem,
     type SiteSettings,
     type UpdateSiteSettings,
     type Analytics,
@@ -21,6 +22,8 @@ import mongoose from 'mongoose';
     type UpdateMemoryItemRequest,
     type CreateResumeItemRequest,
     type UpdateResumeItemRequest,
+    type CreateNowItemRequest,
+    type UpdateNowItemRequest,
   } from "@shared/schema";
   import { 
     AdminModel, 
@@ -30,6 +33,7 @@ import mongoose from 'mongoose';
     BrandItemModel, 
     MemoryItemModel,
     ResumeItemModel,
+    NowItemModel,
     SiteSettingsModel,
     PageViewModel,
   } from "./db";
@@ -75,6 +79,11 @@ import mongoose from 'mongoose';
     createResumeItem(item: CreateResumeItemRequest): Promise<ResumeItem>;
     updateResumeItem(id: string, updates: UpdateResumeItemRequest): Promise<ResumeItem>;
     deleteResumeItem(id: string): Promise<void>;
+
+    getNowItems(): Promise<NowItem[]>;
+    createNowItem(item: CreateNowItemRequest): Promise<NowItem>;
+    updateNowItem(id: string, updates: UpdateNowItemRequest): Promise<NowItem>;
+    deleteNowItem(id: string): Promise<void>;
 
     getSiteSettings(): Promise<SiteSettings>;
     updateSiteSettings(updates: UpdateSiteSettings): Promise<SiteSettings>;
@@ -309,6 +318,30 @@ import mongoose from 'mongoose';
 
     async deleteResumeItem(id: string): Promise<void> {
       await ResumeItemModel.findByIdAndDelete(id);
+    }
+
+    async getNowItems(): Promise<NowItem[]> {
+      const items = await NowItemModel.find().sort({ order: 1, updatedAt: -1 });
+      return items.map(i => mapId<NowItem>(i));
+    }
+
+    async createNowItem(item: CreateNowItemRequest): Promise<NowItem> {
+      const created = await NowItemModel.create(item);
+      return mapId(created);
+    }
+
+    async updateNowItem(id: string, updates: UpdateNowItemRequest): Promise<NowItem> {
+      const updated = await NowItemModel.findByIdAndUpdate(
+        id,
+        { ...updates, updatedAt: new Date() },
+        { new: true }
+      );
+      if (!updated) throw new Error('Now item not found');
+      return mapId(updated);
+    }
+
+    async deleteNowItem(id: string): Promise<void> {
+      await NowItemModel.findByIdAndDelete(id);
     }
 
     async getSiteSettings(): Promise<SiteSettings> {
