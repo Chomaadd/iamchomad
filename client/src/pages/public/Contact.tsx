@@ -111,10 +111,10 @@ export default function Contact() {
                 <div>
                   <div className="flex items-center gap-1.5 mb-1">
                     <QrCode size={14} className="text-primary" />
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Scan QR</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("contact.qr.label")}</p>
                   </div>
                   <p className="font-semibold text-sm">iamchomad.my.id/links</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Semua link dalam satu tempat</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t("contact.qr.desc")}</p>
                 </div>
               </div>
             </div>
