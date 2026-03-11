@@ -16,7 +16,6 @@ export function Navbar() {
     { href: "/about", label: t("nav.about") },
     { href: "/blog", label: t("nav.blog") },
     { href: "/brand", label: t("nav.brand") },
-    { href: "/memory", label: t("nav.memory") },
     { href: "/music", label: t("nav.music") },
     { href: "/resume", label: t("nav.resume") },
     { href: "/contact", label: t("nav.contact") },
