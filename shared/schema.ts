@@ -124,6 +124,26 @@ export type CreateResumeItemRequest = InsertResumeItem;
 export type UpdateResumeItemRequest = Partial<InsertResumeItem>;
 export type ResumeItemResponse = ResumeItem;
 
+export const pageViewSchema = z.object({
+  id: z.string(),
+  page: z.string(),
+  userAgent: z.string().optional(),
+  referrer: z.string().optional(),
+  createdAt: z.union([z.date(), z.string()]).optional(),
+});
+export type PageView = z.infer<typeof pageViewSchema>;
+
+export const analyticsSchema = z.object({
+  totalViews: z.number(),
+  todayViews: z.number(),
+  weekViews: z.number(),
+  monthViews: z.number(),
+  dailyViews: z.array(z.object({ date: z.string(), views: z.number() })),
+  topPages: z.array(z.object({ page: z.string(), views: z.number() })),
+  deviceBreakdown: z.array(z.object({ device: z.string(), views: z.number() })),
+});
+export type Analytics = z.infer<typeof analyticsSchema>;
+
 export const availabilityStatusSchema = z.enum(["open", "busy", "unavailable"]);
 export const siteSettingsSchema = z.object({
   id: z.string(),

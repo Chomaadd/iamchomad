@@ -78,6 +78,12 @@ import mongoose from 'mongoose';
     tags: { type: [String], default: [] },
   }, { timestamps: true });
 
+  const pageViewSchema = new mongoose.Schema({
+    page: { type: String, required: true },
+    userAgent: { type: String },
+    referrer: { type: String },
+  }, { timestamps: { createdAt: true, updatedAt: false } });
+
   const siteSettingsSchema = new mongoose.Schema({
     availabilityStatus: { type: String, enum: ['open', 'busy', 'unavailable'], default: 'open' },
     availabilityLabel: { type: String, default: 'Open to Work' },
@@ -91,4 +97,5 @@ import mongoose from 'mongoose';
   export const MemoryItemModel = mongoose.models.MemoryItem || mongoose.model('MemoryItem', memoryItemSchema);
   export const ResumeItemModel = mongoose.models.ResumeItem || mongoose.model('ResumeItem', resumeItemSchema);
   export const SiteSettingsModel = mongoose.models.SiteSettings || mongoose.model('SiteSettings', siteSettingsSchema);
+  export const PageViewModel = mongoose.models.PageView || mongoose.model('PageView', pageViewSchema);
   

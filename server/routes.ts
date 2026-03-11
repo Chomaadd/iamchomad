@@ -788,6 +788,32 @@ ${blogEntries}
     }
   });
 
+  app.post('/api/analytics/pageview', async (req, res) => {
+    try {
+      const { page } = req.body;
+      if (!page || typeof page !== 'string') {
+        return res.status(400).json({ message: "page is required" });
+      }
+      const userAgent = req.headers['user-agent'] || '';
+      const referrer = req.headers['referer'] || '';
+      await storage.recordPageView(page, userAgent, referrer);
+      res.status(204).send();
+    } catch (err) {
+      console.error("Analytics pageview error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get('/api/analytics', requireAuth, async (_req, res) => {
+    try {
+      const analytics = await storage.getAnalytics();
+      res.json(analytics);
+    } catch (err) {
+      console.error("Analytics get error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   await seedDatabase();
 
   return httpServer;

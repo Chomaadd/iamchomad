@@ -24,6 +24,7 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 ### Admin Dashboard
 - **Secure Authentication** - Session-based login (no public registration)
 - **Dashboard** (`/admin`) - Overview stats
+- **Analytics** (`/admin/analytics`) - Site analytics: total/today/week/month views, 30-day bar chart, top pages, device breakdown (desktop vs mobile)
 - **Blog Management** (`/admin/blog`) - Create, edit, delete blog posts with image uploads
 - **Brand Management** (`/admin/brand`) - Manage brand portfolio items
 - **Memory Management** (`/admin/memory`) - Manage memory/gallery items

@@ -9,6 +9,7 @@ import mongoose from 'mongoose';
     type ResumeItem,
     type SiteSettings,
     type UpdateSiteSettings,
+    type Analytics,
     type CreateBlogPostRequest,
     type UpdateBlogPostRequest,
     type CreateContactMessageRequest,
@@ -30,6 +31,7 @@ import mongoose from 'mongoose';
     MemoryItemModel,
     ResumeItemModel,
     SiteSettingsModel,
+    PageViewModel,
   } from "./db";
 
   export interface IStorage {
@@ -74,6 +76,9 @@ import mongoose from 'mongoose';
 
     getSiteSettings(): Promise<SiteSettings>;
     updateSiteSettings(updates: UpdateSiteSettings): Promise<SiteSettings>;
+
+    recordPageView(page: string, userAgent?: string, referrer?: string): Promise<void>;
+    getAnalytics(): Promise<Analytics>;
   }
 
   function mapId<T>(doc: any): T {
@@ -303,6 +308,65 @@ import mongoose from 'mongoose';
         { new: true, upsert: true }
       );
       return mapId(doc);
+    }
+
+    async recordPageView(page: string, userAgent?: string, referrer?: string): Promise<void> {
+      await PageViewModel.create({ page, userAgent, referrer });
+    }
+
+    async getAnalytics(): Promise<Analytics> {
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startOfWeek = new Date(startOfToday);
+      startOfWeek.setDate(startOfToday.getDate() - startOfToday.getDay());
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const thirtyDaysAgo = new Date(startOfToday);
+      thirtyDaysAgo.setDate(startOfToday.getDate() - 29);
+
+      const [totalViews, todayViews, weekViews, monthViews, rawDaily, rawTopPages, rawUserAgents] = await Promise.all([
+        PageViewModel.countDocuments(),
+        PageViewModel.countDocuments({ createdAt: { $gte: startOfToday } }),
+        PageViewModel.countDocuments({ createdAt: { $gte: startOfWeek } }),
+        PageViewModel.countDocuments({ createdAt: { $gte: startOfMonth } }),
+        PageViewModel.aggregate([
+          { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+          { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, views: { $sum: 1 } } },
+          { $sort: { _id: 1 } },
+        ]),
+        PageViewModel.aggregate([
+          { $group: { _id: '$page', views: { $sum: 1 } } },
+          { $sort: { views: -1 } },
+          { $limit: 10 },
+        ]),
+        PageViewModel.aggregate([
+          { $group: { _id: '$userAgent', count: { $sum: 1 } } },
+        ]),
+      ]);
+
+      const dailyMap = new Map<string, number>(rawDaily.map((d: any) => [d._id, d.views]));
+      const dailyViews: { date: string; views: number }[] = [];
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(startOfToday);
+        d.setDate(startOfToday.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        dailyViews.push({ date: key, views: dailyMap.get(key) || 0 });
+      }
+
+      const topPages = rawTopPages.map((p: any) => ({ page: p._id, views: p.views }));
+
+      let mobile = 0, desktop = 0;
+      for (const row of rawUserAgents) {
+        const ua = (row._id || '').toLowerCase();
+        const isMobile = /mobile|android|iphone|ipad|ipod|blackberry|windows phone/.test(ua);
+        if (isMobile) mobile += row.count;
+        else desktop += row.count;
+      }
+      const deviceBreakdown = [
+        { device: 'Desktop', views: desktop },
+        { device: 'Mobile', views: mobile },
+      ];
+
+      return { totalViews, todayViews, weekViews, monthViews, dailyViews, topPages, deviceBreakdown };
     }
   }
 

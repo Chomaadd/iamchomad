@@ -20,6 +20,7 @@ import Resume from "./pages/public/Resume";
 // Admin Pages
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
+import Analytics from "./pages/admin/Analytics";
 import ManageBlog from "./pages/admin/ManageBlog";
 import ManageBrand from "./pages/admin/ManageBrand";
 import ManageMemory from "./pages/admin/ManageMemory";
@@ -30,7 +31,10 @@ import ManageResume from "./pages/admin/ManageResume";
 // Base Fallback
 import NotFound from "@/pages/public/Not-Found";
 
+import { usePageTracker } from "@/hooks/use-analytics";
+
 function Router() {
+  usePageTracker();
   return (
     <Switch>
       {/* Public Routes */}
@@ -47,6 +51,7 @@ function Router() {
       {/* Admin Routes */}
       <Route path="/login" component={Login} />
       <Route path="/admin" component={Dashboard} />
+      <Route path="/admin/analytics" component={Analytics} />
       <Route path="/admin/blog" component={ManageBlog} />
       <Route path="/admin/brand" component={ManageBrand} />
       <Route path="/admin/memory" component={ManageMemory} />
