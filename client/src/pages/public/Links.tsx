@@ -24,10 +24,11 @@ export default function Links() {
   return (
     <>
       <SeoHead
-        title={`Links — ${name}`}
-        description={`All links to find ${name} on the web — social media, portfolio, email, and more.`}
-        url="https://iamchomad.my.id/links"
-        image="https://iamchomad.my.id/og-image.png"
+        title="Links · Choiril Ahmad"
+        description="Satu tempat untuk semua link penting Choiril Ahmad — media sosial, portofolio, kontak, dan lainnya. Temukan semua di sini."
+        url="/links"
+        image="https://iamchomad.my.id/logo.png"
+        cardType="summary"
       />
       <div className="min-h-screen bg-background flex flex-col items-center justify-start py-16 px-4">
         <div className="w-full max-w-md flex flex-col items-center gap-8">

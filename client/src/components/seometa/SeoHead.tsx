@@ -11,6 +11,7 @@ interface SeoHeadProps {
   image?: string;
   url?: string;
   type?: "website" | "article";
+  cardType?: "summary" | "summary_large_image";
   article?: {
     publishedTime?: string;
     tags?: string[];
@@ -23,6 +24,7 @@ export function SeoHead({
   image = DEFAULT_IMAGE,
   url,
   type = "website",
+  cardType = "summary_large_image",
   article,
 }: SeoHeadProps) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}'s`;
@@ -50,7 +52,7 @@ export function SeoHead({
         <meta key={tag} property="article:tag" content={tag} />
       ))}
 
-      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:card" content={cardType} />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
