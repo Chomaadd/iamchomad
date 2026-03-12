@@ -58,7 +58,7 @@ export default function AnonMessage() {
   return (
     <>
       <SeoHead
-        title="Pesan Anonim · Choiril Ahmad"
+        title="Pesan Anonim"
         description="Punya sesuatu yang ingin kamu sampaikan? Kirim pesan anonim untuk Choiril Ahmad — tanpa nama, tanpa jejak, identitasmu 100% dijaga."
         url="/pesan"
         image="https://iamchomad.my.id/logo.png"

@@ -24,7 +24,7 @@ export default function Links() {
   return (
     <>
       <SeoHead
-        title="Links · Choiril Ahmad"
+        title="Links"
         description="Satu tempat untuk semua link penting Choiril Ahmad — media sosial, portofolio, kontak, dan lainnya. Temukan semua di sini."
         url="/links"
         image="https://iamchomad.my.id/logo.png"
