@@ -12,9 +12,10 @@ export default function Links() {
   const { data: links, isLoading } = useLinkItems();
   const { data: settings } = useSiteSettings();
 
-  const activeLinks = links
-    ?.filter((l: LinkItem) => l.isActive)
-    .sort((a, b) => a.order - b.order) ?? [];
+  const activeLinks =
+    links
+      ?.filter((l: LinkItem) => l.isActive)
+      .sort((a, b) => a.order - b.order) ?? [];
 
   const avatarUrl = settings?.linksAvatarUrl;
   const name = settings?.linksName || DEFAULT_NAME;
@@ -30,7 +31,6 @@ export default function Links() {
       />
       <div className="min-h-screen bg-background flex flex-col items-center justify-start py-16 px-4">
         <div className="w-full max-w-md flex flex-col items-center gap-8">
-
           <div className="flex flex-col items-center gap-4 text-center">
             <div className="w-24 h-24 rounded-full border-4 border-border shadow-md overflow-hidden bg-muted flex items-center justify-center shrink-0">
               {avatarUrl ? (
@@ -41,14 +41,24 @@ export default function Links() {
                   data-testid="img-links-avatar"
                 />
               ) : (
-                <User size={36} className="text-muted-foreground" data-testid="img-links-avatar-placeholder" />
+                <User
+                  size={36}
+                  className="text-muted-foreground"
+                  data-testid="img-links-avatar-placeholder"
+                />
               )}
             </div>
             <div>
-              <h1 className="text-2xl font-serif font-bold tracking-tight" data-testid="text-links-name">
+              <h1
+                className="text-2xl font-serif font-bold tracking-tight"
+                data-testid="text-links-name"
+              >
                 {name}
               </h1>
-              <p className="text-sm text-muted-foreground mt-1" data-testid="text-links-bio">
+              <p
+                className="text-sm text-muted-foreground mt-1"
+                data-testid="text-links-bio"
+              >
                 {bio}
               </p>
             </div>
@@ -62,7 +72,9 @@ export default function Links() {
             )}
 
             {!isLoading && activeLinks.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground py-8 italic">No links yet.</p>
+              <p className="text-center text-sm text-muted-foreground py-8 italic">
+                No links yet.
+              </p>
             )}
 
             {activeLinks.map((link: LinkItem) => (
@@ -78,9 +90,13 @@ export default function Links() {
                   <LinkIcon url={link.url} emoji={link.icon} size={22} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-foreground truncate">{link.title}</p>
+                  <p className="font-semibold text-sm text-foreground truncate">
+                    {link.title}
+                  </p>
                   {link.description && (
-                    <p className="text-xs text-muted-foreground mt-0.5 truncate">{link.description}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                      {link.description}
+                    </p>
                   )}
                 </div>
                 <ExternalLink
