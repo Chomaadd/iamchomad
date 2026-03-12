@@ -107,6 +107,11 @@ import mongoose from 'mongoose';
     linksBio: { type: String },
   });
 
+  const anonMessageSchema = new mongoose.Schema({
+    message: { type: String, required: true },
+    isRead: { type: Boolean, default: false },
+  }, { timestamps: { createdAt: true, updatedAt: false } });
+
   export const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
   export const BlogPostModel = mongoose.models.BlogPost || mongoose.model('BlogPost', blogPostSchema);
   export const ContactMessageModel = mongoose.models.ContactMessage || mongoose.model('ContactMessage', contactMessageSchema);
@@ -117,4 +122,5 @@ import mongoose from 'mongoose';
   export const LinkItemModel = mongoose.models.LinkItem || mongoose.model('LinkItem', linkItemSchema);
   export const SiteSettingsModel = mongoose.models.SiteSettings || mongoose.model('SiteSettings', siteSettingsSchema);
   export const PageViewModel = mongoose.models.PageView || mongoose.model('PageView', pageViewSchema);
+  export const AnonMessageModel = mongoose.models.AnonMessage || mongoose.model('AnonMessage', anonMessageSchema);
   

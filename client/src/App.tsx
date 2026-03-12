@@ -28,6 +28,8 @@ import ManageMessages from "./pages/admin/ManageMessages";
 import ManageMusic from "./pages/admin/ManageMusic";
 import ManageResume from "./pages/admin/ManageResume";
 import ManageLinks from "./pages/admin/ManageLinks";
+import ManageAnonMessages from "./pages/admin/ManageAnonMessages";
+import AnonMessage from "./pages/public/AnonMessage";
 
 // Base Fallback
 import NotFound from "@/pages/public/Not-Found";
@@ -49,6 +51,7 @@ function Router() {
       <Route path="/music" component={Music} />
       <Route path="/resume" component={Resume} />
       <Route path="/links" component={Links} />
+      <Route path="/pesan" component={AnonMessage} />
 
       {/* Admin Routes */}
       <Route path="/login" component={Login} />
@@ -61,6 +64,7 @@ function Router() {
       <Route path="/admin/music" component={ManageMusic} />
       <Route path="/admin/resume" component={ManageResume} />
       <Route path="/admin/links" component={ManageLinks} />
+      <Route path="/admin/anon" component={ManageAnonMessages} />
 
       {/* Fallback */}
       <Route component={NotFound} />

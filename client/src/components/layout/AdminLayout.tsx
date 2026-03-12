@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, Camera, ScrollText, BarChart2, Link2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, Camera, ScrollText, BarChart2, Link2, MessageSquare } from "lucide-react";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, isLoading, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { data: unreadData } = useQuery<{ count: number }>({
+    queryKey: ["/api/anon-messages/unread-count"],
+    refetchInterval: 30000,
+    enabled: !!user,
+  });
+  const unreadCount = unreadData?.count ?? 0;
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -27,6 +34,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { href: "/admin/resume", label: "Resume", icon: ScrollText },
     { href: "/admin/links", label: "Links", icon: Link2 },
     { href: "/admin/messages", label: "Messages", icon: Mail },
+    { href: "/admin/anon", label: "Pesan Anonim", icon: MessageSquare, badge: unreadCount > 0 ? unreadCount : undefined },
   ];
 
   const currentPage = links.find(l => l.href === location)?.label || "Overview";
@@ -67,7 +75,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 }`}
               >
                 <Icon size={18} className={active ? '' : 'group-hover:scale-110 transition-transform'} />
-                <span>{link.label}</span>
+                <span className="flex-1">{link.label}</span>
+                {'badge' in link && link.badge !== undefined && (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${active ? 'bg-primary-foreground text-primary' : 'bg-primary text-primary-foreground'}`}>
+                    {link.badge}
+                  </span>
+                )}
               </Link>
             );
           })}
