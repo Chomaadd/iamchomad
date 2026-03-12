@@ -801,8 +801,14 @@ ${blogEntries}
 
   app.put('/api/settings', requireAuth, async (req, res) => {
     try {
-      const { availabilityStatus, availabilityLabel } = req.body;
-      const settings = await storage.updateSiteSettings({ availabilityStatus, availabilityLabel });
+      const { availabilityStatus, availabilityLabel, linksAvatarUrl, linksName, linksBio } = req.body;
+      const settings = await storage.updateSiteSettings({
+        availabilityStatus,
+        availabilityLabel,
+        linksAvatarUrl,
+        linksName,
+        linksBio,
+      });
       res.json(settings);
     } catch (err) {
       console.error("Settings update error:", err);
