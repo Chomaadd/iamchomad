@@ -1,6 +1,6 @@
 # Personal Portfolio Website - Choiril Ahmad
 
-A personal portfolio website with blog, brand showcase, music collection, memory gallery, and contact functionality. Features an elegant black/white theme toggle and secure admin dashboard for content management.
+A personal portfolio website with blog, brand showcase, music collection, and contact functionality. Features an elegant black/white theme toggle and secure admin dashboard for content management.
 
 ## Features
 
@@ -17,7 +17,6 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 - **Blog** (`/blog`) - Article listing with slug-based URLs (`/blog/:slug`), search bar, and category tag filter
   - Each article has: view count, share buttons (WhatsApp, X, copy link), reaction buttons (👍 ❤️), and Table of Contents sidebar (auto-extracted from headings, visible on desktop for articles with 2+ sections)
 - **Brand** (`/brand`) - Showcase of brand items and projects
-- **Memory** (`/memory`) - Password-protected memory/gallery page (requires `MEMORY_PASSWORD` to view)
 - **Music** (`/music`) - Music collection player with auto-play support
 - **Resume** (`/resume`) - Professional CV/resume with experience, education, skills sections and print/PDF support
 - **Contact** (`/contact`) - Working contact form for visitor messages
@@ -29,7 +28,6 @@ A personal portfolio website with blog, brand showcase, music collection, memory
 - **Analytics** (`/admin/analytics`) - Site analytics: total/today/week/month views, 30-day bar chart, top pages, device breakdown (desktop vs mobile)
 - **Blog Management** (`/admin/blog`) - Create, edit, delete blog posts with image uploads
 - **Brand Management** (`/admin/brand`) - Manage brand portfolio items
-- **Memory Management** (`/admin/memory`) - Manage memory/gallery items
 - **Music Management** (`/admin/music`) - Add/manage music tracks with auto-duration detection
 - **Resume Management** (`/admin/resume`) - Manage resume/CV items (experience, education, skills) with ordering
 - **Links Management** (`/admin/links`) - Add/edit/delete links with title, URL, emoji icon, description, order, and visibility toggle
@@ -67,7 +65,6 @@ Credentials are configured via environment secrets:
 - `contactmessages` - Visitor messages
 - `musictracks` - Music collection with duration
 - `branditems` - Brand portfolio
-- `memoryitems` - Memory/gallery items
 - `resumeitems` - Resume/CV items (experience, education, skills)
 
 ## API Endpoints
@@ -106,12 +103,6 @@ Credentials are configured via environment secrets:
 - `PUT /api/brand/:id` / `PUT /api/resume/:id` - Update (auth required)
 - `DELETE /api/brand/:id` / `DELETE /api/resume/:id` - Delete (auth required)
 
-### Memory (password-protected)
-- `POST /api/memory/verify` - Verify memory password (stores unlock in session)
-- `GET /api/memory/status` - Check if memory is unlocked for current session
-- `GET /api/memory` / `GET /api/memory/:id` - List/get items (requires memory password or admin session)
-- `POST /api/memory` / `PUT /api/memory/:id` / `DELETE /api/memory/:id` - CRUD (admin auth required)
-
 ### File Upload
 - `POST /api/upload` - Upload file (auth required, returns URL and duration for audio)
 
@@ -120,7 +111,6 @@ Credentials are configured via environment secrets:
 - `SESSION_SECRET` - Session encryption secret
 - `ADMIN_USERNAME` - Admin login username
 - `ADMIN_PASSWORD` - Admin login password
-- `MEMORY_PASSWORD` - Password to unlock the Memory page (changeable via Secrets)
 - `PORT` - Server port (default: 5000)
 
 ## Development

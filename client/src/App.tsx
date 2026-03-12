@@ -12,7 +12,6 @@ import About from "./pages/public/About";
 import Blog from "./pages/public/Blog";
 import BlogPost from "./pages/public/BlogPost";
 import Brand from "./pages/public/Brand";
-import Memory from "./pages/public/Memory";
 import Contact from "./pages/public/Contact";
 import Music from "./pages/public/Music";
 import Resume from "./pages/public/Resume";
@@ -23,7 +22,6 @@ import Dashboard from "./pages/admin/Dashboard";
 import Analytics from "./pages/admin/Analytics";
 import ManageBlog from "./pages/admin/ManageBlog";
 import ManageBrand from "./pages/admin/ManageBrand";
-import ManageMemory from "./pages/admin/ManageMemory";
 import ManageMessages from "./pages/admin/ManageMessages";
 import ManageMusic from "./pages/admin/ManageMusic";
 import ManageResume from "./pages/admin/ManageResume";
@@ -46,7 +44,6 @@ function Router() {
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/brand" component={Brand} />
-      <Route path="/memory" component={Memory} />
       <Route path="/contact" component={Contact} />
       <Route path="/music" component={Music} />
       <Route path="/resume" component={Resume} />
@@ -59,7 +56,6 @@ function Router() {
       <Route path="/admin/analytics" component={Analytics} />
       <Route path="/admin/blog" component={ManageBlog} />
       <Route path="/admin/brand" component={ManageBrand} />
-      <Route path="/admin/memory" component={ManageMemory} />
       <Route path="/admin/messages" component={ManageMessages} />
       <Route path="/admin/music" component={ManageMusic} />
       <Route path="/admin/resume" component={ManageResume} />

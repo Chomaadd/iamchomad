@@ -3,10 +3,9 @@ import { usePosts } from "@/hooks/use-blog";
 import { useContactMessages } from "@/hooks/use-contact";
 import { useBrandItems } from "@/hooks/use-brand";
 import { useMusicTracks } from "@/hooks/use-music";
-import { useMemoryItems } from "@/hooks/use-memory";
 import { useResumeItems } from "@/hooks/use-resume";
 import { useSiteSettings, useUpdateSiteSettings } from "@/hooks/use-settings";
-import { FileText, Mail, Image, Music, Camera, TrendingUp, Clock, ScrollText, Briefcase } from "lucide-react";
+import { FileText, Mail, Image, Music, TrendingUp, Clock, ScrollText, Briefcase } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import type { AvailabilityStatus } from "@shared/schema";
@@ -22,7 +21,6 @@ export default function Dashboard() {
   const { data: messages } = useContactMessages();
   const { data: brands } = useBrandItems();
   const { data: tracks } = useMusicTracks();
-  const { data: memories } = useMemoryItems();
   const { data: resumeItems } = useResumeItems();
   const { data: settings } = useSiteSettings();
   const { mutateAsync: updateSettings, isPending } = useUpdateSiteSettings();
@@ -47,7 +45,6 @@ export default function Dashboard() {
     { label: "Inquiries", value: messages?.length || 0, icon: Mail, href: "/admin/messages", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400", badge: unreadMessages > 0 ? `${unreadMessages} new` : undefined },
     { label: "Brand Assets", value: brands?.length || 0, icon: Image, href: "/admin/brand", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
     { label: "Music Tracks", value: tracks?.length || 0, icon: Music, href: "/admin/music", color: "bg-purple-500/10 text-purple-600 dark:text-purple-400" },
-    { label: "Memories", value: memories?.length || 0, icon: Camera, href: "/admin/memory", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
     { label: "Resume Items", value: resumeItems?.length || 0, icon: ScrollText, href: "/admin/resume", color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400" },
   ];
 

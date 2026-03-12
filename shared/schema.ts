@@ -64,19 +64,6 @@ export const brandItemSchema = z.object({
 });
 export const insertBrandItemSchema = brandItemSchema.omit({ id: true, createdAt: true, updatedAt: true });
 
-export const memoryItemSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string(),
-  imageUrl: z.string().nullable().optional(),
-  link: z.string().nullable().optional(),
-  category: z.string().nullable().optional(),
-  featured: z.boolean().default(false).optional(),
-  createdAt: z.union([z.date(), z.string()]).optional(),
-  updatedAt: z.union([z.date(), z.string()]).optional(),
-});
-export const insertMemoryItemSchema = memoryItemSchema.omit({ id: true, createdAt: true, updatedAt: true });
-
 export type Admin = z.infer<typeof adminSchema>;
 export type InsertAdmin = z.infer<typeof insertAdminSchema>;
 
@@ -102,12 +89,6 @@ export type InsertBrandItem = z.infer<typeof insertBrandItemSchema>;
 export type CreateBrandItemRequest = InsertBrandItem;
 export type UpdateBrandItemRequest = Partial<InsertBrandItem>;
 export type BrandItemResponse = BrandItem;
-
-export type MemoryItem = z.infer<typeof memoryItemSchema>;
-export type InsertMemoryItem = z.infer<typeof insertMemoryItemSchema>;
-export type CreateMemoryItemRequest = InsertMemoryItem;
-export type UpdateMemoryItemRequest = Partial<InsertMemoryItem>;
-export type MemoryItemResponse = MemoryItem;
 
 export const resumeItemSchema = z.object({
   id: z.string(),

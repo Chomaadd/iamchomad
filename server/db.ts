@@ -64,15 +64,6 @@ import mongoose from 'mongoose';
     featured: { type: Boolean, default: false },
   }, { timestamps: true });
 
-  const memoryItemSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    imageUrl: { type: String },
-    link: { type: String },
-    category: { type: String },
-    featured: { type: Boolean, default: false },
-  }, { timestamps: true });
-
   const resumeItemSchema = new mongoose.Schema({
     type: { type: String, required: true, enum: ['experience', 'education', 'skill'] },
     title: { type: String, required: true },
@@ -117,7 +108,6 @@ import mongoose from 'mongoose';
   export const ContactMessageModel = mongoose.models.ContactMessage || mongoose.model('ContactMessage', contactMessageSchema);
   export const MusicTrackModel = mongoose.models.MusicTrack || mongoose.model('MusicTrack', musicTrackSchema);
   export const BrandItemModel = mongoose.models.BrandItem || mongoose.model('BrandItem', brandItemSchema);
-  export const MemoryItemModel = mongoose.models.MemoryItem || mongoose.model('MemoryItem', memoryItemSchema);
   export const ResumeItemModel = mongoose.models.ResumeItem || mongoose.model('ResumeItem', resumeItemSchema);
   export const LinkItemModel = mongoose.models.LinkItem || mongoose.model('LinkItem', linkItemSchema);
   export const SiteSettingsModel = mongoose.models.SiteSettings || mongoose.model('SiteSettings', siteSettingsSchema);

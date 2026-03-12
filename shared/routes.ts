@@ -4,7 +4,7 @@ import {
   insertContactMessageSchema,
   insertMusicTrackSchema,
   insertBrandItemSchema,
-  insertMemoryItemSchema,
+
   insertResumeItemSchema,
   insertLinkItemSchema,
   linkItemSchema,
@@ -12,7 +12,7 @@ import {
   contactMessageSchema,
   musicTrackSchema,
   brandItemSchema,
-  memoryItemSchema,
+
   resumeItemSchema,
 } from './schema';
 
@@ -211,54 +211,6 @@ export const api = {
     },
   },
 
-  memory: {
-    list: {
-      method: 'GET' as const,
-      path: '/api/memory' as const,
-      responses: {
-        200: z.array(memoryItemSchema),
-      },
-    },
-    get: {
-      method: 'GET' as const,
-      path: '/api/memory/:id' as const,
-      responses: {
-        200: memoryItemSchema,
-        404: errorSchemas.notFound,
-      },
-    },
-    create: {
-      method: 'POST' as const,
-      path: '/api/memory' as const,
-      input: insertMemoryItemSchema,
-      responses: {
-        201: memoryItemSchema,
-        400: errorSchemas.validation,
-        401: errorSchemas.unauthorized,
-      },
-    },
-    update: {
-      method: 'PUT' as const,
-      path: '/api/memory/:id' as const,
-      input: insertMemoryItemSchema.partial(),
-      responses: {
-        200: memoryItemSchema,
-        400: errorSchemas.validation,
-        401: errorSchemas.unauthorized,
-        404: errorSchemas.notFound,
-      },
-    },
-    delete: {
-      method: 'DELETE' as const,
-      path: '/api/memory/:id' as const,
-      responses: {
-        204: z.void(),
-        401: errorSchemas.unauthorized,
-        404: errorSchemas.notFound,
-      },
-    },
-  },
-
   brand: {
     list: {
       method: 'GET' as const,
@@ -424,10 +376,6 @@ export type MusicTrackResponse = z.infer<typeof api.music.create.responses[201]>
 export type BrandItemInput = z.infer<typeof api.brand.create.input>;
 export type BrandItemUpdateInput = z.infer<typeof api.brand.update.input>;
 export type BrandItemResponse = z.infer<typeof api.brand.create.responses[201]>;
-
-export type MemoryItemInput = z.infer<typeof api.memory.create.input>;
-export type MemoryItemUpdateInput = z.infer<typeof api.memory.update.input>;
-export type MemoryItemResponse = z.infer<typeof api.memory.create.responses[201]>;
 
 export type ResumeItemInput = z.infer<typeof api.resume.create.input>;
 export type ResumeItemUpdateInput = z.infer<typeof api.resume.update.input>;

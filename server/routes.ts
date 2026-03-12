@@ -16,7 +16,6 @@ import { parseBuffer } from "music-metadata";
 declare module "express-session" {
   interface SessionData {
     adminId?: string;
-    memoryUnlocked?: boolean;
   }
 }
 
@@ -618,107 +617,6 @@ ${blogEntries}
     }
   });
 
-  app.post("/api/memory/verify", (req, res) => {
-    const { password } = req.body;
-    const memoryPassword = process.env.MEMORY_PASSWORD;
-
-    if (!memoryPassword) {
-      return res
-        .status(500)
-        .json({ message: "Memory password not configured" });
-    }
-
-    if (password === memoryPassword) {
-      req.session.memoryUnlocked = true;
-      return res.json({ success: true });
-    }
-
-    return res.status(401).json({ message: "Incorrect password" });
-  });
-
-  app.get("/api/memory/status", (req, res) => {
-    res.json({
-      unlocked: !!req.session.memoryUnlocked || !!req.session.adminId,
-    });
-  });
-
-  const requireMemoryAccess = (req: any, res: any, next: any) => {
-    if (!req.session.memoryUnlocked && !req.session.adminId) {
-      return res.status(401).json({ message: "Memory access denied" });
-    }
-    next();
-  };
-
-  app.get(api.memory.list.path, requireMemoryAccess, async (_req, res) => {
-    try {
-      const items = await storage.getMemoryItems();
-      res.json(items);
-    } catch (err) {
-      console.error("Memory list error:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.get(api.memory.get.path, requireMemoryAccess, async (req, res) => {
-    try {
-      const item = await storage.getMemoryItem(req.params.id);
-      if (!item) {
-        return res.status(404).json({ message: "Memory item not found" });
-      }
-      res.json(item);
-    } catch (err) {
-      console.error("Memory get error:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.post(api.memory.create.path, requireAuth, async (req, res) => {
-    try {
-      const input = api.memory.create.input.parse(req.body);
-      const item = await storage.createMemoryItem(input);
-      res.status(201).json(item);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({
-          message: err.errors[0].message,
-          field: err.errors[0].path.join("."),
-        });
-      }
-      console.error("Memory create error:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.put(api.memory.update.path, requireAuth, async (req, res) => {
-    try {
-      const input = api.memory.update.input.parse(req.body);
-      const item = await storage.updateMemoryItem(req.params.id, input);
-      if (!item) {
-        return res.status(404).json({ message: "Memory item not found" });
-      }
-      res.json(item);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({
-          message: err.errors[0].message,
-          field: err.errors[0].path.join("."),
-        });
-      }
-      console.error("Memory update error:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.delete(api.memory.delete.path, requireAuth, async (req, res) => {
-    try {
-      await storage.deleteMemoryItem(req.params.id);
-      res.status(204).send();
-    } catch (err) {
-      console.error("Memory delete error:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
   app.get(api.resume.list.path, async (_req, res) => {
     try {
       const items = await storage.getResumeItems();
@@ -980,19 +878,6 @@ async function seedDatabase() {
           "Offering expert consulting in business strategy, digital transformation, and leadership development. Helping organizations navigate change and achieve sustainable growth.",
         imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978",
         category: "Services",
-        featured: true,
-      });
-    }
-
-    const existingMemory = await storage.getMemoryItems();
-    if (existingMemory.length === 0) {
-      log("Seeding memory items...");
-      await storage.createMemoryItem({
-        title: "Erlangga Solid Victory",
-        description:
-          "It is an extraordinary trust to be able to join PT Penerbit Elangga and meet good people.",
-        imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978",
-        category: "Life",
         featured: true,
       });
     }

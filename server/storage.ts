@@ -5,7 +5,6 @@ import mongoose from 'mongoose';
     type ContactMessage,
     type MusicTrack,
     type BrandItem,
-    type MemoryItem,
     type ResumeItem,
     type SiteSettings,
     type UpdateSiteSettings,
@@ -17,8 +16,6 @@ import mongoose from 'mongoose';
     type UpdateMusicTrackRequest,
     type CreateBrandItemRequest,
     type UpdateBrandItemRequest,
-    type CreateMemoryItemRequest,
-    type UpdateMemoryItemRequest,
     type CreateResumeItemRequest,
     type UpdateResumeItemRequest,
     type LinkItem,
@@ -33,7 +30,7 @@ import mongoose from 'mongoose';
     ContactMessageModel, 
     MusicTrackModel, 
     BrandItemModel, 
-    MemoryItemModel,
+
     ResumeItemModel,
     LinkItemModel,
     SiteSettingsModel,
@@ -70,12 +67,6 @@ import mongoose from 'mongoose';
     createBrandItem(item: CreateBrandItemRequest): Promise<BrandItem>;
     updateBrandItem(id: string, updates: UpdateBrandItemRequest): Promise<BrandItem>;
     deleteBrandItem(id: string): Promise<void>;
-
-    getMemoryItems(): Promise<MemoryItem[]>;
-    getMemoryItem(id: string): Promise<MemoryItem | undefined>;
-    createMemoryItem(item: CreateMemoryItemRequest): Promise<MemoryItem>;
-    updateMemoryItem(id: string, updates: UpdateMemoryItemRequest): Promise<MemoryItem>;
-    deleteMemoryItem(id: string): Promise<void>;
 
     getResumeItems(): Promise<ResumeItem[]>;
     getResumeItem(id: string): Promise<ResumeItem | undefined>;
@@ -269,35 +260,6 @@ import mongoose from 'mongoose';
 
     async deleteBrandItem(id: string): Promise<void> {
       await BrandItemModel.findByIdAndDelete(id);
-    }
-
-    async getMemoryItems(): Promise<MemoryItem[]> {
-      const items = await MemoryItemModel.find().sort({ createdAt: 1 });
-      return items.map(i => mapId<MemoryItem>(i));
-    }
-
-    async getMemoryItem(id: string): Promise<MemoryItem | undefined> {
-      const item = await MemoryItemModel.findById(id);
-      return item ? mapId(item) : undefined;
-    }
-
-    async createMemoryItem(item: CreateMemoryItemRequest): Promise<MemoryItem> {
-      const created = await MemoryItemModel.create(item);
-      return mapId(created);
-    }
-
-    async updateMemoryItem(id: string, updates: UpdateMemoryItemRequest): Promise<MemoryItem> {
-      const updated = await MemoryItemModel.findByIdAndUpdate(
-        id,
-        { ...updates, updatedAt: new Date() },
-        { new: true }
-      );
-      if (!updated) throw new Error('Memory item not found');
-      return mapId(updated);
-    }
-
-    async deleteMemoryItem(id: string): Promise<void> {
-      await MemoryItemModel.findByIdAndDelete(id);
     }
 
     async getResumeItems(): Promise<ResumeItem[]> {
