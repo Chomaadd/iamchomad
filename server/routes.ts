@@ -12,6 +12,7 @@ import path from "path";
 import fs from "fs";
 import express from "express";
 import { parseBuffer } from "music-metadata";
+import { sendContactNotification } from "./email";
 
 declare module "express-session" {
   interface SessionData {
@@ -442,6 +443,10 @@ ${blogEntries}
       const input = api.contact.create.input.parse(req.body);
       const message = await storage.createContactMessage(input);
       res.status(201).json(message);
+
+      sendContactNotification(input).catch((err) => {
+        console.error("Failed to send email notification:", err);
+      });
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({
