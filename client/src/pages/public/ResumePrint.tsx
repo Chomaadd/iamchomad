@@ -47,6 +47,8 @@ export default function ResumePrint() {
     <>
       {/* ── Global styles: only used on this page ── */}
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { background: #e5e5e5; }
 
@@ -80,20 +82,20 @@ export default function ResumePrint() {
         /* A4 wrapper */
         .cv-page {
           width: 210mm;
-          min-height: 297mm;
+          height: 297mm;
           margin: 20px auto;
           display: flex;
           flex-direction: row;
           background: #fff;
           box-shadow: 0 4px 32px rgba(0,0,0,0.18);
-          font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+          font-family: 'Inter', 'Helvetica Neue', Helvetica, sans-serif;
           overflow: hidden;
         }
 
         /* ── LEFT SIDEBAR ── */
         .cv-sidebar {
           width: 68mm;
-          min-height: 297mm;
+          height: 297mm;
           background-color: ${DARK};
           color: #fff;
           display: flex;
@@ -259,18 +261,11 @@ export default function ResumePrint() {
           background: ${ACCENT};
           opacity: 0.07;
         }
-        .cv-first-name {
-          font-size: 9.5pt;
-          font-weight: 300;
-          letter-spacing: 5px;
-          text-transform: uppercase;
-          color: #aaa;
-          margin-bottom: 1mm;
-        }
-        .cv-last-name {
-          font-size: 24pt;
+        .cv-full-name {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 28pt;
           font-weight: 900;
-          letter-spacing: -0.5px;
+          letter-spacing: 1px;
           line-height: 1;
           color: ${DARK};
           text-transform: uppercase;
@@ -422,7 +417,8 @@ export default function ResumePrint() {
             margin: 0 !important;
             box-shadow: none !important;
             width: 210mm !important;
-            min-height: 297mm !important;
+            height: 297mm !important;
+            overflow: hidden !important;
           }
           .cv-sidebar { background-color: ${DARK} !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           .cv-photo-bar { background: ${ACCENT} !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -546,8 +542,7 @@ export default function ResumePrint() {
           {/* Name + Title header */}
           <div className="cv-header">
             <div className="cv-header-corner" />
-            <div className="cv-first-name">{firstName}</div>
-            <div className="cv-last-name">{lastName || firstName}</div>
+            <div className="cv-full-name">{fullName.toUpperCase()}</div>
             <div className="cv-job-title">{jobTitle}</div>
           </div>
 
