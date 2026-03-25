@@ -2,7 +2,8 @@ import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useMusicTracks } from "@/hooks/use-music";
-import { Loader2, Play, Pause, Music2, Headphones } from "lucide-react";
+import { Play, Pause, Music2, Headphones } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/hooks/use-language";
 import { SeoHead } from "@/components/seometa/SeoHead";
@@ -67,7 +68,19 @@ export default function Music() {
         </motion.header>
 
         {isLoading ? (
-          <div className="flex justify-center py-32"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+          <div className="space-y-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-border/60 bg-card">
+                <Skeleton className="w-11 h-11 rounded-full shrink-0" />
+                <Skeleton className="w-11 h-11 rounded-lg shrink-0" />
+                <div className="flex-1 space-y-2 min-w-0">
+                  <Skeleton className="h-3.5 w-2/5" />
+                  <Skeleton className="h-3 w-1/4" />
+                </div>
+                <Skeleton className="h-3 w-10 shrink-0" />
+              </div>
+            ))}
+          </div>
         ) : (
           <div className="space-y-3">
             {tracks?.map((track, i) => {

@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useBrandItems } from "@/hooks/use-brand";
-import { Loader2, ArrowUpRight, Layers, Star } from "lucide-react";
+import { ArrowUpRight, Layers, Star } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/hooks/use-language";
 import { SeoHead } from "@/components/seometa/SeoHead";
 
@@ -57,7 +58,44 @@ export default function Brand() {
         </motion.header>
 
         {isLoading ? (
-          <div className="flex justify-center py-32"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+          <div className="space-y-16">
+            {/* Featured item skeleton */}
+            <div className="bg-card border border-border/60 rounded-3xl overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-2">
+                <Skeleton className="min-h-[260px] lg:min-h-[340px] w-full" />
+                <div className="p-8 lg:p-12 flex flex-col justify-center gap-4">
+                  <div className="flex gap-2">
+                    <Skeleton className="h-6 w-28 rounded-full" />
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </div>
+                  <Skeleton className="h-8 w-3/4" />
+                  <Skeleton className="h-7 w-1/2" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-2/3" />
+                  </div>
+                  <Skeleton className="h-4 w-28 mt-2" />
+                </div>
+              </div>
+            </div>
+            {/* Grid skeletons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-card border border-border/60 rounded-2xl overflow-hidden flex flex-col">
+                  <Skeleton className="aspect-[4/3] w-full" />
+                  <div className="p-5 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <Skeleton className="h-5 w-32" />
+                      <Skeleton className="h-4 w-16 rounded-full" />
+                    </div>
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-4/5" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         ) : (
           <>
             {/* Category Filter */}

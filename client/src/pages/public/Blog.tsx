@@ -5,7 +5,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { usePosts } from "@/hooks/use-blog";
 import { useLanguage } from "@/hooks/use-language";
-import { Loader2, ArrowRight, Clock, BookOpen, Search, X, Eye } from "lucide-react";
+import { ArrowRight, Clock, BookOpen, Search, X, Eye } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { SeoHead } from "@/components/seometa/SeoHead";
 
 function estimateReadTime(content: string): number {
@@ -135,7 +136,50 @@ export default function Blog() {
         </motion.div>
 
         {isLoading ? (
-          <div className="flex justify-center py-32"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+          <div className="space-y-12">
+            {/* Featured post skeleton */}
+            <div className="bg-card border border-border/60 rounded-2xl overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-2">
+                <Skeleton className="aspect-[4/3] lg:aspect-auto lg:min-h-[300px] w-full" />
+                <div className="p-6 lg:p-10 flex flex-col justify-center gap-4">
+                  <Skeleton className="h-5 w-24 rounded-full" />
+                  <Skeleton className="h-3 w-40" />
+                  <Skeleton className="h-8 w-4/5" />
+                  <Skeleton className="h-7 w-3/5" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-2/3" />
+                  </div>
+                  <div className="flex gap-2 mt-1">
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                    <Skeleton className="h-5 w-20 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Grid skeletons */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-card border border-border/60 rounded-2xl overflow-hidden flex flex-col">
+                  <Skeleton className="aspect-[16/10] w-full" />
+                  <div className="p-5 flex flex-col gap-3">
+                    <Skeleton className="h-3 w-36" />
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-4 w-4/5" />
+                    <div className="space-y-1.5">
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-3 w-3/4" />
+                    </div>
+                    <div className="flex gap-1.5 mt-1">
+                      <Skeleton className="h-4 w-14 rounded-full" />
+                      <Skeleton className="h-4 w-18 rounded-full" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         ) : (
           <>
             {/* Featured Post (only when not filtering) */}

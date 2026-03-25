@@ -3,7 +3,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useResumeItems } from "@/hooks/use-resume";
 import { useLanguage } from "@/hooks/use-language";
-import { Loader2, Download, Briefcase, GraduationCap, Lightbulb, Calendar, MapPin, FileText } from "lucide-react";
+import { Download, Briefcase, GraduationCap, Lightbulb, Calendar, MapPin, FileText } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { QRCodeSVG } from "qrcode.react";
 import type { ResumeItem } from "@shared/schema";
 import { SeoHead } from "@/components/seometa/SeoHead";
@@ -77,7 +78,61 @@ export default function Resume() {
         </motion.header>
 
         {isLoading ? (
-          <div className="flex justify-center py-32"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+          <div className="space-y-12">
+            {/* Experience skeleton */}
+            {[{ color: "bg-blue-500/10" }, { color: "bg-emerald-500/10" }].map((section, s) => (
+              <div key={s}>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className={`w-10 h-10 rounded-xl ${section.color} shrink-0`} />
+                  <Skeleton className="h-7 w-40" />
+                </div>
+                <div className="space-y-0">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex gap-4">
+                      <div className="flex flex-col items-center pt-2">
+                        <Skeleton className="w-3 h-3 rounded-full shrink-0" />
+                        {i < 2 && <div className="w-px flex-1 bg-border mt-1" />}
+                      </div>
+                      <div className="pb-8 flex-1 space-y-2">
+                        <Skeleton className="h-4 w-48" />
+                        <Skeleton className="h-3 w-36" />
+                        <Skeleton className="h-3 w-28" />
+                        <div className="space-y-1.5 mt-2">
+                          <Skeleton className="h-3 w-full" />
+                          <Skeleton className="h-3 w-4/5" />
+                        </div>
+                        <div className="flex gap-1.5 mt-2">
+                          <Skeleton className="h-4 w-14 rounded-full" />
+                          <Skeleton className="h-4 w-16 rounded-full" />
+                          <Skeleton className="h-4 w-12 rounded-full" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {/* Skills skeleton */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 shrink-0" />
+                <Skeleton className="h-7 w-32" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="bg-card border border-border/60 rounded-xl p-4 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                    <div className="flex gap-1.5 mt-2">
+                      <Skeleton className="h-4 w-14 rounded-full" />
+                      <Skeleton className="h-4 w-16 rounded-full" />
+                      <Skeleton className="h-4 w-12 rounded-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="space-y-12 print:space-y-8">
             {experience.length > 0 && (
