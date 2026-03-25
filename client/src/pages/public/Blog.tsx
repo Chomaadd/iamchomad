@@ -310,13 +310,13 @@ export default function Blog() {
                 </div>
                 {isFiltering ? (
                   <>
-                    <p className="font-serif text-xl font-bold">No results found</p>
-                    <p className="text-sm text-muted-foreground mt-2">Try a different search or category.</p>
+                    <p className="font-serif text-xl font-bold">{t("blog.noResults")}</p>
+                    <p className="text-sm text-muted-foreground mt-2">{t("blog.noResults.hint")}</p>
                     <button
                       onClick={() => { setSearchQuery(""); setActiveTag(null); }}
                       className="mt-4 text-xs font-semibold text-primary hover:underline"
                     >
-                      Clear filters
+                      {t("blog.clearFilters")}
                     </button>
                   </>
                 ) : (

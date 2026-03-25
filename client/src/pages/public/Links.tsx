@@ -1,6 +1,7 @@
 import { useLinkItems } from "@/hooks/use-links";
 import { useSiteSettings } from "@/hooks/use-settings";
 import { SeoHead } from "@/components/seometa/SeoHead";
+import { useLanguage } from "@/hooks/use-language";
 import { ExternalLink, Loader2, User } from "lucide-react";
 import { LinkIcon } from "@/lib/social-icons";
 import type { LinkItem } from "@shared/schema";
@@ -11,6 +12,7 @@ const DEFAULT_BIO = "Frontend Developer & Visual Designer";
 export default function Links() {
   const { data: links, isLoading } = useLinkItems();
   const { data: settings } = useSiteSettings();
+  const { t } = useLanguage();
 
   const activeLinks =
     links
@@ -74,7 +76,7 @@ export default function Links() {
 
             {!isLoading && activeLinks.length === 0 && (
               <p className="text-center text-sm text-muted-foreground py-8 italic">
-                No links yet.
+                {t("links.empty")}
               </p>
             )}
 

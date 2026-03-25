@@ -9,6 +9,8 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.music": "Sound",
     "nav.resume": "Resume",
     "nav.contact": "Contact",
+    "nav.links": "Links",
+    "nav.pesan": "Message",
 
     "footer.rights": "© Choomad Group. All Right Reserved.",
 
@@ -47,6 +49,14 @@ const translations: Record<Language, Record<string, string>> = {
     "blog.readMore": "Read more",
     "blog.empty.title": "No published posts yet",
     "blog.empty.desc": "Check back soon for new content.",
+    "blog.noResults": "No results found",
+    "blog.noResults.hint": "Try a different search or category.",
+    "blog.clearFilters": "Clear filters",
+
+    "links.empty": "No links available yet.",
+
+    "pesan.title": "Anonymous Message",
+    "pesan.subtitle": "Have something to say? Send an anonymous message to Choiril Ahmad — no name, no trace, your identity is 100% protected.",
 
     "blogpost.back": "Back to Blog",
     "blogpost.return": "Return to Blog",
@@ -113,6 +123,8 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.music": "Musik",
     "nav.resume": "Resume",
     "nav.contact": "Kontak",
+    "nav.links": "Links",
+    "nav.pesan": "Pesan",
 
     "footer.rights": "© Choomad Group. Hak Cipta Dilindungi.",
 
@@ -151,6 +163,14 @@ const translations: Record<Language, Record<string, string>> = {
     "blog.readMore": "Baca selengkapnya",
     "blog.empty.title": "Belum ada postingan",
     "blog.empty.desc": "Kunjungi kembali untuk konten terbaru.",
+    "blog.noResults": "Tidak ada hasil ditemukan",
+    "blog.noResults.hint": "Coba pencarian atau kategori yang berbeda.",
+    "blog.clearFilters": "Hapus filter",
+
+    "links.empty": "Belum ada link yang tersedia.",
+
+    "pesan.title": "Pesan Anonim",
+    "pesan.subtitle": "Punya sesuatu yang ingin kamu sampaikan? Kirim pesan anonim untuk Choiril Ahmad — tanpa nama, tanpa jejak, identitasmu 100% dijaga.",
 
     "blogpost.back": "Kembali ke Blog",
     "blogpost.return": "Kembali ke Blog",
