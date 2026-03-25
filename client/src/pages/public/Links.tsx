@@ -27,10 +27,8 @@ export default function Links() {
     <>
       <SeoHead
         title="Links"
-        description="Satu tempat untuk semua link penting Choiril Ahmad — media sosial, portofolio, kontak, dan lainnya. Temukan semua di sini."
+        description="All of Choiril Ahmad's important links in one place — social media, portfolio, contact, and more."
         url="/links"
-        image="https://iamchomad.my.id/logo.png"
-        cardType="summary"
       />
       <div className="min-h-screen bg-background flex flex-col items-center justify-start py-16 px-4">
         <div className="w-full max-w-md flex flex-col items-center gap-8">

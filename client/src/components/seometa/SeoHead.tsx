@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 const SITE_NAME = "Choiril Ahmad";
 const SITE_URL = "https://iamchomad.my.id";
 const DEFAULT_DESCRIPTION = "Personal website of Choiril Ahmad — Entrepreneur & Software Developer crafting digital experiences with precision and purpose.";
-const DEFAULT_IMAGE = `${SITE_URL}/og-image.svg`;
+const DEFAULT_IMAGE = `${SITE_URL}/logo.png`;
 
 interface SeoHeadProps {
   title?: string;
@@ -24,7 +24,7 @@ export function SeoHead({
   image = DEFAULT_IMAGE,
   url,
   type = "website",
-  cardType = "summary_large_image",
+  cardType = "summary",
   article,
 }: SeoHeadProps) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}'s`;
@@ -40,10 +40,9 @@ export function SeoHead({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={image} />
+      <meta property="og:image:alt" content={`${SITE_NAME} logo`} />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:type" content={type} />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
 
       {type === "article" && article?.publishedTime && (
         <meta property="article:published_time" content={article.publishedTime} />

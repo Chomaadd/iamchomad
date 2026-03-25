@@ -58,11 +58,9 @@ export default function AnonMessage() {
   return (
     <>
       <SeoHead
-        title="Pesan Anonim"
-        description="Punya sesuatu yang ingin kamu sampaikan? Kirim pesan anonim untuk Choiril Ahmad — tanpa nama, tanpa jejak, identitasmu 100% dijaga."
+        title="Anonymous Message"
+        description="Have something to say? Send an anonymous message to Choiril Ahmad — no name, no trace, your identity is 100% protected."
         url="/pesan"
-        image="https://iamchomad.my.id/logo.png"
-        cardType="summary"
       />
 
       <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden bg-gradient-to-br from-[#f8f5ff] via-background to-[#eef2ff] dark:from-[#0f0a1e] dark:via-background dark:to-[#0a0f1e]">
