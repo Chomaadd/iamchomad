@@ -202,7 +202,7 @@ export default function Resume() {
       >
         {/* ── LEFT SIDEBAR ── */}
         <div style={{
-          width: "72mm",
+          width: "70mm",
           minHeight: "297mm",
           backgroundColor: SIDEBAR_BG,
           color: SIDEBAR_TEXT,
@@ -211,43 +211,48 @@ export default function Resume() {
           flexShrink: 0,
           overflow: "hidden",
         }}>
-          {/* Photo */}
+          {/* Photo — fixed height, tight crop to face area */}
           <div style={{
             width: "100%",
-            height: "75mm",
+            height: "58mm",
             overflow: "hidden",
             position: "relative",
             backgroundColor: "#3a3a3a",
+            flexShrink: 0,
           }}>
             {photoUrl ? (
               <img
                 src={photoUrl}
                 alt={fullName}
-                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  objectPosition: "center 15%",
+                  display: "block",
+                }}
               />
             ) : (
               <div style={{
                 width: "100%", height: "100%",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "36pt", fontWeight: "bold", color: "rgba(255,255,255,0.2)",
+                fontSize: "30pt", fontWeight: "bold", color: "rgba(255,255,255,0.18)",
                 letterSpacing: "2px",
               }}>
                 {(firstName[0] || "") + (lastName[0] || "")}
               </div>
             )}
-            {/* Accent bar at bottom of photo */}
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "4px", backgroundColor: ACCENT }} />
+            {/* Golden accent bar bottom of photo */}
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "3px", backgroundColor: ACCENT }} />
           </div>
 
-          <div style={{ padding: "7mm 7mm 8mm 7mm", display: "flex", flexDirection: "column", gap: "6mm", flex: 1 }}>
+          <div style={{ padding: "6mm 6.5mm 7mm 6.5mm", display: "flex", flexDirection: "column", gap: "5mm", flex: 1 }}>
 
             {/* About Me */}
             {about && (
               <div>
-                <div style={{ fontSize: "8.5pt", fontWeight: "bold", letterSpacing: "1.5px", textTransform: "uppercase", color: ACCENT, marginBottom: "3mm" }}>
-                  About Me
-                </div>
-                <div style={{ fontSize: "7.5pt", color: "rgba(255,255,255,0.72)", lineHeight: 1.65 }}>
+                <SideLabel text="About Me" accent={ACCENT} />
+                <div style={{ fontSize: "7pt", color: "rgba(255,255,255,0.68)", lineHeight: 1.7, marginTop: "2.5mm" }}>
                   {about}
                 </div>
               </div>
@@ -256,77 +261,84 @@ export default function Resume() {
             {/* Personal Info */}
             {(birthDate || nationality) && (
               <div>
-                <div style={{ fontSize: "8.5pt", fontWeight: "bold", letterSpacing: "1.5px", textTransform: "uppercase", color: ACCENT, marginBottom: "3mm" }}>
-                  Personal Info
+                <SideLabel text="Personal Info" accent={ACCENT} />
+                <div style={{ marginTop: "2.5mm", display: "flex", flexDirection: "column", gap: "2mm" }}>
+                  {birthDate && (
+                    <div>
+                      <div style={{ fontSize: "5.5pt", color: "rgba(255,255,255,0.35)", letterSpacing: "0.8px", textTransform: "uppercase" }}>Tanggal Lahir</div>
+                      <div style={{ fontSize: "7.5pt", fontWeight: "600", color: "rgba(255,255,255,0.85)", marginTop: "0.5mm" }}>{birthDate}</div>
+                    </div>
+                  )}
+                  {nationality && (
+                    <div>
+                      <div style={{ fontSize: "5.5pt", color: "rgba(255,255,255,0.35)", letterSpacing: "0.8px", textTransform: "uppercase" }}>Kewarganegaraan</div>
+                      <div style={{ fontSize: "7.5pt", fontWeight: "600", color: "rgba(255,255,255,0.85)", marginTop: "0.5mm" }}>{nationality}</div>
+                    </div>
+                  )}
                 </div>
-                {birthDate && (
-                  <div style={{ marginBottom: "2.5mm" }}>
-                    <div style={{ fontSize: "6pt", color: "rgba(255,255,255,0.4)", letterSpacing: "0.5px", marginBottom: "0.5mm" }}>DATE OF BIRTH</div>
-                    <div style={{ fontSize: "7.5pt", color: "rgba(255,255,255,0.8)" }}>{birthDate}</div>
-                  </div>
-                )}
-                {nationality && (
-                  <div style={{ marginBottom: "2.5mm" }}>
-                    <div style={{ fontSize: "6pt", color: "rgba(255,255,255,0.4)", letterSpacing: "0.5px", marginBottom: "0.5mm" }}>NATIONALITY</div>
-                    <div style={{ fontSize: "7.5pt", color: "rgba(255,255,255,0.8)" }}>{nationality}</div>
-                  </div>
-                )}
               </div>
             )}
 
             {/* Skills */}
             {skills.length > 0 && (
               <div>
-                <div style={{ fontSize: "8.5pt", fontWeight: "bold", letterSpacing: "1.5px", textTransform: "uppercase", color: ACCENT, marginBottom: "3mm" }}>
-                  Skills
+                <SideLabel text="Skills" accent={ACCENT} />
+                <div style={{ marginTop: "2.5mm", display: "flex", flexDirection: "column", gap: "3mm" }}>
+                  {skills.map((item) => (
+                    <div key={item.id}>
+                      <div style={{ fontSize: "8pt", fontWeight: "700", color: "#fff", lineHeight: 1.2 }}>{item.title}</div>
+                      {item.subtitle && (
+                        <div style={{ fontSize: "6.5pt", color: "rgba(255,255,255,0.45)", marginTop: "0.5mm" }}>{item.subtitle}</div>
+                      )}
+                      {item.tags && item.tags.length > 0 && (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "1mm", marginTop: "1.5mm" }}>
+                          {item.tags.map((tag, ti) => (
+                            <span key={ti} style={{
+                              fontSize: "5.5pt", padding: "0.5mm 1.8mm",
+                              backgroundColor: "rgba(255,255,255,0.08)",
+                              color: "rgba(255,255,255,0.65)",
+                              borderRadius: "20px",
+                              border: "1px solid rgba(255,255,255,0.12)",
+                            }}>{tag}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-                {skills.map((item) => (
-                  <div key={item.id} style={{ marginBottom: "3.5mm" }}>
-                    <div style={{ fontSize: "8pt", fontWeight: "bold", color: "#fff", marginBottom: "1.5mm" }}>{item.title}</div>
-                    {item.subtitle && <div style={{ fontSize: "7pt", color: "rgba(255,255,255,0.5)", marginBottom: "1.5mm" }}>{item.subtitle}</div>}
-                    {item.tags && item.tags.length > 0 && (
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: "1.5mm" }}>
-                        {item.tags.map((tag, ti) => (
-                          <span key={ti} style={{
-                            fontSize: "6pt", padding: "0.8mm 2mm",
-                            backgroundColor: "rgba(255,255,255,0.1)",
-                            color: "rgba(255,255,255,0.7)",
-                            borderRadius: "20px",
-                            border: "1px solid rgba(255,255,255,0.15)",
-                          }}>{tag}</span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
               </div>
             )}
 
             {/* Contact */}
             <div style={{ marginTop: "auto" }}>
-              <div style={{ fontSize: "8.5pt", fontWeight: "bold", letterSpacing: "1.5px", textTransform: "uppercase", color: ACCENT, marginBottom: "3mm" }}>
-                Contact
+              <SideLabel text="Contact" accent={ACCENT} />
+              <div style={{ marginTop: "2.5mm", display: "flex", flexDirection: "column", gap: "2mm" }}>
+                {[
+                  { label: address, icon: "📍" },
+                  { label: phone, icon: "📞" },
+                  { label: email, icon: "✉" },
+                  { label: website, icon: "🌐" },
+                ].filter(c => c.label).map((c, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "2mm" }}>
+                    <div style={{
+                      width: "2mm", height: "2mm", borderRadius: "50%",
+                      backgroundColor: ACCENT, marginTop: "1.8mm", flexShrink: 0,
+                    }} />
+                    <span style={{ fontSize: "7pt", color: "rgba(255,255,255,0.7)", lineHeight: 1.45, wordBreak: "break-all" }}>{c.label}</span>
+                  </div>
+                ))}
               </div>
-              {[
-                { label: address },
-                { label: phone },
-                { label: email },
-                { label: website },
-              ].filter(c => c.label).map((c, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "2.5mm", marginBottom: "2.5mm" }}>
-                  <div style={{ width: "1.5mm", height: "1.5mm", borderRadius: "50%", backgroundColor: ACCENT, marginTop: "2mm", flexShrink: 0 }} />
-                  <span style={{ fontSize: "7.5pt", color: "rgba(255,255,255,0.72)", lineHeight: 1.4, wordBreak: "break-all" }}>{c.label}</span>
-                </div>
-              ))}
             </div>
 
             {/* QR */}
-            <div style={{ textAlign: "center", paddingTop: "5mm", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-              <div style={{ display: "inline-block", padding: "2mm", backgroundColor: "#fff", borderRadius: "4px", marginBottom: "1.5mm" }}>
-                <QRCodeSVG value={`https://${website}`} size={46} bgColor="#ffffff" fgColor={SIDEBAR_BG} level="M" />
+            {website && (
+              <div style={{ textAlign: "center", paddingTop: "4mm", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                <div style={{ display: "inline-block", padding: "1.5mm", backgroundColor: "#fff", borderRadius: "4px", marginBottom: "1mm" }}>
+                  <QRCodeSVG value={`https://${website}`} size={40} bgColor="#ffffff" fgColor={SIDEBAR_BG} level="M" />
+                </div>
+                <div style={{ fontSize: "5.5pt", color: "rgba(255,255,255,0.28)", letterSpacing: "0.3px" }}>{website}</div>
               </div>
-              <div style={{ fontSize: "6pt", color: "rgba(255,255,255,0.35)", letterSpacing: "0.3px" }}>{website}</div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -335,37 +347,57 @@ export default function Resume() {
 
           {/* Name + Title header */}
           <div style={{
-            padding: "10mm 9mm 7mm 9mm",
+            padding: "9mm 9mm 6mm 9mm",
             borderBottom: `3px solid ${ACCENT}`,
             position: "relative",
+            backgroundColor: "#fff",
           }}>
             {/* Accent corner block */}
             <div style={{
               position: "absolute", top: 0, right: 0,
-              width: "18mm", height: "18mm",
-              backgroundColor: ACCENT, opacity: 0.15,
+              width: "16mm", height: "58mm",
+              backgroundColor: ACCENT, opacity: 0.08,
             }} />
-            <div style={{ fontSize: "10pt", fontWeight: "300", letterSpacing: "4px", textTransform: "uppercase", color: "#888", marginBottom: "1mm" }}>
+            {/* First name — light */}
+            <div style={{
+              fontSize: "11pt", fontWeight: "300",
+              letterSpacing: "5px", textTransform: "uppercase",
+              color: "#999", marginBottom: "1mm",
+            }}>
               {firstName}
             </div>
-            <div style={{ fontSize: "24pt", fontWeight: "900", letterSpacing: "-0.5px", lineHeight: 1.05, color: SIDEBAR_BG, textTransform: "uppercase" }}>
+            {/* Last name — heavy */}
+            <div style={{
+              fontSize: "26pt", fontWeight: "900",
+              letterSpacing: "-0.5px", lineHeight: 1,
+              color: SIDEBAR_BG, textTransform: "uppercase",
+            }}>
               {lastName || firstName}
             </div>
-            <div style={{ fontSize: "8.5pt", letterSpacing: "2px", textTransform: "uppercase", color: ACCENT, marginTop: "2.5mm", fontWeight: "600" }}>
+            {/* Job title — golden accent */}
+            <div style={{
+              fontSize: "8pt", letterSpacing: "2.5px",
+              textTransform: "uppercase", color: ACCENT,
+              marginTop: "3mm", fontWeight: "700",
+              borderTop: `1px solid ${ACCENT}33`,
+              paddingTop: "2.5mm", display: "inline-block",
+            }}>
               {jobTitle}
             </div>
           </div>
 
           {/* Sections */}
-          <div style={{ padding: "7mm 9mm 8mm 9mm", flex: 1, display: "flex", flexDirection: "column", gap: "6mm" }}>
+          <div style={{ padding: "6mm 9mm 7mm 9mm", flex: 1, display: "flex", flexDirection: "column", gap: "5mm" }}>
 
             {/* Experience */}
             {experience.length > 0 && (
               <div>
                 <PrintSection title="Experience" accent={ACCENT} />
-                {experience.map((item, i) => (
-                  <PrintEntry key={item.id} item={item} isLast={i === experience.length - 1} accent={ACCENT} />
-                ))}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+                  {experience.map((item, i) => (
+                    <PrintEntry key={item.id} item={item} isLast={i === experience.length - 1} accent={ACCENT} />
+                  ))}
+                </div>
               </div>
             )}
 
@@ -373,15 +405,17 @@ export default function Resume() {
             {education.length > 0 && (
               <div>
                 <PrintSection title="Education" accent={ACCENT} />
-                {education.map((item, i) => (
-                  <PrintEntry key={item.id} item={item} isLast={i === education.length - 1} accent={ACCENT} />
-                ))}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+                  {education.map((item, i) => (
+                    <PrintEntry key={item.id} item={item} isLast={i === education.length - 1} accent={ACCENT} />
+                  ))}
+                </div>
               </div>
             )}
 
             {/* Footer */}
-            <div style={{ marginTop: "auto", paddingTop: "4mm", borderTop: "1px solid #eee" }}>
-              <div style={{ fontSize: "6pt", color: "#bbb", textAlign: "center", letterSpacing: "0.3px" }}>
+            <div style={{ marginTop: "auto", paddingTop: "3.5mm", borderTop: "1px solid #ebebeb" }}>
+              <div style={{ fontSize: "5.5pt", color: "#c0c0c0", textAlign: "center", letterSpacing: "0.3px" }}>
                 References available upon request · {email}
               </div>
             </div>
@@ -417,52 +451,116 @@ function ResumeEntry({ item, isLast, color }: { item: ResumeItem; isLast: boolea
   );
 }
 
-/* ── Print-only sub-components ── */
-function PrintSection({ title, accent }: { title: string; accent: string }) {
+/* ── Print-only sidebar label ── */
+function SideLabel({ text, accent }: { text: string; accent: string }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "3mm", marginBottom: "4mm" }}>
-      <div style={{ width: "3px", height: "12pt", backgroundColor: accent, borderRadius: "2px", flexShrink: 0 }} />
-      <div style={{ fontSize: "9pt", fontWeight: "900", letterSpacing: "2px", textTransform: "uppercase", color: "#232323" }}>
-        {title}
+    <div style={{ display: "flex", alignItems: "center", gap: "2mm" }}>
+      <div style={{ width: "2.5mm", height: "1px", backgroundColor: accent, flexShrink: 0 }} />
+      <div style={{
+        fontSize: "7.5pt", fontWeight: "800",
+        letterSpacing: "1.8px", textTransform: "uppercase",
+        color: accent,
+      }}>
+        {text}
       </div>
-      <div style={{ flex: 1, height: "1px", backgroundColor: "#e5e7eb" }} />
     </div>
   );
 }
 
+/* ── Print-only section header (right panel) ── */
+function PrintSection({ title, accent }: { title: string; accent: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "3mm", marginBottom: "3.5mm" }}>
+      {/* Thick accent bar */}
+      <div style={{ width: "4px", height: "14pt", backgroundColor: accent, borderRadius: "2px", flexShrink: 0 }} />
+      {/* Section title — bigger and bolder */}
+      <div style={{
+        fontSize: "10.5pt", fontWeight: "900",
+        letterSpacing: "2.5px", textTransform: "uppercase",
+        color: "#1a1a1a",
+      }}>
+        {title}
+      </div>
+      {/* Divider line */}
+      <div style={{ flex: 1, height: "1.5px", backgroundColor: "#ebebeb" }} />
+    </div>
+  );
+}
+
+/* ── Print-only entry (experience / education row) ── */
 function PrintEntry({ item, isLast, accent }: { item: ResumeItem; isLast: boolean; accent: string }) {
   const dateRange = [item.startDate, item.endDate].filter(Boolean).join(" – ") || "";
   return (
-    <div style={{ display: "flex", gap: "3.5mm", marginBottom: isLast ? "0" : "4mm", paddingBottom: isLast ? "0" : "4mm" }}>
-      {/* Dot */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "1mm" }}>
-        <div style={{ width: "3mm", height: "3mm", borderRadius: "50%", backgroundColor: accent, flexShrink: 0 }} />
-        {!isLast && <div style={{ width: "1px", flex: 1, backgroundColor: "#e5e7eb", marginTop: "1.5mm" }} />}
+    <div style={{
+      display: "flex", gap: "3.5mm",
+      marginBottom: isLast ? "0" : "3.5mm",
+      paddingBottom: isLast ? "0" : "3.5mm",
+      borderBottom: isLast ? "none" : "1px solid #f3f3f3",
+    }}>
+      {/* Dot + line */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "1.5mm" }}>
+        <div style={{ width: "3.5mm", height: "3.5mm", borderRadius: "50%", backgroundColor: accent, flexShrink: 0 }} />
+        {!isLast && <div style={{ width: "1.5px", flex: 1, backgroundColor: "#e8e8e8", marginTop: "1.5mm" }} />}
       </div>
+
       {/* Content */}
       <div style={{ flex: 1 }}>
+        {/* Title row: job title + date */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "3mm" }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: "8.5pt", fontWeight: "bold", color: "#232323", lineHeight: 1.3 }}>{item.title}</div>
-            {item.subtitle && <div style={{ fontSize: "7.5pt", color: "#777", fontStyle: "italic", marginTop: "0.5mm" }}>{item.subtitle}</div>}
+          {/* Job/School title — bigger bold */}
+          <div style={{
+            fontSize: "9.5pt", fontWeight: "800",
+            color: "#1a1a1a", lineHeight: 1.25,
+            flex: 1,
+          }}>
+            {item.title}
           </div>
+          {/* Date range — golden, right-aligned */}
           {dateRange && (
-            <div style={{ fontSize: "6.5pt", color: accent, fontWeight: "bold", whiteSpace: "nowrap", flexShrink: 0, marginTop: "1mm", letterSpacing: "0.3px" }}>
+            <div style={{
+              fontSize: "6.5pt", color: accent,
+              fontWeight: "700", whiteSpace: "nowrap",
+              flexShrink: 0, marginTop: "1.5mm",
+              letterSpacing: "0.5px",
+            }}>
               {dateRange}
             </div>
           )}
         </div>
-        {item.description && (
-          <div style={{ fontSize: "7pt", color: "#666", marginTop: "1.5mm", lineHeight: 1.65 }}>{item.description}</div>
+
+        {/* Subtitle — company/institution name, medium weight, distinct color */}
+        {item.subtitle && (
+          <div style={{
+            fontSize: "8pt", fontWeight: "600",
+            color: "#555", marginTop: "1mm",
+            letterSpacing: "0.2px",
+          }}>
+            {item.subtitle}
+          </div>
         )}
+
+        {/* Description — smaller, muted, readable */}
+        {item.description && (
+          <div style={{
+            fontSize: "7pt", color: "#777",
+            marginTop: "1.5mm", lineHeight: 1.7,
+          }}>
+            {item.description}
+          </div>
+        )}
+
+        {/* Tags — chip style */}
         {item.tags && item.tags.length > 0 && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: "1.5mm", marginTop: "2mm" }}>
             {item.tags.map((tag, i) => (
               <span key={i} style={{
                 fontSize: "5.5pt", padding: "0.5mm 2mm",
-                backgroundColor: "#f8f8f8", color: "#555",
+                backgroundColor: "#f5f5f5", color: "#666",
                 borderRadius: "20px", border: "1px solid #e5e7eb",
-              }}>{tag}</span>
+                fontWeight: "500",
+              }}>
+                {tag}
+              </span>
             ))}
           </div>
         )}
