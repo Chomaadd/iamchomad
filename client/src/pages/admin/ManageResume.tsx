@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useResumeItems, useCreateResumeItem, useUpdateResumeItem, useDeleteResumeItem } from "@/hooks/use-resume";
 import { useSiteSettings, useUpdateSiteSettings } from "@/hooks/use-settings";
 import { Button, Input, Textarea, Label, Modal } from "@/components/ui/core";
-import { Plus, Edit2, Trash2, Briefcase, GraduationCap, Lightbulb, User } from "lucide-react";
+import { Plus, Edit2, Trash2, Briefcase, GraduationCap, Lightbulb, User, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { ResumeItem } from "@shared/schema";
 
@@ -21,6 +21,8 @@ export default function ManageResume() {
   const { mutateAsync: deleteItem } = useDeleteResumeItem();
   const { mutateAsync: updateSettings, isPending: savingProfile } = useUpdateSiteSettings();
   const { toast } = useToast();
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -85,6 +87,26 @@ export default function ManageResume() {
       toast({ title: "Profile info saved!" });
     } catch {
       toast({ title: "Error saving profile", variant: "destructive" });
+    }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      setProfile(p => ({ ...p, resumePhotoUrl: data.url }));
+      toast({ title: "Foto berhasil diupload!" });
+    } catch {
+      toast({ title: "Gagal upload foto", variant: "destructive" });
+    } finally {
+      setUploadingPhoto(false);
+      if (photoInputRef.current) photoInputRef.current.value = "";
     }
   };
 
@@ -262,16 +284,53 @@ export default function ManageResume() {
             </h2>
             <div className="space-y-4">
               <div>
-                <Label>URL Foto Profil</Label>
-                <Input
-                  value={profile.resumePhotoUrl}
-                  onChange={e => setProfile({ ...profile, resumePhotoUrl: e.target.value })}
-                  placeholder="https://..."
-                  data-testid="input-resume-photo"
+                <Label>Foto Profil</Label>
+                <input
+                  type="file"
+                  ref={photoInputRef}
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePhotoUpload}
+                  data-testid="input-resume-photo-file"
                 />
-                {profile.resumePhotoUrl && (
-                  <img src={profile.resumePhotoUrl} alt="preview" className="mt-2 w-16 h-16 rounded-full object-cover border border-border" />
-                )}
+                <div className="flex items-center gap-3 mt-1.5">
+                  {profile.resumePhotoUrl ? (
+                    <div className="relative group shrink-0">
+                      <img src={profile.resumePhotoUrl} alt="preview" className="w-16 h-16 rounded-full object-cover border-2 border-border" />
+                      <button
+                        type="button"
+                        onClick={() => setProfile(p => ({ ...p, resumePhotoUrl: "" }))}
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        data-testid="button-remove-photo"
+                      >
+                        <X size={10} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-muted border-2 border-dashed border-border flex items-center justify-center shrink-0">
+                      <User size={20} className="text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="flex-1 space-y-2">
+                    <button
+                      type="button"
+                      onClick={() => photoInputRef.current?.click()}
+                      disabled={uploadingPhoto}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-dashed border-border rounded-md text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
+                      data-testid="button-upload-photo"
+                    >
+                      <Upload size={14} />
+                      {uploadingPhoto ? "Mengupload..." : "Upload Foto dari File"}
+                    </button>
+                    <Input
+                      value={profile.resumePhotoUrl}
+                      onChange={e => setProfile({ ...profile, resumePhotoUrl: e.target.value })}
+                      placeholder="atau paste URL foto..."
+                      data-testid="input-resume-photo"
+                      className="text-xs"
+                    />
+                  </div>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>

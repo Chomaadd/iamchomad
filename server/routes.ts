@@ -760,13 +760,28 @@ ${blogEntries}
 
   app.put('/api/settings', requireAuth, async (req, res) => {
     try {
-      const { availabilityStatus, availabilityLabel, linksAvatarUrl, linksName, linksBio } = req.body;
+      const {
+        availabilityStatus, availabilityLabel, linksAvatarUrl, linksName, linksBio,
+        resumeFullName, resumeTitle, resumeAbout, resumePhotoUrl,
+        resumeBirthDate, resumeNationality, resumePhone, resumeAddress,
+        resumeEmail, resumeWebsite,
+      } = req.body;
       const settings = await storage.updateSiteSettings({
         availabilityStatus,
         availabilityLabel,
         linksAvatarUrl,
         linksName,
         linksBio,
+        resumeFullName,
+        resumeTitle,
+        resumeAbout,
+        resumePhotoUrl,
+        resumeBirthDate,
+        resumeNationality,
+        resumePhone,
+        resumeAddress,
+        resumeEmail,
+        resumeWebsite,
       });
       res.json(settings);
     } catch (err) {
