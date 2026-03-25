@@ -860,7 +860,7 @@ ${blogEntries}
   // page with the correct Open Graph tags, which then redirects real users.
   const SITE_URL = "https://iamchomad.my.id";
   const SITE_NAME = "Choiril Ahmad";
-  const LOGO_URL = `${SITE_URL}/logo.png`;
+  const LOGO_URL = `${SITE_URL}/og-thumb.png`;
 
   const PAGE_META: Record<string, { title: string; description: string }> = {
     "/":        { title: `${SITE_NAME}'s`, description: "Personal website of Choiril Ahmad — Entrepreneur & Software Developer crafting digital experiences with precision and purpose." },

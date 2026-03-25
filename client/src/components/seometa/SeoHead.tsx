@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 const SITE_NAME = "Choiril Ahmad";
 const SITE_URL = "https://iamchomad.my.id";
 const DEFAULT_DESCRIPTION = "Personal website of Choiril Ahmad — Entrepreneur & Software Developer crafting digital experiences with precision and purpose.";
-const DEFAULT_IMAGE = `${SITE_URL}/logo.png`;
+const DEFAULT_IMAGE = `${SITE_URL}/og-thumb.png`;
 
 interface SeoHeadProps {
   title?: string;
