@@ -15,6 +15,7 @@ import Brand from "./pages/public/Brand";
 import Contact from "./pages/public/Contact";
 import Music from "./pages/public/Music";
 import Resume from "./pages/public/Resume";
+import ResumePrint from "./pages/public/ResumePrint";
 import Links from "./pages/public/Links";
 // Admin Pages
 import Login from "./pages/admin/Login";
@@ -47,6 +48,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/music" component={Music} />
       <Route path="/resume" component={Resume} />
+      <Route path="/resume/pdf" component={ResumePrint} />
       <Route path="/links" component={Links} />
       <Route path="/pesan" component={AnonMessage} />
 

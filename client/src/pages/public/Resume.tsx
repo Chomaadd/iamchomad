@@ -40,7 +40,7 @@ export default function Resume() {
   const website = settings?.resumeWebsite || "iamchomad.my.id";
 
   const handlePrint = () => {
-    window.print();
+    window.open("/resume/pdf", "_blank");
   };
 
   return (
