@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useResumeItems, useCreateResumeItem, useUpdateResumeItem, useDeleteResumeItem } from "@/hooks/use-resume";
+import { useSiteSettings, useUpdateSiteSettings } from "@/hooks/use-settings";
 import { Button, Input, Textarea, Label, Modal } from "@/components/ui/core";
-import { Plus, Edit2, Trash2, Briefcase, GraduationCap, Lightbulb } from "lucide-react";
+import { Plus, Edit2, Trash2, Briefcase, GraduationCap, Lightbulb, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { ResumeItem } from "@shared/schema";
 
@@ -14,14 +15,16 @@ const typeConfig = {
 
 export default function ManageResume() {
   const { data: items } = useResumeItems();
+  const { data: settings } = useSiteSettings();
   const { mutateAsync: createItem } = useCreateResumeItem();
   const { mutateAsync: updateItem } = useUpdateResumeItem();
   const { mutateAsync: deleteItem } = useDeleteResumeItem();
+  const { mutateAsync: updateSettings, isPending: savingProfile } = useUpdateSiteSettings();
   const { toast } = useToast();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"experience" | "education" | "skill">("experience");
+  const [activeTab, setActiveTab] = useState<"profile" | "experience" | "education" | "skill">("profile");
 
   const [form, setForm] = useState({
     type: "experience" as "experience" | "education" | "skill",
@@ -33,6 +36,57 @@ export default function ManageResume() {
     order: 0,
     tags: "" as string,
   });
+
+  const [profile, setProfile] = useState({
+    resumeFullName: "",
+    resumeTitle: "",
+    resumeAbout: "",
+    resumePhotoUrl: "",
+    resumeBirthDate: "",
+    resumeNationality: "",
+    resumePhone: "",
+    resumeAddress: "",
+    resumeEmail: "",
+    resumeWebsite: "",
+  });
+
+  useEffect(() => {
+    if (settings) {
+      setProfile({
+        resumeFullName: settings.resumeFullName || "",
+        resumeTitle: settings.resumeTitle || "",
+        resumeAbout: settings.resumeAbout || "",
+        resumePhotoUrl: settings.resumePhotoUrl || "",
+        resumeBirthDate: settings.resumeBirthDate || "",
+        resumeNationality: settings.resumeNationality || "",
+        resumePhone: settings.resumePhone || "",
+        resumeAddress: settings.resumeAddress || "",
+        resumeEmail: settings.resumeEmail || "",
+        resumeWebsite: settings.resumeWebsite || "",
+      });
+    }
+  }, [settings]);
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updateSettings({
+        resumeFullName: profile.resumeFullName || null,
+        resumeTitle: profile.resumeTitle || null,
+        resumeAbout: profile.resumeAbout || null,
+        resumePhotoUrl: profile.resumePhotoUrl || null,
+        resumeBirthDate: profile.resumeBirthDate || null,
+        resumeNationality: profile.resumeNationality || null,
+        resumePhone: profile.resumePhone || null,
+        resumeAddress: profile.resumeAddress || null,
+        resumeEmail: profile.resumeEmail || null,
+        resumeWebsite: profile.resumeWebsite || null,
+      });
+      toast({ title: "Profile info saved!" });
+    } catch {
+      toast({ title: "Error saving profile", variant: "destructive" });
+    }
+  };
 
   const openCreate = (type: "experience" | "education" | "skill") => {
     setEditingId(null);
@@ -76,7 +130,7 @@ export default function ManageResume() {
         toast({ title: "Resume item added." });
       }
       setModalOpen(false);
-    } catch (error) {
+    } catch {
       toast({ title: "Error saving item", variant: "destructive" });
     }
   };
@@ -86,13 +140,13 @@ export default function ManageResume() {
       try {
         await deleteItem(id);
         toast({ title: "Item deleted." });
-      } catch (error) {
+      } catch {
         toast({ title: "Error deleting item", variant: "destructive" });
       }
     }
   };
 
-  const filteredItems = items?.filter(i => i.type === activeTab) || [];
+  const filteredItems = activeTab !== "profile" ? (items?.filter(i => i.type === activeTab) || []) : [];
 
   return (
     <AdminLayout>
@@ -101,12 +155,25 @@ export default function ManageResume() {
           <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-resume-admin-title">Resume / CV</h1>
           <p className="text-sm text-muted-foreground mt-1">{items?.length || 0} items total</p>
         </div>
-        <Button onClick={() => openCreate(activeTab)} className="gap-2" data-testid="button-add-resume-item">
-          <Plus size={16} /> Add {typeConfig[activeTab].label}
-        </Button>
+        {activeTab !== "profile" && (
+          <Button onClick={() => openCreate(activeTab as any)} className="gap-2" data-testid="button-add-resume-item">
+            <Plus size={16} /> Add {typeConfig[activeTab as keyof typeof typeConfig].label}
+          </Button>
+        )}
       </div>
 
-      <div className="flex gap-1 mb-6 border border-border rounded-lg p-1 bg-muted/30 w-fit">
+      {/* Tabs */}
+      <div className="flex gap-1 mb-6 border border-border rounded-lg p-1 bg-muted/30 w-fit flex-wrap">
+        <button
+          onClick={() => setActiveTab("profile")}
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+            activeTab === "profile" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+          }`}
+          data-testid="tab-profile"
+        >
+          <User size={16} />
+          <span className="hidden sm:inline">Profile Info</span>
+        </button>
         {(["experience", "education", "skill"] as const).map((type) => {
           const config = typeConfig[type];
           const Icon = config.icon;
@@ -116,9 +183,7 @@ export default function ManageResume() {
               key={type}
               onClick={() => setActiveTab(type)}
               className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
-                activeTab === type
-                  ? 'bg-card shadow-sm text-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
+                activeTab === type ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
               data-testid={`tab-${type}`}
             >
@@ -130,52 +195,183 @@ export default function ManageResume() {
         })}
       </div>
 
-      <div className="space-y-3">
-        {filteredItems.map((item) => {
-          const config = typeConfig[item.type];
-          const Icon = config.icon;
-          return (
-            <div
-              key={item.id}
-              className="group flex items-start gap-4 border border-border rounded-lg p-4 bg-card hover:border-primary/40 transition-all"
-              data-testid={`card-resume-item-${item.id}`}
-            >
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${config.color}`}>
-                <Icon size={18} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-sm">{item.title}</h3>
-                  <span className="text-[10px] text-muted-foreground font-mono">#{item.order}</span>
+      {/* Profile Info Panel */}
+      {activeTab === "profile" && (
+        <form onSubmit={handleSaveProfile} className="max-w-2xl space-y-5">
+          <div className="bg-card border border-border rounded-xl p-5">
+            <h2 className="font-semibold text-sm mb-4 flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
+              <User size={14} /> Identitas Diri
+            </h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Nama Lengkap</Label>
+                  <Input
+                    value={profile.resumeFullName}
+                    onChange={e => setProfile({ ...profile, resumeFullName: e.target.value })}
+                    placeholder="e.g. Choiril Ahmad"
+                    data-testid="input-resume-fullname"
+                  />
                 </div>
-                {item.subtitle && <p className="text-xs text-muted-foreground mt-0.5">{item.subtitle}</p>}
-                {(item.startDate || item.endDate) && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {[item.startDate, item.endDate].filter(Boolean).join(" — ")}
-                  </p>
-                )}
-                {item.tags && item.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {item.tags.map((tag, i) => (
-                      <span key={i} className="px-1.5 py-0.5 bg-muted text-muted-foreground text-[10px] rounded">{tag}</span>
-                    ))}
-                  </div>
-                )}
+                <div>
+                  <Label>Jabatan / Profesi</Label>
+                  <Input
+                    value={profile.resumeTitle}
+                    onChange={e => setProfile({ ...profile, resumeTitle: e.target.value })}
+                    placeholder="e.g. Frontend Developer"
+                    data-testid="input-resume-jobtitle"
+                  />
+                </div>
               </div>
-              <div className="flex items-center gap-1 shrink-0 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                <button onClick={() => openEdit(item)} className="p-2 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors" data-testid={`button-edit-resume-${item.id}`}><Edit2 size={14} /></button>
-                <button onClick={() => handleDelete(item.id)} className="p-2 rounded-md hover:bg-destructive hover:text-destructive-foreground transition-colors" data-testid={`button-delete-resume-${item.id}`}><Trash2 size={14} /></button>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Tanggal Lahir</Label>
+                  <Input
+                    value={profile.resumeBirthDate}
+                    onChange={e => setProfile({ ...profile, resumeBirthDate: e.target.value })}
+                    placeholder="e.g. 15 Maret 1995"
+                    data-testid="input-resume-birthdate"
+                  />
+                </div>
+                <div>
+                  <Label>Kewarganegaraan</Label>
+                  <Input
+                    value={profile.resumeNationality}
+                    onChange={e => setProfile({ ...profile, resumeNationality: e.target.value })}
+                    placeholder="e.g. Indonesia"
+                    data-testid="input-resume-nationality"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label>Tentang Saya (About Me)</Label>
+                <Textarea
+                  className="min-h-[100px]"
+                  value={profile.resumeAbout}
+                  onChange={e => setProfile({ ...profile, resumeAbout: e.target.value })}
+                  placeholder="Ceritakan sedikit tentang dirimu untuk ditampilkan di CV..."
+                  data-testid="input-resume-about"
+                />
               </div>
             </div>
-          );
-        })}
-
-        {filteredItems.length === 0 && (
-          <div className="text-center py-16 border border-dashed border-border rounded-lg text-muted-foreground text-sm italic">
-            No {typeConfig[activeTab].label.toLowerCase()} items yet.
           </div>
-        )}
-      </div>
+
+          <div className="bg-card border border-border rounded-xl p-5">
+            <h2 className="font-semibold text-sm mb-4 flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
+              Kontak & Foto
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <Label>URL Foto Profil</Label>
+                <Input
+                  value={profile.resumePhotoUrl}
+                  onChange={e => setProfile({ ...profile, resumePhotoUrl: e.target.value })}
+                  placeholder="https://..."
+                  data-testid="input-resume-photo"
+                />
+                {profile.resumePhotoUrl && (
+                  <img src={profile.resumePhotoUrl} alt="preview" className="mt-2 w-16 h-16 rounded-full object-cover border border-border" />
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Email</Label>
+                  <Input
+                    type="email"
+                    value={profile.resumeEmail}
+                    onChange={e => setProfile({ ...profile, resumeEmail: e.target.value })}
+                    placeholder="kamu@gmail.com"
+                    data-testid="input-resume-email"
+                  />
+                </div>
+                <div>
+                  <Label>Nomor HP / WhatsApp</Label>
+                  <Input
+                    value={profile.resumePhone}
+                    onChange={e => setProfile({ ...profile, resumePhone: e.target.value })}
+                    placeholder="e.g. +62 812-xxxx-xxxx"
+                    data-testid="input-resume-phone"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Alamat</Label>
+                  <Input
+                    value={profile.resumeAddress}
+                    onChange={e => setProfile({ ...profile, resumeAddress: e.target.value })}
+                    placeholder="e.g. Jakarta, Indonesia"
+                    data-testid="input-resume-address"
+                  />
+                </div>
+                <div>
+                  <Label>Website</Label>
+                  <Input
+                    value={profile.resumeWebsite}
+                    onChange={e => setProfile({ ...profile, resumeWebsite: e.target.value })}
+                    placeholder="e.g. iamchomad.my.id"
+                    data-testid="input-resume-website"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full" disabled={savingProfile} data-testid="button-save-profile">
+            {savingProfile ? "Menyimpan..." : "Simpan Profile Info"}
+          </Button>
+        </form>
+      )}
+
+      {/* Resume Items List */}
+      {activeTab !== "profile" && (
+        <div className="space-y-3">
+          {filteredItems.map((item) => {
+            const config = typeConfig[item.type];
+            const Icon = config.icon;
+            return (
+              <div
+                key={item.id}
+                className="group flex items-start gap-4 border border-border rounded-lg p-4 bg-card hover:border-primary/40 transition-all"
+                data-testid={`card-resume-item-${item.id}`}
+              >
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${config.color}`}>
+                  <Icon size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-sm">{item.title}</h3>
+                    <span className="text-[10px] text-muted-foreground font-mono">#{item.order}</span>
+                  </div>
+                  {item.subtitle && <p className="text-xs text-muted-foreground mt-0.5">{item.subtitle}</p>}
+                  {(item.startDate || item.endDate) && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {[item.startDate, item.endDate].filter(Boolean).join(" — ")}
+                    </p>
+                  )}
+                  {item.tags && item.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {item.tags.map((tag, i) => (
+                        <span key={i} className="px-1.5 py-0.5 bg-muted text-muted-foreground text-[10px] rounded">{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 shrink-0 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => openEdit(item)} className="p-2 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors" data-testid={`button-edit-resume-${item.id}`}><Edit2 size={14} /></button>
+                  <button onClick={() => handleDelete(item.id)} className="p-2 rounded-md hover:bg-destructive hover:text-destructive-foreground transition-colors" data-testid={`button-delete-resume-${item.id}`}><Trash2 size={14} /></button>
+                </div>
+              </div>
+            );
+          })}
+
+          {filteredItems.length === 0 && (
+            <div className="text-center py-16 border border-dashed border-border rounded-lg text-muted-foreground text-sm italic">
+              No {typeConfig[activeTab as keyof typeof typeConfig].label.toLowerCase()} items yet.
+            </div>
+          )}
+        </div>
+      )}
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? `Edit ${typeConfig[form.type].label}` : `Add ${typeConfig[form.type].label}`}>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -183,7 +379,7 @@ export default function ManageResume() {
             <Label>Type</Label>
             <select
               value={form.type}
-              onChange={e => setForm({...form, type: e.target.value as any})}
+              onChange={e => setForm({ ...form, type: e.target.value as any })}
               className="flex w-full border border-input bg-background px-4 py-2.5 text-sm rounded-md focus:outline-none focus:border-primary transition-all"
               data-testid="select-resume-type"
             >
@@ -194,35 +390,35 @@ export default function ManageResume() {
           </div>
           <div>
             <Label>Title</Label>
-            <Input required value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder={form.type === 'experience' ? 'e.g. Software Developer' : form.type === 'education' ? 'e.g. Computer Science' : 'e.g. Frontend Development'} data-testid="input-resume-title" />
+            <Input required value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder={form.type === "experience" ? "e.g. Software Developer" : form.type === "education" ? "e.g. Computer Science" : "e.g. Frontend Development"} data-testid="input-resume-title" />
           </div>
           <div>
             <Label>Subtitle</Label>
-            <Input value={form.subtitle} onChange={e => setForm({...form, subtitle: e.target.value})} placeholder={form.type === 'experience' ? 'e.g. Company Name' : form.type === 'education' ? 'e.g. University Name' : 'e.g. Category'} data-testid="input-resume-subtitle" />
+            <Input value={form.subtitle} onChange={e => setForm({ ...form, subtitle: e.target.value })} placeholder={form.type === "experience" ? "e.g. Company Name" : form.type === "education" ? "e.g. University Name" : "e.g. Category"} data-testid="input-resume-subtitle" />
           </div>
-          {form.type !== 'skill' && (
+          {form.type !== "skill" && (
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Start Date</Label>
-                <Input value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})} placeholder="e.g. Jan 2020" data-testid="input-resume-start" />
+                <Input value={form.startDate} onChange={e => setForm({ ...form, startDate: e.target.value })} placeholder="e.g. Jan 2020" data-testid="input-resume-start" />
               </div>
               <div>
                 <Label>End Date</Label>
-                <Input value={form.endDate} onChange={e => setForm({...form, endDate: e.target.value})} placeholder="e.g. Present" data-testid="input-resume-end" />
+                <Input value={form.endDate} onChange={e => setForm({ ...form, endDate: e.target.value })} placeholder="e.g. Present" data-testid="input-resume-end" />
               </div>
             </div>
           )}
           <div>
             <Label>Description</Label>
-            <Textarea className="min-h-[80px]" value={form.description} onChange={e => setForm({...form, description: e.target.value})} data-testid="input-resume-description" />
+            <Textarea className="min-h-[80px]" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} data-testid="input-resume-description" />
           </div>
           <div>
             <Label>Tags (comma-separated)</Label>
-            <Input value={form.tags} onChange={e => setForm({...form, tags: e.target.value})} placeholder="e.g. React, TypeScript, Node.js" data-testid="input-resume-tags" />
+            <Input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="e.g. React, TypeScript, Node.js" data-testid="input-resume-tags" />
           </div>
           <div>
             <Label>Sort Order</Label>
-            <Input type="number" value={form.order} onChange={e => setForm({...form, order: parseInt(e.target.value) || 0})} data-testid="input-resume-order" />
+            <Input type="number" value={form.order} onChange={e => setForm({ ...form, order: parseInt(e.target.value) || 0 })} data-testid="input-resume-order" />
           </div>
           <Button type="submit" className="w-full" data-testid="button-save-resume">
             Save {typeConfig[form.type].label}

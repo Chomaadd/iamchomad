@@ -96,6 +96,16 @@ import mongoose from 'mongoose';
     linksAvatarUrl: { type: String },
     linksName: { type: String },
     linksBio: { type: String },
+    resumeFullName: { type: String },
+    resumeTitle: { type: String },
+    resumeAbout: { type: String },
+    resumePhotoUrl: { type: String },
+    resumeBirthDate: { type: String },
+    resumeNationality: { type: String },
+    resumePhone: { type: String },
+    resumeAddress: { type: String },
+    resumeEmail: { type: String },
+    resumeWebsite: { type: String },
   });
 
   const anonMessageSchema = new mongoose.Schema({

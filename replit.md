@@ -29,7 +29,7 @@ A personal portfolio website with blog, brand showcase, music collection, and co
 - **Blog Management** (`/admin/blog`) - Create, edit, delete blog posts with image uploads
 - **Brand Management** (`/admin/brand`) - Manage brand portfolio items
 - **Music Management** (`/admin/music`) - Add/manage music tracks with auto-duration detection
-- **Resume Management** (`/admin/resume`) - Manage resume/CV items (experience, education, skills) with ordering
+- **Resume Management** (`/admin/resume`) - Manage resume/CV items (experience, education, skills) with ordering. Includes **Profile Info** tab to set personal biographical data (full name, job title, about me, photo URL, birth date, nationality, phone, address, email, website) that appears in the PDF printout
 - **Links Management** (`/admin/links`) - Add/edit/delete links with title, URL, emoji icon, description, order, and visibility toggle
 - **Messages** (`/admin/messages`) - View and manage contact messages
 

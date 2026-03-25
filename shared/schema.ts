@@ -156,6 +156,16 @@ export const siteSettingsSchema = z.object({
   linksAvatarUrl: z.string().nullable().optional(),
   linksName: z.string().nullable().optional(),
   linksBio: z.string().nullable().optional(),
+  resumeFullName: z.string().nullable().optional(),
+  resumeTitle: z.string().nullable().optional(),
+  resumeAbout: z.string().nullable().optional(),
+  resumePhotoUrl: z.string().nullable().optional(),
+  resumeBirthDate: z.string().nullable().optional(),
+  resumeNationality: z.string().nullable().optional(),
+  resumePhone: z.string().nullable().optional(),
+  resumeAddress: z.string().nullable().optional(),
+  resumeEmail: z.string().nullable().optional(),
+  resumeWebsite: z.string().nullable().optional(),
 });
 export const updateSiteSettingsSchema = siteSettingsSchema.omit({ id: true }).partial();
 
