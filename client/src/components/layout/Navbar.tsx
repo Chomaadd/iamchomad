@@ -19,8 +19,6 @@ export function Navbar() {
     { href: "/music", label: t("nav.music") },
     { href: "/resume", label: t("nav.resume") },
     { href: "/contact", label: t("nav.contact") },
-    { href: "/links", label: t("nav.links") },
-    { href: "/pesan", label: t("nav.pesan") },
   ];
 
   const toggleLanguage = () => {
@@ -31,9 +29,8 @@ export function Navbar() {
     <header className="sticky top-0 z-40 w-full">
       <div className="glass">
         <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-3 group">
-            <img src="/favicon.ico" alt="Logo" className="w-7 h-7 object-contain transition-transform group-hover:scale-110" onError={(e) => e.currentTarget.style.display='none'} />
-            <span className="font-serif text-xl font-bold tracking-tight">Choiril Ahmad</span>
+          <Link href="/" className="flex items-center group">
+            <img src="/favicon.ico" alt="Logo" className="w-8 h-8 object-contain transition-transform group-hover:scale-110" onError={(e) => e.currentTarget.style.display='none'} />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1 text-sm font-medium">
