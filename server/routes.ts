@@ -854,6 +854,60 @@ ${blogEntries}
 
   await seedDatabase();
 
+  // ── Social Bot OG Middleware ──────────────────────────────────────────────
+  // WhatsApp, Telegram, etc. don't run JavaScript, so react-helmet tags are
+  // never seen by their crawlers. We detect bots and return a minimal HTML
+  // page with the correct Open Graph tags, which then redirects real users.
+  const SITE_URL = "https://iamchomad.my.id";
+  const SITE_NAME = "Choiril Ahmad";
+  const LOGO_URL = `${SITE_URL}/logo.png`;
+
+  const PAGE_META: Record<string, { title: string; description: string }> = {
+    "/":        { title: `${SITE_NAME}'s`, description: "Personal website of Choiril Ahmad — Entrepreneur & Software Developer crafting digital experiences with precision and purpose." },
+    "/about":   { title: `About | ${SITE_NAME}`, description: "Learn about Choiril Ahmad — Entrepreneur & Software Developer from Indonesia, crafting digital experiences with precision and purpose." },
+    "/blog":    { title: `Blog | ${SITE_NAME}`, description: "Thoughts, stories, and ideas from Choiril Ahmad on entrepreneurship, software development, and creativity." },
+    "/brand":   { title: `Brand | ${SITE_NAME}`, description: "Brand projects and creative work by Choiril Ahmad — a showcase of design, identity, and visual storytelling." },
+    "/music":   { title: `Sound | ${SITE_NAME}`, description: "Music and audio collection by Choiril Ahmad — a personal selection of sounds and compositions." },
+    "/resume":  { title: `Resume | ${SITE_NAME}`, description: "Professional resume of Choiril Ahmad — experience, education, and skills as an Entrepreneur & Software Developer." },
+    "/contact": { title: `Contact | ${SITE_NAME}`, description: "Get in touch with Choiril Ahmad — send a message for collaborations, projects, or just to say hello." },
+    "/links":   { title: `Links | ${SITE_NAME}`, description: "All of Choiril Ahmad's important links in one place — social media, portfolio, contact, and more." },
+    "/pesan":   { title: `Anonymous Message | ${SITE_NAME}`, description: "Have something to say? Send an anonymous message to Choiril Ahmad — your identity is 100% protected." },
+  };
+
+  const SOCIAL_BOTS = ["WhatsApp", "TelegramBot", "facebookexternalhit", "Twitterbot", "LinkedInBot", "Slackbot", "Discordbot", "SkypeUriPreview", "google", "bingbot"];
+
+  app.use((req, res, next) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) return next();
+    const ua = req.headers["user-agent"] || "";
+    const isBot = SOCIAL_BOTS.some(bot => ua.toLowerCase().includes(bot.toLowerCase()));
+    if (!isBot) return next();
+
+    const meta = PAGE_META[req.path] || PAGE_META["/"];
+    const canonicalUrl = `${SITE_URL}${req.path === "/" ? "" : req.path}`;
+
+    const html = `<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <title>${meta.title}</title>
+  <meta name="description" content="${meta.description}">
+  <meta property="og:site_name" content="${SITE_NAME}">
+  <meta property="og:title" content="${meta.title}">
+  <meta property="og:description" content="${meta.description}">
+  <meta property="og:image" content="${LOGO_URL}">
+  <meta property="og:image:alt" content="${SITE_NAME} logo">
+  <meta property="og:url" content="${canonicalUrl}">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="${meta.title}">
+  <meta name="twitter:description" content="${meta.description}">
+  <meta name="twitter:image" content="${LOGO_URL}">
+  <link rel="canonical" href="${canonicalUrl}">
+</head><body></body></html>`;
+
+    return res.status(200).set("Content-Type", "text/html").end(html);
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
   return httpServer;
 }
 
