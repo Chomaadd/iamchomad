@@ -54,7 +54,7 @@ export default function Novel() {
     <div className="min-h-screen bg-background">
       <SeoHead
         title="Novel"
-        description="Kumpulan novel dan komik karya Choiril Ahmad — cerita dengan dunia yang kaya dan karakter yang hidup."
+        description="A collection of novels and comics, stories with a rich world and lively characters."
         url="/novel"
       />
       <Navbar />
