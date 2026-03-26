@@ -11,6 +11,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.contact": "Contact",
     "nav.links": "Links",
     "nav.pesan": "Message",
+    "nav.novel": "Novel",
 
     "footer.rights": "© Choomad Group. All Right Reserved.",
 
@@ -125,6 +126,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.contact": "Kontak",
     "nav.links": "Links",
     "nav.pesan": "Pesan",
+    "nav.novel": "Novel",
 
     "footer.rights": "© Choomad Group. Hak Cipta Dilindungi.",
 

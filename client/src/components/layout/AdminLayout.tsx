@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, ScrollText, BarChart2, Link2, MessageSquare } from "lucide-react";
+import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, ScrollText, BarChart2, Link2, MessageSquare, BookOpen } from "lucide-react";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -34,6 +34,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { href: "/admin/links", label: "Links", icon: Link2 },
     { href: "/admin/messages", label: "Messages", icon: Mail },
     { href: "/admin/anon", label: "Pesan Anonim", icon: MessageSquare, badge: unreadCount > 0 ? unreadCount : undefined },
+    { href: "/admin/novel", label: "Novel & Cerita", icon: BookOpen },
   ];
 
   const currentPage = links.find(l => l.href === location)?.label || "Overview";

@@ -19,6 +19,7 @@ export function Navbar() {
     { href: "/music", label: t("nav.music") },
     { href: "/resume", label: t("nav.resume") },
     { href: "/contact", label: t("nav.contact") },
+    { href: "/novel", label: t("nav.novel") },
   ];
 
   const toggleLanguage = () => {

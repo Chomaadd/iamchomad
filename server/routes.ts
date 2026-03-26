@@ -852,6 +852,159 @@ ${blogEntries}
     }
   });
 
+  // ── Novel / Story Routes ──────────────────────────────────────────────────
+  // Public: get all published stories
+  app.get("/api/novel/stories", async (req, res) => {
+    try {
+      const stories = await storage.getNovelStories(true);
+      res.json(stories);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Admin: get all stories (including unpublished)
+  app.get("/api/novel/stories/all", async (req, res) => {
+    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const stories = await storage.getNovelStories();
+      res.json(stories);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Public: get single story by slug
+  app.get("/api/novel/stories/:slug", async (req, res) => {
+    try {
+      const story = await storage.getNovelStory(req.params.slug);
+      if (!story) return res.status(404).json({ message: "Story not found" });
+      res.json(story);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Admin: create story
+  app.post("/api/novel/stories", async (req, res) => {
+    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const story = await storage.createNovelStory(req.body);
+      res.status(201).json(story);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Admin: update story
+  app.put("/api/novel/stories/:id", async (req, res) => {
+    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const story = await storage.updateNovelStory(req.params.id, req.body);
+      res.json(story);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Admin: delete story
+  app.delete("/api/novel/stories/:id", async (req, res) => {
+    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      await storage.deleteNovelStory(req.params.id);
+      res.status(204).send();
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Public: get seasons for a story (by storyId)
+  app.get("/api/novel/stories/:storyId/seasons", async (req, res) => {
+    try {
+      const seasons = await storage.getNovelSeasons(req.params.storyId);
+      res.json(seasons);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Admin: create season
+  app.post("/api/novel/seasons", async (req, res) => {
+    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const season = await storage.createNovelSeason(req.body);
+      res.status(201).json(season);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Admin: update season
+  app.put("/api/novel/seasons/:id", async (req, res) => {
+    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const season = await storage.updateNovelSeason(req.params.id, req.body);
+      res.json(season);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Admin: delete season
+  app.delete("/api/novel/seasons/:id", async (req, res) => {
+    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      await storage.deleteNovelSeason(req.params.id);
+      res.status(204).send();
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Public: get chapters for a season (only published)
+  app.get("/api/novel/seasons/:seasonId/chapters", async (req, res) => {
+    try {
+      const chapters = await storage.getNovelChapters(req.params.seasonId, true);
+      res.json(chapters);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Admin: get all chapters for a season (including unpublished)
+  app.get("/api/novel/seasons/:seasonId/chapters/all", async (req, res) => {
+    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const chapters = await storage.getNovelChapters(req.params.seasonId);
+      res.json(chapters);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Public: get single chapter by id
+  app.get("/api/novel/chapters/:id", async (req, res) => {
+    try {
+      const chapter = await storage.getNovelChapter(req.params.id);
+      if (!chapter || !chapter.published) return res.status(404).json({ message: "Chapter not found" });
+      res.json(chapter);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Public: get chapter by slug/season/chapter number
+  app.get("/api/novel/read/:slug/season-:seasonNum/bab-:chapterNum", async (req, res) => {
+    try {
+      const { slug, seasonNum, chapterNum } = req.params;
+      const chapter = await storage.getNovelChapterByNumber(slug, seasonNum, Number(chapterNum));
+      if (!chapter) return res.status(404).json({ message: "Chapter not found" });
+      res.json(chapter);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Admin: create chapter
+  app.post("/api/novel/chapters", async (req, res) => {
+    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const chapter = await storage.createNovelChapter(req.body);
+      res.status(201).json(chapter);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Admin: update chapter
+  app.put("/api/novel/chapters/:id", async (req, res) => {
+    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const chapter = await storage.updateNovelChapter(req.params.id, req.body);
+      res.json(chapter);
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
+  // Admin: delete chapter
+  app.delete("/api/novel/chapters/:id", async (req, res) => {
+    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      await storage.deleteNovelChapter(req.params.id);
+      res.status(204).send();
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
   await seedDatabase();
 
   // ── Social Bot OG Middleware ──────────────────────────────────────────────
@@ -872,6 +1025,7 @@ ${blogEntries}
     "/contact": { title: `Contact | ${SITE_NAME}`, description: "Get in touch with Choiril Ahmad — send a message for collaborations, projects, or just to say hello." },
     "/links":   { title: `Links | ${SITE_NAME}`, description: "All of Choiril Ahmad's important links in one place — social media, portfolio, contact, and more." },
     "/pesan":   { title: `Anonymous Message | ${SITE_NAME}`, description: "Have something to say? Send an anonymous message to Choiril Ahmad — your identity is 100% protected." },
+    "/novel":   { title: `Novel & Komik | ${SITE_NAME}`, description: "Kumpulan novel dan komik karya Choiril Ahmad — cerita dengan dunia yang kaya dan karakter yang hidup." },
   };
 
   const SOCIAL_BOTS = ["WhatsApp", "TelegramBot", "facebookexternalhit", "Twitterbot", "LinkedInBot", "Slackbot", "Discordbot", "SkypeUriPreview", "google", "bingbot"];

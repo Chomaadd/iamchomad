@@ -29,6 +29,10 @@ import ManageResume from "./pages/admin/ManageResume";
 import ManageLinks from "./pages/admin/ManageLinks";
 import ManageAnonMessages from "./pages/admin/ManageAnonMessages";
 import AnonMessage from "./pages/public/AnonMessage";
+import Novel from "./pages/public/Novel";
+import NovelDetail from "./pages/public/NovelDetail";
+import NovelRead from "./pages/public/NovelRead";
+import ManageNovel from "./pages/admin/ManageNovel";
 
 // Base Fallback
 import NotFound from "@/pages/public/Not-Found";
@@ -51,6 +55,9 @@ function Router() {
       <Route path="/resume/pdf" component={ResumePrint} />
       <Route path="/links" component={Links} />
       <Route path="/pesan" component={AnonMessage} />
+      <Route path="/novel" component={Novel} />
+      <Route path="/novel/:slug/season-:seasonNum/bab-:chapterNum" component={NovelRead} />
+      <Route path="/novel/:slug" component={NovelDetail} />
 
       {/* Admin Routes */}
       <Route path="/login" component={Login} />
@@ -63,6 +70,7 @@ function Router() {
       <Route path="/admin/resume" component={ManageResume} />
       <Route path="/admin/links" component={ManageLinks} />
       <Route path="/admin/anon" component={ManageAnonMessages} />
+      <Route path="/admin/novel" component={ManageNovel} />
 
       {/* Fallback */}
       <Route component={NotFound} />

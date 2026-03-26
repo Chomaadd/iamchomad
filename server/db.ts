@@ -113,6 +113,32 @@ import mongoose from 'mongoose';
     isRead: { type: Boolean, default: false },
   }, { timestamps: { createdAt: true, updatedAt: false } });
 
+  const novelStorySchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
+    coverUrl: { type: String },
+    description: { type: String },
+    category: { type: String, default: 'novel' },
+    status: { type: String, enum: ['ongoing', 'completed', 'hiatus'], default: 'ongoing' },
+    published: { type: Boolean, default: false },
+    featured: { type: Boolean, default: false },
+  }, { timestamps: true });
+
+  const novelSeasonSchema = new mongoose.Schema({
+    storyId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'NovelStory' },
+    seasonNumber: { type: Number, required: true },
+    title: { type: String, required: true },
+  }, { timestamps: { createdAt: true, updatedAt: false } });
+
+  const novelChapterSchema = new mongoose.Schema({
+    storyId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'NovelStory' },
+    seasonId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'NovelSeason' },
+    chapterNumber: { type: Number, required: true },
+    title: { type: String, required: true },
+    content: { type: String, default: '' },
+    published: { type: Boolean, default: false },
+  }, { timestamps: true });
+
   export const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
   export const BlogPostModel = mongoose.models.BlogPost || mongoose.model('BlogPost', blogPostSchema);
   export const ContactMessageModel = mongoose.models.ContactMessage || mongoose.model('ContactMessage', contactMessageSchema);
@@ -123,4 +149,7 @@ import mongoose from 'mongoose';
   export const SiteSettingsModel = mongoose.models.SiteSettings || mongoose.model('SiteSettings', siteSettingsSchema);
   export const PageViewModel = mongoose.models.PageView || mongoose.model('PageView', pageViewSchema);
   export const AnonMessageModel = mongoose.models.AnonMessage || mongoose.model('AnonMessage', anonMessageSchema);
+  export const NovelStoryModel = mongoose.models.NovelStory || mongoose.model('NovelStory', novelStorySchema);
+  export const NovelSeasonModel = mongoose.models.NovelSeason || mongoose.model('NovelSeason', novelSeasonSchema);
+  export const NovelChapterModel = mongoose.models.NovelChapter || mongoose.model('NovelChapter', novelChapterSchema);
   

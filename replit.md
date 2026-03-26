@@ -21,6 +21,10 @@ A personal portfolio website with blog, brand showcase, music collection, and co
 - **Resume** (`/resume`) - Professional CV/resume with experience, education, skills sections and print/PDF support
 - **Contact** (`/contact`) - Working contact form for visitor messages
 - **Links** (`/links`) - Linktree-style page listing all important links with emoji icons, manageable from admin
+- **Novel & Komik** (`/novel`) - Reading platform for stories with grid cover display, search & category filter
+  - Story detail (`/novel/:slug`) - Synopsis, season & chapter accordion list with read time estimate
+  - Reading page (`/novel/:slug/season-:n/bab-:n`) - Clean reading view with prev/next chapter navigation
+  - Supports categories: novel, komik, cerpen, puisi, lainnya; statuses: ongoing, completed, hiatus
 
 ### Admin Dashboard
 - **Secure Authentication** - Session-based login (no public registration)

@@ -183,6 +183,57 @@ export const insertAnonMessageSchema = anonMessageSchema.omit({ id: true, isRead
 export type AnonMessage = z.infer<typeof anonMessageSchema>;
 export type InsertAnonMessage = z.infer<typeof insertAnonMessageSchema>;
 
+// ── Novel / Story System ──────────────────────────────────────────────────
+export const novelStorySchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  slug: z.string(),
+  coverUrl: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  category: z.string().default("novel"),
+  status: z.enum(["ongoing", "completed", "hiatus"]).default("ongoing"),
+  published: z.boolean().default(false),
+  featured: z.boolean().default(false),
+  createdAt: z.union([z.date(), z.string()]).optional(),
+  updatedAt: z.union([z.date(), z.string()]).optional(),
+});
+export const insertNovelStorySchema = novelStorySchema.omit({ id: true, createdAt: true, updatedAt: true });
+export type NovelStory = z.infer<typeof novelStorySchema>;
+export type InsertNovelStory = z.infer<typeof insertNovelStorySchema>;
+export type CreateNovelStoryRequest = InsertNovelStory;
+export type UpdateNovelStoryRequest = Partial<InsertNovelStory>;
+
+export const novelSeasonSchema = z.object({
+  id: z.string(),
+  storyId: z.string(),
+  seasonNumber: z.number(),
+  title: z.string(),
+  createdAt: z.union([z.date(), z.string()]).optional(),
+});
+export const insertNovelSeasonSchema = novelSeasonSchema.omit({ id: true, createdAt: true });
+export type NovelSeason = z.infer<typeof novelSeasonSchema>;
+export type InsertNovelSeason = z.infer<typeof insertNovelSeasonSchema>;
+export type CreateNovelSeasonRequest = InsertNovelSeason;
+export type UpdateNovelSeasonRequest = Partial<Pick<InsertNovelSeason, "title">>;
+
+export const novelChapterSchema = z.object({
+  id: z.string(),
+  storyId: z.string(),
+  seasonId: z.string(),
+  chapterNumber: z.number(),
+  title: z.string(),
+  content: z.string().default(""),
+  published: z.boolean().default(false),
+  createdAt: z.union([z.date(), z.string()]).optional(),
+  updatedAt: z.union([z.date(), z.string()]).optional(),
+});
+export const insertNovelChapterSchema = novelChapterSchema.omit({ id: true, createdAt: true, updatedAt: true });
+export type NovelChapter = z.infer<typeof novelChapterSchema>;
+export type InsertNovelChapter = z.infer<typeof insertNovelChapterSchema>;
+export type CreateNovelChapterRequest = InsertNovelChapter;
+export type UpdateNovelChapterRequest = Partial<Omit<InsertNovelChapter, "storyId" | "seasonId">>;
+// ─────────────────────────────────────────────────────────────────────────
+
 export interface LoginRequest {
   username: string;
   password: string;
