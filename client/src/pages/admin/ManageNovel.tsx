@@ -696,7 +696,7 @@ export default function ManageNovel() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-foreground text-sm truncate">{ch.title}</p>
-                      <p className="text-xs text-muted-foreground">{ch.content.trim().split(/\s+/).filter(Boolean).length} kata</p>
+                      <p className="text-xs text-muted-foreground">{(ch.content ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().split(" ").filter(Boolean).length} kata</p>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       <button

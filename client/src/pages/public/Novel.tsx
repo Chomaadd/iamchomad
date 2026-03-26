@@ -11,11 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Search, X } from "lucide-react";
 import type { NovelStory } from "@shared/schema";
 
-const STATUS_LABEL: Record<string, string> = {
-  ongoing: "Ongoing",
-  completed: "Completed",
-  hiatus: "Hiatus",
-};
 const STATUS_COLOR: Record<string, string> = {
   ongoing: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
   completed: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
@@ -24,6 +19,11 @@ const STATUS_COLOR: Record<string, string> = {
 
 export default function Novel() {
   const { t } = useLanguage();
+  const STATUS_LABEL: Record<string, string> = {
+    ongoing: t("novel.status.ongoing"),
+    completed: t("novel.status.completed"),
+    hiatus: t("novel.status.hiatus"),
+  };
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
@@ -70,11 +70,9 @@ export default function Novel() {
             <div className="p-2 rounded-xl bg-primary/10">
               <BookOpen size={24} className="text-primary" />
             </div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-foreground">Novel & Komik</h1>
+            <h1 className="text-3xl lg:text-4xl font-bold text-foreground">{t("novel.heading")}</h1>
           </div>
-          <p className="text-muted-foreground text-lg max-w-2xl">
-            Kumpulan cerita dengan dunia yang kaya dan karakter yang hidup. Pilih ceritamu dan mulai membaca.
-          </p>
+          <p className="text-muted-foreground text-lg max-w-2xl">{t("novel.description")}</p>
         </motion.div>
 
         {/* Filters */}
@@ -83,7 +81,7 @@ export default function Novel() {
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Cari cerita..."
+              placeholder={t("novel.search.placeholder")}
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
@@ -101,7 +99,7 @@ export default function Novel() {
               className={`px-3.5 py-2 rounded-full text-sm font-medium transition-colors ${!activeCategory ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}
               data-testid="button-category-all"
             >
-              Semua
+              {t("novel.filter.all")}
             </button>
             {categories.map(cat => (
               <button
@@ -130,7 +128,7 @@ export default function Novel() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground">
             <BookOpen size={48} className="mx-auto mb-4 opacity-30" />
-            <p className="text-lg">Belum ada cerita yang tersedia.</p>
+            <p className="text-lg">{t("novel.empty")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">

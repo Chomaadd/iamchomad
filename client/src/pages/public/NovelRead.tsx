@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, BookOpen, Clock, ChevronLeft } from "lucide-reac
 import type { NovelChapter, NovelStory, NovelSeason } from "@shared/schema";
 import { motion } from "framer-motion";
 import { renderRichContent } from "@/components/ui/rich-text-editor";
+import { useLanguage } from "@/hooks/use-language";
 
 function estimateReadTime(content: string) {
   const text = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -14,6 +15,7 @@ function estimateReadTime(content: string) {
 }
 
 export default function NovelRead() {
+  const { t } = useLanguage();
   const [, params] = useRoute("/novel/:slug/:seasonSlug/:chapterSlug");
   const slug = params?.slug ?? "";
   const seasonNum = Number(params?.seasonSlug?.replace("season-", "") ?? 1);
@@ -75,10 +77,10 @@ export default function NovelRead() {
         <Navbar />
         <div className="max-w-2xl mx-auto px-6 py-20 text-center">
           <BookOpen size={48} className="mx-auto mb-4 text-muted-foreground opacity-30" />
-          <p className="text-muted-foreground">Bab tidak ditemukan atau belum dipublikasikan.</p>
+          <p className="text-muted-foreground">{t("novel.read.notFound")}</p>
           <Link href={`/novel/${slug}`}>
             <button className="mt-6 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity" data-testid="button-back-to-story">
-              Kembali ke cerita
+              {t("novel.read.backToStory")}
             </button>
           </Link>
         </div>
@@ -104,7 +106,7 @@ export default function NovelRead() {
           <ChevronLeft size={12} className="rotate-180" />
           <span>Season {seasonNum}</span>
           <ChevronLeft size={12} className="rotate-180" />
-          <span className="text-foreground font-medium">Bab {chapterNum}</span>
+          <span className="text-foreground font-medium">{t("novel.read.chapter")} {chapterNum}</span>
         </div>
 
         {/* Chapter Header */}
@@ -115,11 +117,11 @@ export default function NovelRead() {
         >
           <p className="text-sm text-muted-foreground mb-1">Season {seasonNum} — {currentSeason?.title}</p>
           <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-3" data-testid="text-chapter-title">
-            Bab {chapter.chapterNumber}: {chapter.title}
+            {t("novel.read.chapter")} {chapter.chapterNumber}: {chapter.title}
           </h1>
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Clock size={14} />
-            <span>~{estimateReadTime(chapter.content)} menit baca</span>
+            <span>~{estimateReadTime(chapter.content)} {t("novel.read.minRead")}</span>
           </div>
         </motion.div>
 
@@ -141,8 +143,8 @@ export default function NovelRead() {
               <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border hover:bg-muted transition-colors text-sm" data-testid="button-prev-chapter">
                 <ArrowLeft size={16} />
                 <div className="text-left hidden sm:block">
-                  <div className="text-xs text-muted-foreground">Sebelumnya</div>
-                  <div className="font-medium line-clamp-1">Bab {prevChapter.chapterNumber}</div>
+                  <div className="text-xs text-muted-foreground">{t("novel.read.prev")}</div>
+                  <div className="font-medium line-clamp-1">{t("novel.read.chapter")} {prevChapter.chapterNumber}</div>
                 </div>
               </button>
             </Link>
@@ -150,20 +152,20 @@ export default function NovelRead() {
             <Link href={`/novel/${slug}`}>
               <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border hover:bg-muted transition-colors text-sm" data-testid="button-prev-season">
                 <ArrowLeft size={16} />
-                <span className="hidden sm:inline">Season {prevSeason.seasonNumber}</span>
+                <span className="hidden sm:inline">{t("novel.read.prev")}</span>
               </button>
             </Link>
           ) : (
             <Link href={`/novel/${slug}`}>
               <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border hover:bg-muted transition-colors text-sm" data-testid="button-back-story">
                 <ArrowLeft size={16} />
-                <span className="hidden sm:inline">Daftar Bab</span>
+                <span className="hidden sm:inline">{t("novel.detail.tableOfContents")}</span>
               </button>
             </Link>
           )}
 
           <Link href={`/novel/${slug}`}>
-            <button className="p-2.5 rounded-xl border border-border hover:bg-muted transition-colors" title="Daftar bab" data-testid="button-chapter-list">
+            <button className="p-2.5 rounded-xl border border-border hover:bg-muted transition-colors" title={t("novel.read.chapterList")} data-testid="button-chapter-list">
               <BookOpen size={18} />
             </button>
           </Link>
@@ -172,8 +174,8 @@ export default function NovelRead() {
             <Link href={`/novel/${slug}/season-${seasonNum}/bab-${nextChapter.chapterNumber}`}>
               <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border hover:bg-muted transition-colors text-sm" data-testid="button-next-chapter">
                 <div className="text-right hidden sm:block">
-                  <div className="text-xs text-muted-foreground">Selanjutnya</div>
-                  <div className="font-medium line-clamp-1">Bab {nextChapter.chapterNumber}</div>
+                  <div className="text-xs text-muted-foreground">{t("novel.read.next")}</div>
+                  <div className="font-medium line-clamp-1">{t("novel.read.chapter")} {nextChapter.chapterNumber}</div>
                 </div>
                 <ArrowRight size={16} />
               </button>
@@ -181,7 +183,7 @@ export default function NovelRead() {
           ) : nextSeason ? (
             <Link href={`/novel/${slug}`}>
               <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border hover:bg-muted transition-colors text-sm" data-testid="button-next-season">
-                <span className="hidden sm:inline">Season {nextSeason.seasonNumber}</span>
+                <span className="hidden sm:inline">{t("novel.read.next")}</span>
                 <ArrowRight size={16} />
               </button>
             </Link>

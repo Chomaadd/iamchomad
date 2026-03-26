@@ -81,7 +81,22 @@ export function RichTextEditor({
     }
   }, [value, editor]);
 
-  if (!editor) return null;
+  if (!editor) {
+    return (
+      <div className={`border border-border rounded-lg overflow-hidden ${className}`}>
+        <div className="flex items-center gap-0.5 p-2 border-b border-border bg-muted/30 flex-wrap">
+          <div className="h-7 w-64 rounded bg-muted animate-pulse" />
+        </div>
+        <div className="px-4 py-3" style={{ minHeight }}>
+          <div className="space-y-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className={`h-4 rounded bg-muted animate-pulse ${i === 3 ? "w-2/3" : "w-full"}`} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const groups = [
     {

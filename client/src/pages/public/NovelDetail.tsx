@@ -8,12 +8,8 @@ import { SeoHead } from "@/components/seometa/SeoHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, ChevronDown, ChevronRight, ArrowLeft, Clock } from "lucide-react";
 import type { NovelStory, NovelSeason, NovelChapter } from "@shared/schema";
+import { useLanguage } from "@/hooks/use-language";
 
-const STATUS_LABEL: Record<string, string> = {
-  ongoing: "Ongoing",
-  completed: "Completed",
-  hiatus: "Hiatus",
-};
 const STATUS_COLOR: Record<string, string> = {
   ongoing: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
   completed: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
@@ -21,11 +17,13 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 function estimateReadTime(content: string) {
-  return Math.max(1, Math.ceil(content.trim().split(/\s+/).length / 200));
+  const text = (content ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return Math.max(1, Math.ceil(text.split(/\s+/).filter(Boolean).length / 200));
 }
 
 function SeasonAccordion({ story, season }: { story: NovelStory; season: NovelSeason }) {
   const [open, setOpen] = useState(true);
+  const { t } = useLanguage();
 
   const { data: chapters, isLoading } = useQuery<NovelChapter[]>({
     queryKey: ["/api/novel/seasons", season.id, "chapters"],
@@ -44,7 +42,7 @@ function SeasonAccordion({ story, season }: { story: NovelStory; season: NovelSe
           <span className="ml-2 text-sm text-muted-foreground">— {season.title}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
-          <span className="text-xs">{chapters?.length ?? 0} bab</span>
+          <span className="text-xs">{chapters?.length ?? 0} {t("novel.detail.chapters")}</span>
           {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </div>
       </button>
@@ -57,7 +55,7 @@ function SeasonAccordion({ story, season }: { story: NovelStory; season: NovelSe
               </div>
             ))
           ) : chapters?.length === 0 ? (
-            <div className="px-5 py-4 text-sm text-muted-foreground">Belum ada bab yang dipublikasikan.</div>
+            <div className="px-5 py-4 text-sm text-muted-foreground">{t("novel.detail.noChapters")}</div>
           ) : (
             chapters?.map(ch => (
               <Link
@@ -67,12 +65,12 @@ function SeasonAccordion({ story, season }: { story: NovelStory; season: NovelSe
               >
                 <div className="px-5 py-3.5 hover:bg-muted/40 transition-colors flex items-center justify-between group cursor-pointer">
                   <div>
-                    <span className="text-xs text-muted-foreground mr-2">Bab {ch.chapterNumber}</span>
+                    <span className="text-xs text-muted-foreground mr-2">{t("novel.detail.chapter")} {ch.chapterNumber}</span>
                     <span className="text-sm text-foreground group-hover:text-primary transition-colors font-medium">{ch.title}</span>
                   </div>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Clock size={12} />
-                    <span>{estimateReadTime(ch.content)} menit</span>
+                    <span>{estimateReadTime(ch.content)} {t("novel.detail.min")}</span>
                   </div>
                 </div>
               </Link>
@@ -84,8 +82,15 @@ function SeasonAccordion({ story, season }: { story: NovelStory; season: NovelSe
   );
 }
 
+const STATUS_LABEL_KEY: Record<string, string> = {
+  ongoing: "novel.status.ongoing",
+  completed: "novel.status.completed",
+  hiatus: "novel.status.hiatus",
+};
+
 export default function NovelDetail() {
   const [, params] = useRoute("/novel/:slug");
+  const { t } = useLanguage();
   const slug = params?.slug ?? "";
 
   const { data: story, isLoading: storyLoading } = useQuery<NovelStory>({
@@ -131,7 +136,7 @@ export default function NovelDetail() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Navbar />
-        <p className="text-muted-foreground">Cerita tidak ditemukan.</p>
+        <p className="text-muted-foreground">{t("novel.detail.notFound")}</p>
       </div>
     );
   }
@@ -151,7 +156,7 @@ export default function NovelDetail() {
         <Link href="/novel">
           <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors" data-testid="button-back-novel">
             <ArrowLeft size={16} />
-            Kembali ke daftar
+            {t("novel.detail.back")}
           </button>
         </Link>
 
@@ -178,7 +183,7 @@ export default function NovelDetail() {
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_COLOR[story.status] ?? STATUS_COLOR.ongoing}`}>
-                {STATUS_LABEL[story.status] ?? story.status}
+                {t(STATUS_LABEL_KEY[story.status] ?? "novel.status.ongoing")}
               </span>
               <span className="text-xs text-muted-foreground capitalize bg-muted px-2.5 py-1 rounded-full">{story.category}</span>
               {(story.tags ?? []).map(tag => (
@@ -192,7 +197,7 @@ export default function NovelDetail() {
             <div className="text-sm text-muted-foreground">
               <span>{stats?.totalSeasons ?? seasons?.length ?? 0} Season</span>
               <span className="mx-2">·</span>
-              <span>{stats?.totalChapters ?? 0} Bab</span>
+              <span>{stats?.totalChapters ?? 0} {t("novel.detail.chapters")}</span>
             </div>
           </div>
         </motion.div>
@@ -203,11 +208,11 @@ export default function NovelDetail() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <h2 className="text-xl font-semibold text-foreground mb-4">Daftar Bab</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-4">{t("novel.detail.tableOfContents")}</h2>
           {!seasons || seasons.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground border border-border rounded-xl">
               <BookOpen size={32} className="mx-auto mb-3 opacity-30" />
-              <p>Belum ada season yang tersedia.</p>
+              <p>{t("novel.detail.noSeasons")}</p>
             </div>
           ) : (
             <div className="space-y-3">
