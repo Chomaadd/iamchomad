@@ -914,6 +914,19 @@ ${blogEntries}
     } catch { res.status(500).json({ message: "Internal server error" }); }
   });
 
+  // Public: story stats (total seasons + total published chapters)
+  app.get("/api/novel/stories/:storyId/stats", async (req, res) => {
+    try {
+      const seasons = await storage.getNovelSeasons(req.params.storyId);
+      let totalChapters = 0;
+      for (const season of seasons) {
+        const chapters = await storage.getNovelChapters(season.id, true);
+        totalChapters += chapters.length;
+      }
+      res.json({ totalSeasons: seasons.length, totalChapters });
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
   // Admin: create season
   app.post("/api/novel/seasons", async (req, res) => {
     if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });

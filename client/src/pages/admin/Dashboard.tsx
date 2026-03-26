@@ -5,10 +5,11 @@ import { useBrandItems } from "@/hooks/use-brand";
 import { useMusicTracks } from "@/hooks/use-music";
 import { useResumeItems } from "@/hooks/use-resume";
 import { useSiteSettings, useUpdateSiteSettings } from "@/hooks/use-settings";
+import { useQuery } from "@tanstack/react-query";
 import { FileText, Mail, Image, Music, TrendingUp, Clock, ScrollText, Briefcase, BookOpen } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import type { AvailabilityStatus } from "@shared/schema";
+import type { AvailabilityStatus, NovelStory } from "@shared/schema";
 
 const availabilityOptions: { value: AvailabilityStatus; label: string; color: string; dot: string }[] = [
   { value: "open", label: "Open to Work", color: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-500" },
@@ -25,6 +26,7 @@ export default function Dashboard() {
   const { data: settings } = useSiteSettings();
   const { mutateAsync: updateSettings, isPending } = useUpdateSiteSettings();
   const { toast } = useToast();
+  const { data: novelStories } = useQuery<NovelStory[]>({ queryKey: ["/api/novel/stories/all"] });
 
   const unreadMessages = messages?.filter(m => !m.read).length || 0;
 
@@ -46,7 +48,7 @@ export default function Dashboard() {
     { label: "Brand Assets", value: brands?.length || 0, icon: Image, href: "/admin/brand", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
     { label: "Music Tracks", value: tracks?.length || 0, icon: Music, href: "/admin/music", color: "bg-purple-500/10 text-purple-600 dark:text-purple-400" },
     { label: "Resume Items", value: resumeItems?.length || 0, icon: ScrollText, href: "/admin/resume", color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400" },
-    { label: "Novel & Cerita", value: 0, icon: BookOpen, href: "/admin/novel", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
+    { label: "Novel & Cerita", value: novelStories?.length || 0, icon: BookOpen, href: "/admin/novel", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
   ];
 
   const recentMessages = messages?.slice(0, 3) || [];

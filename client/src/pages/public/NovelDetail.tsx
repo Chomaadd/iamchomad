@@ -100,6 +100,12 @@ export default function NovelDetail() {
     enabled: !!story?.id,
   });
 
+  const { data: stats } = useQuery<{ totalSeasons: number; totalChapters: number }>({
+    queryKey: ["/api/novel/stories", story?.id, "stats"],
+    queryFn: () => fetch(`/api/novel/stories/${story!.id}/stats`).then(r => r.json()),
+    enabled: !!story?.id,
+  });
+
   const isLoading = storyLoading || seasonsLoading;
 
   if (isLoading) {
@@ -181,11 +187,9 @@ export default function NovelDetail() {
               <p className="text-muted-foreground leading-relaxed mb-4">{story.description}</p>
             )}
             <div className="text-sm text-muted-foreground">
-              <span>{seasons?.length ?? 0} Season</span>
+              <span>{stats?.totalSeasons ?? seasons?.length ?? 0} Season</span>
               <span className="mx-2">·</span>
-              <span>
-                {seasons?.reduce((acc) => acc, 0) ?? 0} Bab Total
-              </span>
+              <span>{stats?.totalChapters ?? 0} Bab</span>
             </div>
           </div>
         </motion.div>
