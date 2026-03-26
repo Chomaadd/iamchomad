@@ -23,7 +23,7 @@ export async function sendContactNotification(data: {
     from: `"Portfolio Contact" <${process.env.GMAIL_USER}>`,
     to: process.env.GMAIL_USER,
     replyTo: data.email,
-    subject: `[Portfolio] Pesan baru dari ${data.name}: ${data.subject}`,
+    subject: `[Portfolio Chomad] Pesan baru dari ${data.name}: ${data.subject}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px;">
         <h2 style="color: #1f2937; margin-bottom: 4px;">Pesan Baru dari Portfolio</h2>

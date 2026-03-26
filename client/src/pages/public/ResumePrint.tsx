@@ -432,7 +432,7 @@ export default function ResumePrint() {
 
       {/* ── Print toolbar (screen only) ── */}
       <div className="cv-print-bar">
-        <span>Preview CV kamu — klik Print untuk simpan sebagai PDF</span>
+        <span>Preview CV Choiril Ahmad — klik Print untuk simpan sebagai PDF</span>
         <button onClick={() => window.print()}>🖨️ Print / Save PDF</button>
         <button
           onClick={() => window.close()}
