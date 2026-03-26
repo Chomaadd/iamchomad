@@ -5,8 +5,8 @@ import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RichTextEditor, renderRichContent } from "@/components/ui/rich-text-editor";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -235,11 +235,13 @@ function StoryForm({
     coverUrl: initial?.coverUrl ?? "",
     category: initial?.category ?? "novel",
     status: initial?.status ?? "ongoing",
+    tags: (initial?.tags ?? []).join(", "),
     published: initial?.published ?? false,
     featured: initial?.featured ?? false,
   });
 
   const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
+  const parsedTags = form.tags.split(",").map(t => t.trim()).filter(Boolean);
 
   return (
     <div className="space-y-4">
@@ -263,6 +265,22 @@ function StoryForm({
       <div>
         <label className="text-sm font-medium mb-1 block">Sampul</label>
         <CoverUploadCrop value={form.coverUrl} onChange={v => set("coverUrl", v)} />
+      </div>
+      <div>
+        <label className="text-sm font-medium mb-1 block">Tags</label>
+        <Input
+          value={form.tags}
+          onChange={e => set("tags", e.target.value)}
+          placeholder="cth: Action, Romance, Isekai (pisahkan dengan koma)"
+          data-testid="input-story-tags"
+        />
+        {parsedTags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {parsedTags.map(tag => (
+              <span key={tag} className="px-2 py-0.5 rounded-full text-xs bg-primary/10 text-primary font-medium">{tag}</span>
+            ))}
+          </div>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -302,7 +320,7 @@ function StoryForm({
       </div>
       <DialogFooter>
         <Button variant="outline" onClick={onCancel} data-testid="button-cancel-story">Batal</Button>
-        <Button onClick={() => onSave(form)} disabled={!form.title || !form.slug} data-testid="button-save-story">Simpan</Button>
+        <Button onClick={() => onSave({ ...form, tags: parsedTags })} disabled={!form.title || !form.slug} data-testid="button-save-story">Simpan</Button>
       </DialogFooter>
     </div>
   );
@@ -348,7 +366,7 @@ function ChapterWrite({ chapter, storyId, seasonId, onBack }: {
   const [form, setForm] = useState({
     title: chapter?.title ?? "",
     chapterNumber: chapter?.chapterNumber ?? 1,
-    content: chapter?.content ?? "",
+    content: chapter ? renderRichContent(chapter.content) : "",
     published: chapter?.published ?? false,
   });
 
@@ -387,15 +405,17 @@ function ChapterWrite({ chapter, storyId, seasonId, onBack }: {
       </div>
       <div>
         <label className="text-sm font-medium mb-1 block">Isi Cerita *</label>
-        <Textarea
+        <RichTextEditor
           value={form.content}
-          onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
-          rows={20}
-          placeholder="Tulis isi cerita di sini... Tekan Enter untuk paragraf baru."
-          className="font-mono text-sm leading-relaxed resize-y"
-          data-testid="textarea-chapter-content"
+          onChange={html => setForm(f => ({ ...f, content: html }))}
+          placeholder="Tulis isi cerita di sini... Gunakan toolbar untuk bold, italic, list, dan lainnya."
+          minHeight={450}
         />
-        <p className="text-xs text-muted-foreground mt-1">{form.content.trim().split(/\s+/).filter(Boolean).length} kata · ~{Math.max(1, Math.ceil(form.content.trim().split(/\s+/).filter(Boolean).length / 200))} menit baca</p>
+        {(() => {
+          const text = form.content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+          const words = text ? text.split(" ").filter(Boolean).length : 0;
+          return <p className="text-xs text-muted-foreground mt-1">{words} kata · ~{Math.max(1, Math.ceil(words / 200))} menit baca</p>;
+        })()}
       </div>
       <div className="flex gap-2 pt-2">
         <Button variant="outline" onClick={onBack} data-testid="button-discard-chapter">Batal</Button>

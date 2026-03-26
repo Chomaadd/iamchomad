@@ -192,6 +192,7 @@ export const novelStorySchema = z.object({
   description: z.string().nullable().optional(),
   category: z.string().default("novel"),
   status: z.enum(["ongoing", "completed", "hiatus"]).default("ongoing"),
+  tags: z.array(z.string()).default([]),
   published: z.boolean().default(false),
   featured: z.boolean().default(false),
   createdAt: z.union([z.date(), z.string()]).optional(),

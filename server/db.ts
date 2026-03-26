@@ -120,6 +120,7 @@ import mongoose from 'mongoose';
     description: { type: String },
     category: { type: String, default: 'novel' },
     status: { type: String, enum: ['ongoing', 'completed', 'hiatus'], default: 'ongoing' },
+    tags: { type: [String], default: [] },
     published: { type: Boolean, default: false },
     featured: { type: Boolean, default: false },
   }, { timestamps: true });

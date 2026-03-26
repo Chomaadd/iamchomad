@@ -168,7 +168,14 @@ export default function Novel() {
                     <h3 className="font-semibold text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors leading-snug mb-1" data-testid={`text-story-title-${story.id}`}>
                       {story.title}
                     </h3>
-                    <p className="text-xs text-muted-foreground capitalize">{story.category}</p>
+                    <p className="text-xs text-muted-foreground capitalize mb-1">{story.category}</p>
+                    {(story.tags ?? []).length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {(story.tags ?? []).slice(0, 2).map(tag => (
+                          <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{tag}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </Link>
               </motion.div>

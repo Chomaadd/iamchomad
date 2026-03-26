@@ -11,9 +11,11 @@ import { motion } from "framer-motion";
 import { SeoHead } from "@/components/seometa/SeoHead";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { renderRichContent } from "@/components/ui/rich-text-editor";
 
 function estimateReadTime(content: string): number {
-  const words = content.trim().split(/\s+/).length;
+  const text = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const words = text.split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 200));
 }
 
@@ -187,27 +189,10 @@ export default function BlogPost() {
               </div>
             )}
 
-            <div className="prose prose-lg dark:prose-invert prose-p:leading-loose prose-headings:font-serif prose-headings:font-bold prose-a:text-primary max-w-none">
-              {post.content.split("\n\n").map((paragraph: string, idx: number) => {
-                if (paragraph.startsWith("# ")) {
-                  const text = paragraph.slice(2);
-                  return <h2 key={idx} id={slugify(text)} className="text-2xl mt-10 mb-4">{text}</h2>;
-                }
-                if (paragraph.startsWith("## ")) {
-                  const text = paragraph.slice(3);
-                  return <h3 key={idx} id={slugify(text)} className="text-xl mt-8 mb-3">{text}</h3>;
-                }
-                if (paragraph.startsWith("- ")) {
-                  const listItems = paragraph.split("\n").filter((l) => l.startsWith("- "));
-                  return (
-                    <ul key={idx} className="list-disc pl-6 space-y-1">
-                      {listItems.map((li, j) => <li key={j}>{li.slice(2)}</li>)}
-                    </ul>
-                  );
-                }
-                return <p key={idx}>{paragraph}</p>;
-              })}
-            </div>
+            <div
+              className="prose prose-lg dark:prose-invert prose-p:leading-loose prose-headings:font-serif prose-headings:font-bold prose-a:text-primary max-w-none"
+              dangerouslySetInnerHTML={{ __html: renderRichContent(post.content) }}
+            />
 
             {/* Reactions */}
             <div className="mt-12 pt-8 border-t border-border/50">

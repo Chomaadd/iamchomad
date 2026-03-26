@@ -181,6 +181,9 @@ export default function NovelDetail() {
                 {STATUS_LABEL[story.status] ?? story.status}
               </span>
               <span className="text-xs text-muted-foreground capitalize bg-muted px-2.5 py-1 rounded-full">{story.category}</span>
+              {(story.tags ?? []).map(tag => (
+                <span key={tag} className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">{tag}</span>
+              ))}
             </div>
             <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-4" data-testid="text-story-title">{story.title}</h1>
             {story.description && (

@@ -4,6 +4,7 @@ import { usePosts, useCreatePost, useUpdatePost, useDeletePost } from "@/hooks/u
 import { Button, Input, Textarea, Label, Modal } from "@/components/ui/core";
 import { Plus, Edit2, Trash2, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { RichTextEditor, renderRichContent } from "@/components/ui/rich-text-editor";
 
 export default function ManageBlog() {
   const { data: posts, isLoading } = usePosts();
@@ -66,7 +67,7 @@ export default function ManageBlog() {
       title: post.title,
       slug: post.slug,
       excerpt: post.excerpt,
-      content: post.content,
+      content: renderRichContent(post.content),
       imageUrl: post.imageUrl || "",
       tags: (post.tags ?? []).join(", "),
       published: post.published
@@ -203,7 +204,12 @@ export default function ManageBlog() {
           </div>
           <div>
             <Label>Content</Label>
-            <Textarea className="min-h-[200px]" required value={form.content} onChange={e => setForm({...form, content: e.target.value})} data-testid="input-blog-content" />
+            <RichTextEditor
+              value={form.content}
+              onChange={html => setForm({...form, content: html})}
+              placeholder="Tulis konten artikel di sini..."
+              minHeight={320}
+            />
           </div>
           <div>
             <Label>Tags</Label>

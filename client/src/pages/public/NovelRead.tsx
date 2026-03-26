@@ -6,9 +6,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, ArrowRight, BookOpen, Clock, ChevronLeft } from "lucide-react";
 import type { NovelChapter, NovelStory, NovelSeason } from "@shared/schema";
 import { motion } from "framer-motion";
+import { renderRichContent } from "@/components/ui/rich-text-editor";
 
 function estimateReadTime(content: string) {
-  return Math.max(1, Math.ceil(content.trim().split(/\s+/).length / 200));
+  const text = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return Math.max(1, Math.ceil(text.split(/\s+/).filter(Boolean).length / 200));
 }
 
 export default function NovelRead() {
@@ -126,20 +128,11 @@ export default function NovelRead() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="prose prose-gray dark:prose-invert max-w-none"
-          style={{ lineHeight: "1.9", fontSize: "1.0625rem" }}
+          className="prose prose-gray dark:prose-invert max-w-none prose-p:my-4 prose-p:leading-[1.9] prose-headings:font-bold prose-blockquote:border-primary/50 prose-blockquote:text-muted-foreground prose-ul:my-2 prose-ol:my-2 prose-strong:font-bold prose-em:italic"
+          style={{ fontSize: "1.0625rem" }}
           data-testid="text-chapter-content"
-        >
-          {chapter.content.split("\n").map((para, i) =>
-            para.trim() ? (
-              <p key={i} className="mb-5 text-foreground/90">
-                {para}
-              </p>
-            ) : (
-              <br key={i} />
-            )
-          )}
-        </motion.div>
+          dangerouslySetInnerHTML={{ __html: renderRichContent(chapter.content) }}
+        />
 
         {/* Navigation */}
         <div className="mt-12 pt-8 border-t border-border flex items-center justify-between gap-4">
