@@ -1,8 +1,0 @@
-<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="630" fill="#0a0a0a"/>
-  <rect x="60" y="60" width="1080" height="510" rx="16" fill="#111111"/>
-  <text x="100" y="280" font-family="Georgia, serif" font-size="72" font-weight="bold" fill="#ffffff">Choiril Ahmad</text>
-  <text x="100" y="350" font-family="Arial, sans-serif" font-size="28" fill="#888888">Entrepreneur &amp; Software Developer</text>
-  <text x="100" y="410" font-family="Arial, sans-serif" font-size="22" fill="#555555">iamchomad.my.id</text>
-  <rect x="100" y="460" width="80" height="4" rx="2" fill="#ffffff"/>
-</svg>
