@@ -12,10 +12,10 @@ function estimateReadTime(content: string) {
 }
 
 export default function NovelRead() {
-  const [, params] = useRoute("/novel/:slug/season-:seasonNum/bab-:chapterNum");
+  const [, params] = useRoute("/novel/:slug/:seasonSlug/:chapterSlug");
   const slug = params?.slug ?? "";
-  const seasonNum = Number(params?.seasonNum ?? 1);
-  const chapterNum = Number(params?.chapterNum ?? 1);
+  const seasonNum = Number(params?.seasonSlug?.replace("season-", "") ?? 1);
+  const chapterNum = Number(params?.chapterSlug?.replace("bab-", "") ?? 1);
 
   const { data: chapter, isLoading } = useQuery<NovelChapter>({
     queryKey: ["/api/novel/read", slug, seasonNum, chapterNum],
@@ -23,7 +23,7 @@ export default function NovelRead() {
       if (!r.ok) throw new Error("Not found");
       return r.json();
     }),
-    enabled: !!slug,
+    enabled: !!slug && !isNaN(seasonNum) && !isNaN(chapterNum),
   });
 
   const { data: story } = useQuery<NovelStory>({
@@ -49,7 +49,6 @@ export default function NovelRead() {
   const prevChapter = currentIndex > 0 ? chapterList?.[currentIndex - 1] : null;
   const nextChapter = currentIndex >= 0 && chapterList && currentIndex < chapterList.length - 1 ? chapterList[currentIndex + 1] : null;
 
-  // next/prev season logic
   const prevSeason = seasons?.find(s => s.seasonNumber === seasonNum - 1);
   const nextSeason = seasons?.find(s => s.seasonNumber === seasonNum + 1);
 
@@ -144,7 +143,6 @@ export default function NovelRead() {
 
         {/* Navigation */}
         <div className="mt-12 pt-8 border-t border-border flex items-center justify-between gap-4">
-          {/* Prev */}
           {prevChapter ? (
             <Link href={`/novel/${slug}/season-${seasonNum}/bab-${prevChapter.chapterNumber}`}>
               <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border hover:bg-muted transition-colors text-sm" data-testid="button-prev-chapter">
@@ -171,14 +169,12 @@ export default function NovelRead() {
             </Link>
           )}
 
-          {/* Middle: back to story */}
           <Link href={`/novel/${slug}`}>
             <button className="p-2.5 rounded-xl border border-border hover:bg-muted transition-colors" title="Daftar bab" data-testid="button-chapter-list">
               <BookOpen size={18} />
             </button>
           </Link>
 
-          {/* Next */}
           {nextChapter ? (
             <Link href={`/novel/${slug}/season-${seasonNum}/bab-${nextChapter.chapterNumber}`}>
               <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border hover:bg-muted transition-colors text-sm" data-testid="button-next-chapter">

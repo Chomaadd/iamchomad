@@ -56,7 +56,7 @@ function Router() {
       <Route path="/links" component={Links} />
       <Route path="/pesan" component={AnonMessage} />
       <Route path="/novel" component={Novel} />
-      <Route path="/novel/:slug/season-:seasonNum/bab-:chapterNum" component={NovelRead} />
+      <Route path="/novel/:slug/:seasonSlug/:chapterSlug" component={NovelRead} />
       <Route path="/novel/:slug" component={NovelDetail} />
 
       {/* Admin Routes */}

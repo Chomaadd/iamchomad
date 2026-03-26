@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
@@ -6,7 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
@@ -15,15 +14,210 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  BookOpen, Plus, Pencil, Trash2, ChevronRight, ChevronLeft,
+  BookOpen, Plus, Pencil, Trash2, ChevronRight,
   Eye, EyeOff, Star, ArrowLeft, Layers, FileText,
+  Upload, ImageIcon, RotateCcw,
 } from "lucide-react";
+import Cropper from "react-easy-crop";
 import type { NovelStory, NovelSeason, NovelChapter } from "@shared/schema";
 
 type View = "stories" | "seasons" | "chapters" | "write";
 
 function slugify(text: string) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+// ── Canvas Crop Helper ─────────────────────────────────────────────────────
+async function getCroppedBlob(imageSrc: string, croppedAreaPixels: { x: number; y: number; width: number; height: number }): Promise<Blob> {
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = imageSrc;
+  });
+  const canvas = document.createElement("canvas");
+  canvas.width = croppedAreaPixels.width;
+  canvas.height = croppedAreaPixels.height;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(
+    image,
+    croppedAreaPixels.x,
+    croppedAreaPixels.y,
+    croppedAreaPixels.width,
+    croppedAreaPixels.height,
+    0, 0,
+    croppedAreaPixels.width,
+    croppedAreaPixels.height,
+  );
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Canvas is empty")), "image/jpeg", 0.9);
+  });
+}
+
+// ── Cover Upload + Crop ────────────────────────────────────────────────────
+function CoverUploadCrop({
+  value, onChange,
+}: {
+  value: string;
+  onChange: (url: string) => void;
+}) {
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [rawSrc, setRawSrc] = useState<string | null>(null);
+  const [cropOpen, setCropOpen] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const onCropComplete = useCallback((_: any, pixels: any) => {
+    setCroppedAreaPixels(pixels);
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRawSrc(reader.result as string);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCropOpen(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleConfirmCrop = async () => {
+    if (!rawSrc || !croppedAreaPixels) return;
+    setUploading(true);
+    try {
+      const blob = await getCroppedBlob(rawSrc, croppedAreaPixels);
+      const formData = new FormData();
+      formData.append("file", blob, `cover-${Date.now()}.jpg`);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url } = await res.json();
+      onChange(url);
+      setCropOpen(false);
+      setRawSrc(null);
+      toast({ title: "Sampul berhasil diupload!" });
+    } catch {
+      toast({ title: "Gagal upload sampul", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex gap-2 items-center flex-wrap">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+          data-testid="button-upload-cover"
+        >
+          <Upload size={14} className="mr-1.5" /> Upload Sampul
+        </Button>
+        {value && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+            onClick={() => onChange("")}
+            data-testid="button-remove-cover"
+          >
+            <RotateCcw size={14} className="mr-1.5" /> Hapus
+          </Button>
+        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+          data-testid="input-cover-file"
+        />
+      </div>
+
+      {value ? (
+        <div className="mt-2 relative w-24">
+          <img
+            src={value}
+            alt="Sampul"
+            className="w-24 aspect-[2/3] object-cover rounded-lg border border-border"
+          />
+        </div>
+      ) : (
+        <div
+          className="mt-2 w-24 aspect-[2/3] rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:bg-muted/30 transition-colors"
+          onClick={() => fileInputRef.current?.click()}
+          data-testid="cover-placeholder"
+        >
+          <ImageIcon size={20} className="text-muted-foreground mb-1" />
+          <span className="text-[10px] text-muted-foreground">2:3</span>
+        </div>
+      )}
+
+      {/* Fallback: manual URL input */}
+      <div className="mt-2">
+        <Input
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder="atau paste URL gambar..."
+          className="text-xs h-8"
+          data-testid="input-story-cover-url"
+        />
+      </div>
+
+      {/* Crop Dialog */}
+      <Dialog open={cropOpen} onOpenChange={open => { if (!open) { setCropOpen(false); setRawSrc(null); } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Crop Sampul</DialogTitle>
+          </DialogHeader>
+          <div className="relative w-full h-72 bg-black rounded-lg overflow-hidden">
+            {rawSrc && (
+              <Cropper
+                image={rawSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={2 / 3}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            )}
+          </div>
+          <div className="space-y-2 pt-1">
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground w-10">Zoom</span>
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.05}
+                value={zoom}
+                onChange={e => setZoom(Number(e.target.value))}
+                className="flex-1 accent-primary"
+                data-testid="slider-crop-zoom"
+              />
+              <span className="text-xs text-muted-foreground w-8 text-right">{zoom.toFixed(1)}x</span>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setCropOpen(false); setRawSrc(null); }}>Batal</Button>
+            <Button onClick={handleConfirmCrop} disabled={uploading} data-testid="button-confirm-crop">
+              {uploading ? "Mengupload..." : "Gunakan Gambar Ini"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }
 
 // ── Story Form ────────────────────────────────────────────────────────────
@@ -67,11 +261,8 @@ function StoryForm({
         <Textarea value={form.description} onChange={e => set("description", e.target.value)} rows={3} placeholder="Sinopsis cerita..." data-testid="input-story-description" />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">URL Sampul</label>
-        <Input value={form.coverUrl} onChange={e => set("coverUrl", e.target.value)} placeholder="https://..." data-testid="input-story-cover" />
-        {form.coverUrl && (
-          <img src={form.coverUrl} alt="preview" className="mt-2 w-24 aspect-[2/3] object-cover rounded-lg border border-border" />
-        )}
+        <label className="text-sm font-medium mb-1 block">Sampul</label>
+        <CoverUploadCrop value={form.coverUrl} onChange={v => set("coverUrl", v)} />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -228,7 +419,6 @@ export default function ManageNovel() {
   const [seasonDialog, setSeasonDialog] = useState<{ open: boolean; season?: NovelSeason }>({ open: false });
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; type: string; id: string; name: string } | null>(null);
 
-  // Queries
   const { data: stories, isLoading: storiesLoading } = useQuery<NovelStory[]>({
     queryKey: ["/api/novel/stories/all"],
   });
@@ -245,7 +435,6 @@ export default function ManageNovel() {
     enabled: !!selectedSeason?.id,
   });
 
-  // Mutations - Stories
   const createStory = useMutation({
     mutationFn: (data: any) => apiRequest("POST", "/api/novel/stories", data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories/all"] }); setStoryDialog({ open: false }); toast({ title: "Cerita berhasil dibuat!" }); },
@@ -264,7 +453,6 @@ export default function ManageNovel() {
     onError: () => toast({ title: "Gagal menghapus", variant: "destructive" }),
   });
 
-  // Mutations - Seasons
   const createSeason = useMutation({
     mutationFn: (data: any) => apiRequest("POST", "/api/novel/seasons", data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories", selectedStory?.id, "seasons"] }); setSeasonDialog({ open: false }); toast({ title: "Season berhasil dibuat!" }); },
@@ -283,7 +471,6 @@ export default function ManageNovel() {
     onError: () => toast({ title: "Gagal menghapus season", variant: "destructive" }),
   });
 
-  // Mutations - Chapters
   const deleteChapter = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/novel/chapters/${id}`),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/seasons", selectedSeason?.id, "chapters"] }); setDeleteDialog(null); toast({ title: "Bab dihapus!" }); },
@@ -302,7 +489,6 @@ export default function ManageNovel() {
     if (deleteDialog.type === "chapter") deleteChapter.mutate(deleteDialog.id);
   };
 
-  // ── Write view ────────────────────────────────────────────────────────
   if (view === "write" && selectedSeason) {
     return (
       <div className="min-h-screen bg-background">
