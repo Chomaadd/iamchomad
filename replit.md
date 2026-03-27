@@ -122,6 +122,14 @@ Credentials are configured via environment secrets:
 - `npm run build` - Build for production
 - Production: `node ./dist/index.cjs` serves from `build/` directory
 
+## Blog Update Convention
+- Setiap ada pembaruan website (fitur baru, bug fix, dll), buatkan **postingan baru yang terpisah** di blog dengan tag "Update"
+- Jangan digabungkan ke postingan sebelumnya — tiap sesi/hari kerja = satu postingan baru
+- Format judul: "Pembaruan [Tanggal] — [ringkasan singkat perubahan]"
+- Slug: `pembaruan-[tanggal]-[slug-singkat]`, contoh: `pembaruan-27-maret-chapter-waktu-terbit`
+- Isi postingan: ringkasan semua perubahan hari itu (fitur baru, bug fix, dll)
+- Banner bisa diupload sendiri oleh Mad melalui Admin → Blog
+
 ## Key Implementation Details
 - File uploads stored in MongoDB GridFS (persistent across deployments), served at `/uploads/:filename`
 - Falls back to local `./uploads/` directory for legacy files
