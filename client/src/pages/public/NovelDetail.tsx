@@ -16,14 +16,37 @@ const STATUS_COLOR: Record<string, string> = {
   hiatus: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
 };
 
-function estimateReadTime(content: string) {
-  const text = (content ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-  return Math.max(1, Math.ceil(text.split(/\s+/).filter(Boolean).length / 200));
+function timeAgo(date: string | Date, lang: string): string {
+  const now = Date.now();
+  const then = new Date(date).getTime();
+  const diff = Math.max(0, now - then);
+
+  const minutes = Math.floor(diff / 60000);
+  const hours   = Math.floor(diff / 3600000);
+  const days    = Math.floor(diff / 86400000);
+  const months  = Math.floor(days / 30);
+  const years   = Math.floor(days / 365);
+
+  if (lang === "id") {
+    if (minutes < 1)   return "Baru saja";
+    if (minutes < 60)  return `${minutes} menit lalu`;
+    if (hours < 24)    return `${hours} jam lalu`;
+    if (days < 30)     return `${days} hari lalu`;
+    if (months < 12)   return `${months} bulan lalu`;
+    return `${years} tahun lalu`;
+  } else {
+    if (minutes < 1)   return "Just now";
+    if (minutes < 60)  return `${minutes}m ago`;
+    if (hours < 24)    return `${hours}h ago`;
+    if (days < 30)     return `${days}d ago`;
+    if (months < 12)   return `${months}mo ago`;
+    return `${years}y ago`;
+  }
 }
 
 function SeasonAccordion({ story, season }: { story: NovelStory; season: NovelSeason }) {
   const [open, setOpen] = useState(true);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const { data: chapters, isLoading } = useQuery<NovelChapter[]>({
     queryKey: ["/api/novel/seasons", season.id, "chapters"],
@@ -70,7 +93,7 @@ function SeasonAccordion({ story, season }: { story: NovelStory; season: NovelSe
                   </div>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Clock size={12} />
-                    <span>{estimateReadTime(ch.content)} {t("novel.detail.min")}</span>
+                    <span>{ch.createdAt ? timeAgo(ch.createdAt, language) : "—"}</span>
                   </div>
                 </div>
               </Link>
