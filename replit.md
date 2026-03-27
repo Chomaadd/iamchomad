@@ -125,6 +125,7 @@ Credentials are configured via environment secrets:
 ## Blog Update Convention
 - Setiap ada pembaruan website (fitur baru, bug fix, dll), buatkan **postingan baru yang terpisah** di blog dengan tag "Update"
 - Jangan digabungkan ke postingan sebelumnya — tiap sesi/hari kerja = satu postingan baru
+- **Tunggu semua pekerjaan dalam satu sesi selesai dulu**, baru buat satu postingan blog yang merangkum semuanya — jangan posting 1 per 1 setiap perubahan kecil
 - Format judul: "Pembaruan [Tanggal] — [ringkasan singkat perubahan]"
 - Slug: `pembaruan-[tanggal]-[slug-singkat]`, contoh: `pembaruan-27-maret-chapter-waktu-terbit`
 - Isi postingan: ringkasan semua perubahan hari itu (fitur baru, bug fix, dll)
