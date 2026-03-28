@@ -41,6 +41,18 @@ const translations: Record<Language, Record<string, string>> = {
     "about.highlight.editorial": "Editorial Design",
     "about.highlight.editorial.desc": "Crafting typography-driven narrative experiences.",
 
+    "about.skills.title": "Skills & Tech Stack",
+    "about.skills.subtitle": "Technologies and tools I work with regularly.",
+    "about.skills.programming": "Programming",
+    "about.skills.design": "Design",
+    "about.skills.tools": "Tools",
+    "about.skills.softskills": "Soft Skills",
+
+    "about.cta.title": "Let's Work Together",
+    "about.cta.desc": "Have a project in mind, or just want to say hello? I'd love to hear from you.",
+    "about.cta.contact": "Get in Touch",
+    "about.cta.links": "See My Links",
+
     "blog.badge": "Blog",
     "blog.heading": "Thoughts & Stories",
     "blog.description": "Thoughts, essays, and observations on design, technology, and the creative process.",
@@ -181,6 +193,18 @@ const translations: Record<Language, Record<string, string>> = {
     "about.highlight.digital.desc": "Menstruktur sistem kompleks dengan keanggunan intuitif.",
     "about.highlight.editorial": "Desain Editorial",
     "about.highlight.editorial.desc": "Menciptakan pengalaman naratif berbasis tipografi.",
+
+    "about.skills.title": "Skill & Tech Stack",
+    "about.skills.subtitle": "Teknologi dan alat yang rutin saya gunakan.",
+    "about.skills.programming": "Pemrograman",
+    "about.skills.design": "Desain",
+    "about.skills.tools": "Tools",
+    "about.skills.softskills": "Soft Skills",
+
+    "about.cta.title": "Yuk, Kerja Sama!",
+    "about.cta.desc": "Punya proyek yang ingin dikerjakan, atau sekadar mau menyapa? Saya senang mendengar dari kamu.",
+    "about.cta.contact": "Hubungi Saya",
+    "about.cta.links": "Lihat Tautan Saya",
 
     "blog.badge": "Blog",
     "blog.heading": "Pemikiran & Cerita",
