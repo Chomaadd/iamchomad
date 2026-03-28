@@ -8,8 +8,16 @@ import { SeoHead } from "@/components/seometa/SeoHead";
 import { useLanguage } from "@/hooks/use-language";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Search, X } from "lucide-react";
+import { BookOpen, Search, X, BookMarked, Sparkles } from "lucide-react";
 import type { NovelStory } from "@shared/schema";
+
+type StoryWithStats = NovelStory & { totalChapters: number; lastChapterAt: string | null };
+
+function isNewlyUpdated(lastChapterAt: string | null): boolean {
+  if (!lastChapterAt) return false;
+  const diff = Date.now() - new Date(lastChapterAt).getTime();
+  return diff < 7 * 24 * 60 * 60 * 1000;
+}
 
 const STATUS_COLOR: Record<string, string> = {
   ongoing: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
@@ -27,7 +35,7 @@ export default function Novel() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  const { data: stories, isLoading } = useQuery<NovelStory[]>({
+  const { data: stories, isLoading } = useQuery<StoryWithStats[]>({
     queryKey: ["/api/novel/stories"],
   });
 
@@ -161,12 +169,27 @@ export default function Novel() {
                           {STATUS_LABEL[story.status] ?? story.status}
                         </span>
                       </div>
+                      {/* Baru Diperbarui badge */}
+                      {isNewlyUpdated(story.lastChapterAt) && (
+                        <div className="absolute top-2 right-2">
+                          <span className="flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-orange-500 text-white shadow">
+                            <Sparkles size={9} /> Baru
+                          </span>
+                        </div>
+                      )}
                     </div>
                     {/* Info */}
                     <h3 className="font-semibold text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors leading-snug mb-1" data-testid={`text-story-title-${story.id}`}>
                       {story.title}
                     </h3>
-                    <p className="text-xs text-muted-foreground capitalize mb-1">{story.category}</p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-xs text-muted-foreground capitalize">{story.category}</p>
+                      {story.totalChapters > 0 && (
+                        <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                          <BookMarked size={10} /> {story.totalChapters} bab
+                        </span>
+                      )}
+                    </div>
                     {(story.tags ?? []).length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {(story.tags ?? []).slice(0, 2).map(tag => (

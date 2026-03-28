@@ -38,6 +38,8 @@ import ManageNovel from "./pages/admin/ManageNovel";
 import NotFound from "@/pages/public/Not-Found";
 
 import { usePageTracker } from "@/hooks/use-analytics";
+import { MusicPlayerProvider } from "@/hooks/use-music-player";
+import { MiniPlayer } from "@/components/layout/MiniPlayer";
 
 function Router() {
   usePageTracker();
@@ -83,10 +85,13 @@ function App() {
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <LanguageProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
+          <MusicPlayerProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+              <MiniPlayer />
+            </TooltipProvider>
+          </MusicPlayerProvider>
         </LanguageProvider>
       </QueryClientProvider>
     </HelmetProvider>

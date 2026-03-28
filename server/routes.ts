@@ -857,7 +857,21 @@ ${blogEntries}
   app.get("/api/novel/stories", async (req, res) => {
     try {
       const stories = await storage.getNovelStories(true);
-      res.json(stories);
+      const enriched = await Promise.all(stories.map(async (story) => {
+        const seasons = await storage.getNovelSeasons(story.id);
+        let totalChapters = 0;
+        let lastChapterAt: Date | null = null;
+        for (const season of seasons) {
+          const chapters = await storage.getNovelChapters(season.id, true);
+          totalChapters += chapters.length;
+          for (const ch of chapters) {
+            const d = new Date((ch as any).createdAt);
+            if (!lastChapterAt || d > lastChapterAt) lastChapterAt = d;
+          }
+        }
+        return { ...story, totalChapters, lastChapterAt };
+      }));
+      res.json(enriched);
     } catch { res.status(500).json({ message: "Internal server error" }); }
   });
 

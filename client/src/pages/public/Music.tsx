@@ -1,60 +1,45 @@
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { useMusicTracks } from "@/hooks/use-music";
-import { Play, Pause, Music2, Headphones } from "lucide-react";
+import { Play, Pause, Music2, Headphones, SkipBack, SkipForward, Shuffle, Repeat, Repeat1 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/hooks/use-language";
 import { SeoHead } from "@/components/seometa/SeoHead";
+import { useMusicPlayer } from "@/hooks/use-music-player";
+import { useMusicTracks } from "@/hooks/use-music";
+
+function formatTime(s: number) {
+  if (!s || isNaN(s)) return "0:00";
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2, "0")}`;
+}
 
 export default function Music() {
   const { data: tracks, isLoading } = useMusicTracks();
   const { t } = useLanguage();
-  const [playing, setPlaying] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const {
+    currentTrack, isPlaying, currentTime, duration,
+    shuffle, repeat,
+    play, togglePlay, next, prev, seek, toggleShuffle, toggleRepeat
+  } = useMusicPlayer();
 
-  useEffect(() => {
-    if (tracks && tracks.length > 0) {
-      const autoPlayTrack = tracks.find(t => t.isAutoPlay) || tracks[0];
-      setPlaying(autoPlayTrack.id);
-    }
-  }, [tracks]);
-
-  useEffect(() => {
-    if (audioRef.current && playing) {
-      const track = tracks?.find(t => t.id === playing);
-      if (track) {
-        audioRef.current.src = track.audioUrl;
-        audioRef.current.play().catch(e => console.log("Autoplay blocked by browser", e));
-      }
-    } else if (audioRef.current && !playing) {
-      audioRef.current.pause();
-    }
-  }, [playing, tracks]);
-
-  const handleTrackEnd = () => {
-    if (!tracks || tracks.length === 0) return;
-    const currentIndex = tracks.findIndex(t => t.id === playing);
-    const nextIndex = (currentIndex + 1) % tracks.length;
-    setPlaying(tracks[nextIndex].id);
-  };
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       <SeoHead
         title="Sound"
         description="Music and audio collection by Choiril Ahmad — a personal selection of sounds and compositions."
         url="/music"
       />
       <Navbar />
-      <audio ref={audioRef} onEnded={handleTrackEnd} />
 
       <main className="max-w-4xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
         <motion.header
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-14 text-center"
+          className="mb-10 text-center"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider">
             <Headphones size={14} /> {t("music.badge")}
@@ -67,6 +52,90 @@ export default function Music() {
           </p>
         </motion.header>
 
+        {/* Now Playing Card */}
+        {currentTrack && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 p-5 rounded-2xl bg-primary/5 border border-primary/20 shadow-sm"
+          >
+            <div className="flex items-center gap-4 mb-4">
+              {currentTrack.albumArt ? (
+                <img src={currentTrack.albumArt} alt={currentTrack.title}
+                  className={`w-14 h-14 rounded-xl object-cover shrink-0 ${isPlaying ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Music2 size={22} className="text-primary/50" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-0.5">
+                  {isPlaying ? "▶ Now Playing" : "Paused"}
+                </p>
+                <h2 className="font-bold text-foreground truncate leading-tight">{currentTrack.title}</h2>
+                <p className="text-sm text-muted-foreground truncate">{currentTrack.artist}</p>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mb-3">
+              <div
+                className="relative h-1.5 bg-muted rounded-full cursor-pointer group mb-1"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const ratio = (e.clientX - rect.left) / rect.width;
+                  seek(ratio * duration);
+                }}
+              >
+                <div className="h-full bg-primary rounded-full transition-all duration-100" style={{ width: `${progress}%` }} />
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-primary shadow-md opacity-0 group-hover:opacity-100 transition-opacity -ml-1.5"
+                  style={{ left: `${progress}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-xs font-mono text-muted-foreground">
+                <span>{formatTime(currentTime)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={toggleShuffle}
+                className={`p-2 rounded-lg transition-colors ${shuffle ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                data-testid="button-shuffle"
+                title="Shuffle"
+              >
+                <Shuffle size={18} />
+              </button>
+              <button onClick={prev} className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors" data-testid="button-prev">
+                <SkipBack size={22} />
+              </button>
+              <button
+                onClick={togglePlay}
+                className="w-12 h-12 flex items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-lg shadow-primary/30"
+                data-testid="button-play-main"
+              >
+                {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
+              </button>
+              <button onClick={next} className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors" data-testid="button-next">
+                <SkipForward size={22} />
+              </button>
+              <button
+                onClick={toggleRepeat}
+                className={`p-2 rounded-lg transition-colors ${repeat !== "none" ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                data-testid="button-repeat"
+                title={repeat === "none" ? "No repeat" : repeat === "all" ? "Repeat all" : "Repeat one"}
+              >
+                {repeat === "one" ? <Repeat1 size={18} /> : <Repeat size={18} />}
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Track List */}
         {isLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -82,44 +151,53 @@ export default function Music() {
             ))}
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {tracks?.map((track, i) => {
-              const isPlaying = playing === track.id;
+              const isActive = currentTrack?.id === track.id;
               return (
                 <motion.div
                   key={track.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className={`flex items-center gap-4 p-4 rounded-xl border transition-all duration-200 ${
-                    isPlaying
-                      ? "bg-primary/5 border-primary/30 soft-shadow"
+                  transition={{ delay: i * 0.04 }}
+                  onClick={() => play(track)}
+                  className={`flex items-center gap-4 p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+                    isActive
+                      ? "bg-primary/5 border-primary/30"
                       : "bg-card border-border/60 hover:border-border hover:bg-accent/50"
                   }`}
                   data-testid={`card-track-${track.id}`}
                 >
-                  <button
-                    onClick={() => setPlaying(isPlaying ? null : track.id)}
-                    className={`w-11 h-11 flex items-center justify-center rounded-full shrink-0 transition-all ${
-                      isPlaying
-                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
-                        : "bg-accent text-foreground hover:bg-primary hover:text-primary-foreground"
-                    }`}
-                    data-testid={`button-play-${track.id}`}
-                  >
-                    {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
-                  </button>
+                  <div className={`w-9 h-9 flex items-center justify-center rounded-full shrink-0 transition-all ${
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
+                      : "bg-accent text-foreground"
+                  }`}>
+                    {isActive && isPlaying ? (
+                      <span className="flex gap-0.5 items-end h-4">
+                        {[1, 2, 3].map(j => (
+                          <span key={j} className="w-0.5 bg-current rounded-sm animate-bounce"
+                            style={{ height: `${40 + j * 20}%`, animationDelay: `${j * 0.12}s` }}
+                          />
+                        ))}
+                      </span>
+                    ) : isActive ? (
+                      <Pause size={15} fill="currentColor" />
+                    ) : (
+                      <Play size={15} fill="currentColor" className="ml-0.5" />
+                    )}
+                  </div>
 
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     {track.albumArt ? (
-                      <img src={track.albumArt} alt={track.title} className="w-11 h-11 rounded-lg object-cover shrink-0" />
+                      <img src={track.albumArt} alt={track.title} className="w-10 h-10 rounded-lg object-cover shrink-0" />
                     ) : (
-                      <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-primary/10 to-violet-500/10 flex items-center justify-center shrink-0">
-                        <Music2 size={18} className="text-primary/50" />
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/10 to-violet-500/10 flex items-center justify-center shrink-0">
+                        <Music2 size={16} className="text-primary/50" />
                       </div>
                     )}
                     <div className="min-w-0">
-                      <h3 className={`font-semibold text-sm leading-tight truncate ${isPlaying ? "text-primary" : ""}`}>{track.title}</h3>
+                      <h3 className={`font-semibold text-sm leading-tight truncate ${isActive ? "text-primary" : ""}`}>{track.title}</h3>
                       <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
                     </div>
                   </div>
