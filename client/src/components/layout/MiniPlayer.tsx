@@ -1,6 +1,6 @@
 import { useMusicPlayer } from "@/hooks/use-music-player";
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Repeat1, Music2, ChevronDown, ListMusic, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 
 function formatTime(s: number) {
@@ -13,16 +13,24 @@ function formatTime(s: number) {
 export function MiniPlayer() {
   const {
     currentTrack, isPlaying, currentTime, duration,
-    shuffle, repeat, queue,
+    shuffle, repeat, queue, hasInteracted,
     play, togglePlay, next, prev, seek, toggleShuffle, toggleRepeat
   } = useMusicPlayer();
 
   const [dismissed, setDismissed] = useState(false);
   const [showQueue, setShowQueue] = useState(false);
 
+  // Re-show mini player when music starts playing again after dismiss
+  useEffect(() => {
+    if (isPlaying && dismissed) {
+      setDismissed(false);
+    }
+  }, [isPlaying]);
+
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  if (!currentTrack || dismissed) return null;
+  // Only show after user has interacted with music (not on page load across all pages)
+  if (!currentTrack || !hasInteracted || dismissed) return null;
 
   const handleDismiss = () => {
     if (isPlaying) togglePlay();

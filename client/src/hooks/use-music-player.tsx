@@ -12,6 +12,7 @@ interface MusicPlayerState {
   shuffle: boolean;
   repeat: RepeatMode;
   queue: MusicTrack[];
+  hasInteracted: boolean;
 }
 
 interface MusicPlayerActions {
@@ -22,6 +23,7 @@ interface MusicPlayerActions {
   seek: (time: number) => void;
   toggleShuffle: () => void;
   toggleRepeat: () => void;
+  triggerAutoPlay: () => void;
 }
 
 const MusicPlayerContext = createContext<(MusicPlayerState & MusicPlayerActions) | null>(null);
@@ -37,6 +39,7 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState<RepeatMode>("none");
   const [shuffledQueue, setShuffledQueue] = useState<MusicTrack[]>([]);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   // Refs that always hold the latest values for use inside event listeners
   const currentTrackRef = useRef<MusicTrack | null>(null);
@@ -44,12 +47,14 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const currentTimeRef = useRef(0);
   const repeatRef = useRef<RepeatMode>("none");
   const queueRef = useRef<MusicTrack[]>([]);
+  const hasInteractedRef = useRef(false);
 
   // Keep refs in sync with state
   useEffect(() => { currentTrackRef.current = currentTrack; }, [currentTrack]);
   useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
   useEffect(() => { currentTimeRef.current = currentTime; }, [currentTime]);
   useEffect(() => { repeatRef.current = repeat; }, [repeat]);
+  useEffect(() => { hasInteractedRef.current = hasInteracted; }, [hasInteracted]);
 
   // Build queue (shuffled or normal)
   const queue = shuffle ? shuffledQueue : (tracks ?? []);
@@ -70,10 +75,9 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
 
     const onTimeUpdate = () => setCurrentTime(audio.currentTime);
     const onDurationChange = () => setDuration(isFinite(audio.duration) ? audio.duration : 0);
-    const onPlay = () => setIsPlaying(true);
+    const onPlay = () => { setIsPlaying(true); setHasInteracted(true); };
     const onPause = () => setIsPlaying(false);
     const onEnded = () => {
-      // Uses refs so always has latest values
       const r = repeatRef.current;
       const q = queueRef.current;
       const ct = currentTrackRef.current;
@@ -119,20 +123,25 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
     };
   }, []);
 
-  // Load initial track and attempt autoplay
-  useEffect(() => {
-    if (tracks && tracks.length > 0 && !currentTrackRef.current) {
-      const autoPlay = tracks.find(t => t.isAutoPlay) || tracks[0];
-      const audio = audioRef.current;
-      if (!audio) return;
+  // triggerAutoPlay — called ONLY by Music page on mount.
+  // Guarded: won't force autoplay again after user has already interacted.
+  const triggerAutoPlay = useCallback(() => {
+    if (hasInteractedRef.current) return;
+    const t = tracks;
+    if (!t || t.length === 0) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+    const autoPlay = t.find(tr => tr.isAutoPlay) || t[0];
+    if (!currentTrackRef.current) {
       setCurrentTrack(autoPlay);
       currentTrackRef.current = autoPlay;
-      audio.src = autoPlay.audioUrl;
-      audio.load();
-      audio.play().catch(() => {
-        // Browser blocked autoplay — user needs to click play manually, that's OK
-      });
     }
+    const trackToPlay = currentTrackRef.current || autoPlay;
+    if (!audio.src || !audio.src.endsWith(trackToPlay.audioUrl)) {
+      audio.src = trackToPlay.audioUrl;
+      audio.load();
+    }
+    audio.play().catch(() => {});
   }, [tracks]);
 
   const play = useCallback((track: MusicTrack) => {
@@ -217,8 +226,8 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   return (
     <MusicPlayerContext.Provider value={{
       currentTrack, isPlaying, currentTime, duration,
-      shuffle, repeat, queue,
-      play, togglePlay, next, prev, seek, toggleShuffle, toggleRepeat,
+      shuffle, repeat, queue, hasInteracted,
+      play, togglePlay, next, prev, seek, toggleShuffle, toggleRepeat, triggerAutoPlay,
     }}>
       {children}
     </MusicPlayerContext.Provider>

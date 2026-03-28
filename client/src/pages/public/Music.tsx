@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Play, Pause, Music2, Headphones, SkipBack, SkipForward, Shuffle, Repeat, Repeat1 } from "lucide-react";
@@ -21,8 +22,17 @@ export default function Music() {
   const {
     currentTrack, isPlaying, currentTime, duration,
     shuffle, repeat,
-    play, togglePlay, next, prev, seek, toggleShuffle, toggleRepeat
+    play, togglePlay, next, prev, seek, toggleShuffle, toggleRepeat, triggerAutoPlay
   } = useMusicPlayer();
+
+  // Auto-play ONLY when visiting this page, and only once per session
+  const triggeredRef = useRef(false);
+  useEffect(() => {
+    if (tracks && tracks.length > 0 && !triggeredRef.current) {
+      triggeredRef.current = true;
+      triggerAutoPlay();
+    }
+  }, [tracks, triggerAutoPlay]);
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
