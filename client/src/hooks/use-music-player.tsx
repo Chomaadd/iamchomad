@@ -119,7 +119,7 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
     };
   }, []);
 
-  // Load initial track (no autoplay)
+  // Load initial track and attempt autoplay
   useEffect(() => {
     if (tracks && tracks.length > 0 && !currentTrackRef.current) {
       const autoPlay = tracks.find(t => t.isAutoPlay) || tracks[0];
@@ -129,6 +129,9 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
       currentTrackRef.current = autoPlay;
       audio.src = autoPlay.audioUrl;
       audio.load();
+      audio.play().catch(() => {
+        // Browser blocked autoplay — user needs to click play manually, that's OK
+      });
     }
   }, [tracks]);
 
