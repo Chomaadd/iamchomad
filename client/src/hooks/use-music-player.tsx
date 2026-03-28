@@ -38,125 +38,161 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const [repeat, setRepeat] = useState<RepeatMode>("none");
   const [shuffledQueue, setShuffledQueue] = useState<MusicTrack[]>([]);
 
+  // Refs that always hold the latest values for use inside event listeners
+  const currentTrackRef = useRef<MusicTrack | null>(null);
+  const isPlayingRef = useRef(false);
+  const currentTimeRef = useRef(0);
+  const repeatRef = useRef<RepeatMode>("none");
+  const queueRef = useRef<MusicTrack[]>([]);
+
+  // Keep refs in sync with state
+  useEffect(() => { currentTrackRef.current = currentTrack; }, [currentTrack]);
+  useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
+  useEffect(() => { currentTimeRef.current = currentTime; }, [currentTime]);
+  useEffect(() => { repeatRef.current = repeat; }, [repeat]);
+
+  // Build queue (shuffled or normal)
+  const queue = shuffle ? shuffledQueue : (tracks ?? []);
+  useEffect(() => { queueRef.current = queue; }, [queue]);
+
+  // When shuffle changes, rebuild the shuffled queue
+  useEffect(() => {
+    if (tracks && tracks.length > 0) {
+      const shuffled = [...tracks].sort(() => Math.random() - 0.5);
+      setShuffledQueue(shuffled);
+    }
+  }, [shuffle, tracks]);
+
+  // Init audio element once
   useEffect(() => {
     if (!audioRef.current) audioRef.current = new Audio();
     const audio = audioRef.current;
 
     const onTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const onDuration = () => setDuration(audio.duration || 0);
-    const onEnded = () => handleEnded();
+    const onDurationChange = () => setDuration(isFinite(audio.duration) ? audio.duration : 0);
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
+    const onEnded = () => {
+      // Uses refs so always has latest values
+      const r = repeatRef.current;
+      const q = queueRef.current;
+      const ct = currentTrackRef.current;
 
-    audio.addEventListener("timeupdate", onTimeUpdate);
-    audio.addEventListener("durationchange", onDuration);
-    audio.addEventListener("loadedmetadata", onDuration);
-    audio.addEventListener("ended", onEnded);
-    audio.addEventListener("play", onPlay);
-    audio.addEventListener("pause", onPause);
-
-    return () => {
-      audio.removeEventListener("timeupdate", onTimeUpdate);
-      audio.removeEventListener("durationchange", onDuration);
-      audio.removeEventListener("loadedmetadata", onDuration);
-      audio.removeEventListener("ended", onEnded);
-      audio.removeEventListener("play", onPlay);
-      audio.removeEventListener("pause", onPause);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (tracks && tracks.length > 0 && !currentTrack) {
-      const autoPlay = tracks.find(t => t.isAutoPlay) || tracks[0];
-      loadTrack(autoPlay, false);
-    }
-  }, [tracks]);
-
-  useEffect(() => {
-    if (tracks) {
-      if (shuffle) {
-        const shuffled = [...tracks].sort(() => Math.random() - 0.5);
-        setShuffledQueue(shuffled);
-      } else {
-        setShuffledQueue([...tracks]);
+      if (r === "one") {
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+        return;
       }
-    }
-  }, [tracks, shuffle]);
-
-  const queue = shuffle ? shuffledQueue : (tracks ?? []);
-
-  function loadTrack(track: MusicTrack, autoplay = true) {
-    const audio = audioRef.current;
-    if (!audio) return;
-    setCurrentTrack(track);
-    setCurrentTime(0);
-    setDuration(0);
-    audio.src = track.audioUrl;
-    audio.load();
-    if (autoplay) {
-      audio.play().catch(() => {});
-    }
-  }
-
-  function handleEnded() {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (repeat === "one") {
-      audio.currentTime = 0;
-      audio.play().catch(() => {});
-      return;
-    }
-    if (queue.length === 0) return;
-    const idx = queue.findIndex(t => t.id === currentTrack?.id);
-    if (repeat === "all") {
-      const next = queue[(idx + 1) % queue.length];
-      loadTrack(next, true);
-    } else {
-      if (idx < queue.length - 1) {
-        loadTrack(queue[idx + 1], true);
+      if (q.length === 0) return;
+      const idx = q.findIndex(t => t.id === ct?.id);
+      if (r === "all" || idx < q.length - 1) {
+        const nextIdx = (idx + 1) % q.length;
+        if (r === "none" && idx >= q.length - 1) {
+          setIsPlaying(false);
+          return;
+        }
+        const nextTrack = q[nextIdx];
+        setCurrentTrack(nextTrack);
+        currentTrackRef.current = nextTrack;
+        audio.src = nextTrack.audioUrl;
+        audio.load();
+        audio.play().catch(() => {});
       } else {
         setIsPlaying(false);
       }
+    };
+
+    audio.addEventListener("timeupdate", onTimeUpdate);
+    audio.addEventListener("durationchange", onDurationChange);
+    audio.addEventListener("loadedmetadata", onDurationChange);
+    audio.addEventListener("play", onPlay);
+    audio.addEventListener("pause", onPause);
+    audio.addEventListener("ended", onEnded);
+
+    return () => {
+      audio.removeEventListener("timeupdate", onTimeUpdate);
+      audio.removeEventListener("durationchange", onDurationChange);
+      audio.removeEventListener("loadedmetadata", onDurationChange);
+      audio.removeEventListener("play", onPlay);
+      audio.removeEventListener("pause", onPause);
+      audio.removeEventListener("ended", onEnded);
+    };
+  }, []);
+
+  // Load initial track (no autoplay)
+  useEffect(() => {
+    if (tracks && tracks.length > 0 && !currentTrackRef.current) {
+      const autoPlay = tracks.find(t => t.isAutoPlay) || tracks[0];
+      const audio = audioRef.current;
+      if (!audio) return;
+      setCurrentTrack(autoPlay);
+      currentTrackRef.current = autoPlay;
+      audio.src = autoPlay.audioUrl;
+      audio.load();
     }
-  }
+  }, [tracks]);
 
   const play = useCallback((track: MusicTrack) => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (currentTrack?.id === track.id) {
-      if (isPlaying) audio.pause();
+    if (currentTrackRef.current?.id === track.id) {
+      if (isPlayingRef.current) audio.pause();
       else audio.play().catch(() => {});
     } else {
-      loadTrack(track, true);
+      setCurrentTrack(track);
+      currentTrackRef.current = track;
+      setCurrentTime(0);
+      setDuration(0);
+      audio.src = track.audioUrl;
+      audio.load();
+      audio.play().catch(() => {});
     }
-  }, [currentTrack, isPlaying]);
+  }, []);
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (isPlaying) audio.pause();
+    if (isPlayingRef.current) audio.pause();
     else audio.play().catch(() => {});
-  }, [isPlaying]);
+  }, []);
 
   const next = useCallback(() => {
-    if (queue.length === 0) return;
-    const idx = queue.findIndex(t => t.id === currentTrack?.id);
-    const nextIdx = (idx + 1) % queue.length;
-    loadTrack(queue[nextIdx], isPlaying);
-  }, [queue, currentTrack, isPlaying]);
+    const audio = audioRef.current;
+    if (!audio) return;
+    const q = queueRef.current;
+    const ct = currentTrackRef.current;
+    if (q.length === 0) return;
+    const idx = q.findIndex(t => t.id === ct?.id);
+    const nextTrack = q[(idx + 1) % q.length];
+    setCurrentTrack(nextTrack);
+    currentTrackRef.current = nextTrack;
+    setCurrentTime(0);
+    setDuration(0);
+    audio.src = nextTrack.audioUrl;
+    audio.load();
+    audio.play().catch(() => {});
+  }, []);
 
   const prev = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (currentTime > 3) {
+    if (currentTimeRef.current > 3) {
       audio.currentTime = 0;
       return;
     }
-    if (queue.length === 0) return;
-    const idx = queue.findIndex(t => t.id === currentTrack?.id);
-    const prevIdx = (idx - 1 + queue.length) % queue.length;
-    loadTrack(queue[prevIdx], isPlaying);
-  }, [queue, currentTrack, currentTime, isPlaying]);
+    const q = queueRef.current;
+    const ct = currentTrackRef.current;
+    if (q.length === 0) return;
+    const idx = q.findIndex(t => t.id === ct?.id);
+    const prevTrack = q[(idx - 1 + q.length) % q.length];
+    setCurrentTrack(prevTrack);
+    currentTrackRef.current = prevTrack;
+    setCurrentTime(0);
+    setDuration(0);
+    audio.src = prevTrack.audioUrl;
+    audio.load();
+    audio.play().catch(() => {});
+  }, []);
 
   const seek = useCallback((time: number) => {
     const audio = audioRef.current;
@@ -168,7 +204,11 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const toggleShuffle = useCallback(() => setShuffle(s => !s), []);
 
   const toggleRepeat = useCallback(() => {
-    setRepeat(r => r === "none" ? "all" : r === "all" ? "one" : "none");
+    setRepeat(r => {
+      const next = r === "none" ? "all" : r === "all" ? "one" : "none";
+      repeatRef.current = next;
+      return next;
+    });
   }, []);
 
   return (
