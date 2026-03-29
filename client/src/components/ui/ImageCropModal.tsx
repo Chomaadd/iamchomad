@@ -7,6 +7,7 @@ interface ImageCropModalProps {
   onCropDone: (croppedBlob: Blob) => void;
   onCancel: () => void;
   aspectRatio?: number;
+  cropShape?: "round" | "rect";
 }
 
 async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<Blob> {
@@ -37,7 +38,7 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<Blob> {
   });
 }
 
-export default function ImageCropModal({ imageSrc, onCropDone, onCancel, aspectRatio = 1 }: ImageCropModalProps) {
+export function ImageCropModal({ imageSrc, onCropDone, onCancel, aspectRatio = 1, cropShape = "round" }: ImageCropModalProps) {
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -83,7 +84,7 @@ export default function ImageCropModal({ imageSrc, onCropDone, onCancel, aspectR
         }}
       >
         <div style={{ color: "#fff", fontWeight: 700, fontSize: 15, marginBottom: 2 }}>
-          Crop Foto Profil
+          Crop Foto
         </div>
         <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, marginTop: -8 }}>
           Geser dan zoom foto untuk menyesuaikan area yang ingin ditampilkan.
@@ -99,7 +100,7 @@ export default function ImageCropModal({ imageSrc, onCropDone, onCancel, aspectR
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
-            cropShape="round"
+            cropShape={cropShape}
             showGrid={false}
           />
         </div>
@@ -161,3 +162,5 @@ export default function ImageCropModal({ imageSrc, onCropDone, onCancel, aspectR
     </div>
   );
 }
+
+export default ImageCropModal;

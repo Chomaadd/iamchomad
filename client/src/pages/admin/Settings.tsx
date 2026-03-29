@@ -117,20 +117,20 @@ export default function Settings() {
       {/* Crop Modals */}
       {avatarCropSrc && (
         <ImageCropModal
-          src={avatarCropSrc}
+          imageSrc={avatarCropSrc}
           cropShape="round"
-          aspect={1}
+          aspectRatio={1}
           onCropDone={blob => { setAvatarCropSrc(null); uploadImage(blob, "avatar"); }}
-          onClose={() => setAvatarCropSrc(null)}
+          onCancel={() => setAvatarCropSrc(null)}
         />
       )}
       {aboutCropSrc && (
         <ImageCropModal
-          src={aboutCropSrc}
+          imageSrc={aboutCropSrc}
           cropShape="rect"
-          aspect={3 / 4}
+          aspectRatio={3 / 4}
           onCropDone={blob => { setAboutCropSrc(null); uploadImage(blob, "about"); }}
-          onClose={() => setAboutCropSrc(null)}
+          onCancel={() => setAboutCropSrc(null)}
         />
       )}
 
