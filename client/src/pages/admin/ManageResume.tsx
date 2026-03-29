@@ -5,6 +5,7 @@ import { useSiteSettings, useUpdateSiteSettings } from "@/hooks/use-settings";
 import { Button, Input, Textarea, Label, Modal } from "@/components/ui/core";
 import { Plus, Edit2, Trash2, Briefcase, GraduationCap, Lightbulb, User, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ImageCropModal from "@/components/ui/ImageCropModal";
 import type { ResumeItem } from "@shared/schema";
 
 const typeConfig = {
@@ -23,6 +24,7 @@ export default function ManageResume() {
   const { toast } = useToast();
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -102,13 +104,21 @@ export default function ManageResume() {
     }
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setCropSrc(reader.result as string);
+    reader.readAsDataURL(file);
+    if (photoInputRef.current) photoInputRef.current.value = "";
+  };
+
+  const handleCropDone = async (blob: Blob) => {
+    setCropSrc(null);
     setUploadingPhoto(true);
     try {
       const fd = new FormData();
-      fd.append("file", file);
+      fd.append("file", blob, "photo.jpg");
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
@@ -118,7 +128,6 @@ export default function ManageResume() {
       toast({ title: "Gagal upload foto", variant: "destructive" });
     } finally {
       setUploadingPhoto(false);
-      if (photoInputRef.current) photoInputRef.current.value = "";
     }
   };
 
@@ -184,6 +193,14 @@ export default function ManageResume() {
 
   return (
     <AdminLayout>
+      {cropSrc && (
+        <ImageCropModal
+          imageSrc={cropSrc}
+          onCropDone={handleCropDone}
+          onCancel={() => { setCropSrc(null); }}
+          aspectRatio={1}
+        />
+      )}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-resume-admin-title">Resume / CV</h1>
@@ -338,7 +355,7 @@ export default function ManageResume() {
                   ref={photoInputRef}
                   accept="image/*"
                   className="hidden"
-                  onChange={handlePhotoUpload}
+                  onChange={handlePhotoFileSelect}
                   data-testid="input-resume-photo-file"
                 />
                 <div className="flex items-center gap-3 mt-1.5">

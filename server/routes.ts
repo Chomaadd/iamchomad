@@ -763,7 +763,8 @@ ${blogEntries}
       const {
         availabilityStatus, availabilityLabel, linksAvatarUrl, linksName, linksBio,
         resumeFullName, resumeTitle, resumeAbout, resumePhotoUrl,
-        resumeBirthDate, resumeNationality, resumePhone, resumeAddress,
+        resumeBirthDate, resumeBirthPlace, resumeReligion, resumeGender, resumeMarriagestatus,
+        resumeNationality, resumePhone, resumeAddress,
         resumeEmail, resumeWebsite,
       } = req.body;
       const settings = await storage.updateSiteSettings({
@@ -777,6 +778,10 @@ ${blogEntries}
         resumeAbout,
         resumePhotoUrl,
         resumeBirthDate,
+        resumeBirthPlace,
+        resumeReligion,
+        resumeGender,
+        resumeMarriagestatus,
         resumeNationality,
         resumePhone,
         resumeAddress,
@@ -1052,7 +1057,7 @@ ${blogEntries}
     "/contact": { title: `Contact | ${SITE_NAME}`, description: "Get in touch with Choiril Ahmad — send a message for collaborations, projects, or just to say hello." },
     "/links":   { title: `Links | ${SITE_NAME}`, description: "All of Choiril Ahmad's important links in one place — social media, portfolio, contact, and more." },
     "/pesan":   { title: `Anonymous Message | ${SITE_NAME}`, description: "Have something to say? Send an anonymous message to Choiril Ahmad — your identity is 100% protected." },
-    "/novel":   { title: `Novel & Komik | ${SITE_NAME}`, description: "Kumpulan novel dan komik karya Choiril Ahmad — cerita dengan dunia yang kaya dan karakter yang hidup." },
+    "/novel":   { title: `Novel & Comic | ${SITE_NAME}`, description: "A collection of novels and comics, stories with a rich world and lively characters." },
   };
 
   const SOCIAL_BOTS = ["WhatsApp", "TelegramBot", "facebookexternalhit", "Twitterbot", "LinkedInBot", "Slackbot", "Discordbot", "SkypeUriPreview", "google", "bingbot"];
