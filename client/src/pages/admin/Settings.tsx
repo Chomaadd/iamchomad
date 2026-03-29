@@ -67,7 +67,6 @@ export default function Settings() {
 
   const uploadImage = async (blob: Blob, field: "avatar" | "about") => {
     const setter = field === "avatar" ? setUploadingAvatar : setUploadingAbout;
-    const urlSetter = field === "avatar" ? setAdminAvatarUrl : setAboutImageUrl;
     setter(true);
     try {
       const fd = new FormData();
@@ -75,10 +74,26 @@ export default function Settings() {
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       if (!res.ok) throw new Error();
       const data = await res.json();
-      urlSetter(data.url);
-      toast({ title: "Gambar berhasil diupload!" });
+      const newUrl: string = data.url;
+
+      if (field === "avatar") {
+        setAdminAvatarUrl(newUrl);
+        await apiRequest("PUT", "/api/settings", {
+          ...currentSettings,
+          adminAvatarUrl: newUrl,
+        });
+      } else {
+        setAboutImageUrl(newUrl);
+        await apiRequest("PUT", "/api/settings", {
+          ...currentSettings,
+          aboutImageUrl: newUrl,
+        });
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
+      toast({ title: "Foto berhasil disimpan!" });
     } catch {
-      toast({ title: "Gagal upload gambar", variant: "destructive" });
+      toast({ title: "Gagal upload foto", variant: "destructive" });
     } finally {
       setter(false);
     }
@@ -224,7 +239,12 @@ export default function Settings() {
               </button>
               {adminAvatarUrl && (
                 <button
-                  onClick={() => setAdminAvatarUrl(null)}
+                  onClick={async () => {
+                    setAdminAvatarUrl(null);
+                    await apiRequest("PUT", "/api/settings", { ...currentSettings, adminAvatarUrl: null });
+                    queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
+                    toast({ title: "Foto profil dihapus." });
+                  }}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-destructive/30 text-destructive text-sm font-medium hover:bg-destructive/10 transition-all"
                   data-testid="button-remove-avatar"
                 >
@@ -283,7 +303,12 @@ export default function Settings() {
               </button>
               {aboutImageUrl && (
                 <button
-                  onClick={() => setAboutImageUrl(null)}
+                  onClick={async () => {
+                    setAboutImageUrl(null);
+                    await apiRequest("PUT", "/api/settings", { ...currentSettings, aboutImageUrl: null });
+                    queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
+                    toast({ title: "Foto About dihapus." });
+                  }}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-destructive/30 text-destructive text-sm font-medium hover:bg-destructive/10 transition-all"
                   data-testid="button-remove-about"
                 >
