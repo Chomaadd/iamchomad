@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { AdminLayout } from "@/components/layout/AdminLayout";
-import { Trash2, MailOpen, Mail, MessageSquare, Loader2, Share2, Copy, Check } from "lucide-react";
+import { Trash2, MailOpen, MessageSquare, Loader2, Check, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { SiWhatsapp, SiInstagram } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
 import type { AnonMessage } from "@shared/schema";
@@ -12,13 +12,13 @@ const PAGE_URL = "https://iamchomad.my.id/pesan";
 function formatDate(d?: Date | string) {
   if (!d) return "";
   const date = typeof d === "string" ? new Date(d) : d;
-  return date.toLocaleString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const now = new Date();
+  const diff = (now.getTime() - date.getTime()) / 1000;
+  if (diff < 60) return "Baru saja";
+  if (diff < 3600) return `${Math.floor(diff / 60)} menit lalu`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} jam lalu`;
+  if (diff < 86400 * 7) return `${Math.floor(diff / 86400)} hari lalu`;
+  return date.toLocaleString("id-ID", { day: "numeric", month: "short", year: "numeric" });
 }
 
 function buildShareText(message: string) {
@@ -32,10 +32,7 @@ function shareToWhatsApp(message: string) {
 async function shareToInstagram(message: string, onCopied: () => void) {
   const text = buildShareText(message);
   if (navigator.share) {
-    try {
-      await navigator.share({ title: "Pesan Anonim", text, url: PAGE_URL });
-      return;
-    } catch {}
+    try { await navigator.share({ title: "Pesan Anonim", text, url: PAGE_URL }); return; } catch {}
   }
   await navigator.clipboard.writeText(text);
   onCopied();
@@ -45,6 +42,7 @@ export default function ManageAnonMessages() {
   const { toast } = useToast();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { data: messages, isLoading } = useQuery<AnonMessage[]>({
     queryKey: ["/api/anon-messages"],
@@ -60,20 +58,23 @@ export default function ManageAnonMessages() {
     mutationFn: (id: string) => apiRequest("DELETE", `/api/anon-messages/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/anon-messages"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/anon-messages/unread-count"] });
       setDeletingId(null);
       toast({ title: "Pesan dihapus." });
     },
     onError: () => toast({ title: "Gagal menghapus.", variant: "destructive" }),
   });
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     if (confirm("Hapus pesan ini?")) {
       setDeletingId(id);
       deleteMutation.mutate(id);
     }
   };
 
-  const handleMarkRead = (id: string, isRead: boolean) => {
+  const handleCardClick = (id: string, isRead: boolean) => {
+    setExpandedId(prev => prev === id ? null : id);
     if (!isRead) markReadMutation.mutate(id);
   };
 
@@ -83,123 +84,219 @@ export default function ManageAnonMessages() {
     setTimeout(() => setCopiedId(null), 3000);
   };
 
-  const unreadCount = messages?.filter(m => !m.isRead).length ?? 0;
+  const unread = messages?.filter(m => !m.isRead) ?? [];
+  const read = messages?.filter(m => m.isRead) ?? [];
+  const unreadCount = unread.length;
 
-  return (
-    <AdminLayout>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-anon-title">
-            Pesan Anonim
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {unreadCount > 0 ? (
-              <span className="text-primary font-medium">{unreadCount} belum dibaca · </span>
-            ) : null}
-            {messages?.length ?? 0} total pesan ·{" "}
-            <a
-              href="/pesan"
-              target="_blank"
-              className="underline underline-offset-2 hover:text-foreground transition-colors"
-            >
-              Lihat halaman ↗
-            </a>
-          </p>
-        </div>
-      </div>
+  const MessageCard = ({ msg }: { msg: AnonMessage }) => {
+    const isExpanded = expandedId === msg.id;
+    const isLong = msg.message.length > 120;
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-24 text-muted-foreground">
-          <Loader2 size={24} className="animate-spin" />
-        </div>
-      ) : !messages || messages.length === 0 ? (
-        <div className="text-center py-24 border border-dashed border-border rounded-xl">
-          <MessageSquare size={36} className="text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground italic">Belum ada pesan anonim masuk.</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Share link{" "}
-            <a href="/pesan" target="_blank" className="underline underline-offset-2 text-primary">
-              iamchomad.my.id/pesan
-            </a>{" "}
-            untuk mulai menerima pesan.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {messages.map(msg => (
-            <div
-              key={msg.id}
-              onClick={() => handleMarkRead(msg.id, msg.isRead)}
-              className={`group relative border rounded-xl p-5 bg-card transition-all duration-200 cursor-pointer ${
-                msg.isRead
-                  ? "border-border hover:border-border/80"
-                  : "border-primary/30 bg-primary/5 hover:border-primary/50"
-              }`}
-              data-testid={`card-anon-message-${msg.id}`}
-            >
-              <div className="flex items-start gap-3">
-                <div className={`mt-0.5 shrink-0 ${msg.isRead ? "text-muted-foreground" : "text-primary"}`}>
-                  {msg.isRead ? <MailOpen size={18} /> : <Mail size={18} />}
-                </div>
+    return (
+      <div
+        onClick={() => handleCardClick(msg.id, msg.isRead)}
+        className={`group rounded-2xl border transition-all duration-200 cursor-pointer overflow-hidden ${
+          msg.isRead
+            ? "border-border bg-card hover:border-border/80 hover:shadow-sm"
+            : "border-primary/25 bg-primary/[0.025] hover:border-primary/40 shadow-sm hover:shadow-md"
+        }`}
+        data-testid={`card-anon-message-${msg.id}`}
+      >
+        {/* Unread top bar */}
+        {!msg.isRead && (
+          <div className="h-0.5 w-full bg-gradient-to-r from-primary via-primary/60 to-transparent" />
+        )}
 
-                <div className="flex-1 min-w-0">
+        <div className="p-5">
+          <div className="flex items-start gap-3">
+            {/* Anonymous icon */}
+            <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center text-lg font-bold ${
+              msg.isRead
+                ? "bg-muted text-muted-foreground"
+                : "bg-primary/10 text-primary"
+            }`}>
+              ?
+            </div>
+
+            <div className="flex-1 min-w-0">
+              {/* Top row */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-sm text-foreground">Anonim</span>
                   {!msg.isRead && (
-                    <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full mb-2">
+                    <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-primary/15 text-primary">
                       Baru
                     </span>
                   )}
-                  <p
-                    className="text-sm text-foreground leading-relaxed whitespace-pre-wrap break-words"
-                    data-testid={`text-anon-message-${msg.id}`}
-                  >
-                    {msg.message}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-2">{formatDate(msg.createdAt)}</p>
                 </div>
-
-                <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      shareToWhatsApp(msg.message);
-                    }}
-                    className="p-2 rounded-md hover:bg-[#25D366]/10 hover:text-[#25D366] transition-colors"
-                    title="Bagikan ke WhatsApp"
-                    data-testid={`button-share-wa-${msg.id}`}
-                  >
-                    <SiWhatsapp size={14} />
-                  </button>
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      shareToInstagram(msg.message, () => handleCopied(msg.id));
-                    }}
-                    className="p-2 rounded-md hover:bg-pink-500/10 hover:text-pink-500 transition-colors"
-                    title="Bagikan ke Instagram"
-                    data-testid={`button-share-ig-${msg.id}`}
-                  >
-                    {copiedId === msg.id ? <Check size={14} className="text-green-500" /> : <SiInstagram size={14} />}
-                  </button>
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      handleDelete(msg.id);
-                    }}
-                    disabled={deletingId === msg.id}
-                    className="p-2 rounded-md hover:bg-destructive/10 hover:text-destructive transition-colors"
-                    title="Hapus pesan"
-                    data-testid={`button-delete-anon-${msg.id}`}
-                  >
-                    {deletingId === msg.id ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <Trash2 size={14} />
-                    )}
-                  </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[10px] text-muted-foreground/60 whitespace-nowrap">
+                    {formatDate(msg.createdAt)}
+                  </span>
+                  {(isLong || isExpanded) && (
+                    isExpanded
+                      ? <ChevronUp size={14} className="text-muted-foreground/40" />
+                      : <ChevronDown size={14} className="text-muted-foreground/40" />
+                  )}
                 </div>
               </div>
+
+              {/* Message bubble */}
+              <div className={`mt-2.5 relative ${!msg.isRead ? "pl-3 border-l-2 border-primary/30" : ""}`}>
+                <p
+                  className={`text-sm leading-relaxed text-foreground/85 whitespace-pre-wrap break-words transition-all ${
+                    !isExpanded && isLong ? "line-clamp-3" : ""
+                  }`}
+                  data-testid={`text-anon-message-${msg.id}`}
+                >
+                  {msg.message}
+                </p>
+                {!isExpanded && isLong && (
+                  <div className="mt-1">
+                    <span className="text-xs text-primary font-medium">Lihat selengkapnya</span>
+                  </div>
+                )}
+              </div>
             </div>
-          ))}
+          </div>
+
+          {/* Action row — visible when expanded */}
+          {isExpanded && (
+            <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-1.5">
+                {msg.isRead ? (
+                  <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-medium">
+                    <MailOpen size={11} /> Sudah dibaca
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-medium">
+                    <MessageSquare size={11} /> Belum dibaca
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                {/* WhatsApp share */}
+                <button
+                  onClick={e => { e.stopPropagation(); shareToWhatsApp(msg.message); }}
+                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 transition-colors"
+                  title="Bagikan ke WhatsApp"
+                  data-testid={`button-share-wa-${msg.id}`}
+                >
+                  <SiWhatsapp size={12} /> WA
+                </button>
+
+                {/* Instagram share */}
+                <button
+                  onClick={e => { e.stopPropagation(); shareToInstagram(msg.message, () => handleCopied(msg.id)); }}
+                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 transition-colors"
+                  title="Bagikan ke Instagram"
+                  data-testid={`button-share-ig-${msg.id}`}
+                >
+                  {copiedId === msg.id
+                    ? <><Check size={12} className="text-green-500" /> Disalin!</>
+                    : <><SiInstagram size={12} /> IG</>
+                  }
+                </button>
+
+                {/* Delete */}
+                <button
+                  onClick={e => handleDelete(msg.id, e)}
+                  disabled={deletingId === msg.id}
+                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                  title="Hapus pesan"
+                  data-testid={`button-delete-anon-${msg.id}`}
+                >
+                  {deletingId === msg.id
+                    ? <Loader2 size={12} className="animate-spin" />
+                    : <><Trash2 size={12} /> Hapus</>
+                  }
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <AdminLayout>
+      {/* Header */}
+      <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">Anonim</p>
+          <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-anon-title">
+            Pesan Anonim
+          </h1>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          {unreadCount > 0 && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-xl text-xs font-semibold">
+              <MessageSquare size={13} />
+              {unreadCount} belum dibaca
+            </div>
+          )}
+          <span className="text-xs text-muted-foreground/60">{messages?.length ?? 0} total</span>
+          <a
+            href="/pesan"
+            target="_blank"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
+          >
+            <ExternalLink size={13} /> Halaman Kirim
+          </a>
+        </div>
+      </div>
+
+      {/* Loading */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-24 text-muted-foreground">
+          <Loader2 size={24} className="animate-spin" />
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!isLoading && (!messages || messages.length === 0) && (
+        <div className="flex flex-col items-center justify-center py-24 border border-dashed border-border rounded-2xl text-muted-foreground">
+          <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4 text-3xl font-bold text-muted-foreground/20">
+            ?
+          </div>
+          <p className="font-medium text-sm">Belum ada pesan anonim</p>
+          <p className="text-xs text-muted-foreground/60 mt-1 text-center max-w-xs">
+            Share link{" "}
+            <a href="/pesan" target="_blank" className="text-primary underline underline-offset-2">
+              iamchomad.my.id/pesan
+            </a>{" "}
+            untuk mulai menerima pesan
+          </p>
+        </div>
+      )}
+
+      {/* Unread section */}
+      {!isLoading && unread.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Belum Dibaca</span>
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[10px] text-muted-foreground">{unread.length}</span>
+          </div>
+          <div className="space-y-3">
+            {unread.map(msg => <MessageCard key={msg.id} msg={msg} />)}
+          </div>
+        </div>
+      )}
+
+      {/* Read section */}
+      {!isLoading && read.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sudah Dibaca</span>
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[10px] text-muted-foreground">{read.length}</span>
+          </div>
+          <div className="space-y-3">
+            {read.map(msg => <MessageCard key={msg.id} msg={msg} />)}
+          </div>
         </div>
       )}
     </AdminLayout>
