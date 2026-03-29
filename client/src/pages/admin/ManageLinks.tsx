@@ -125,9 +125,9 @@ export default function ManageLinks() {
 
       setProfile(prev => ({ ...prev, linksAvatarUrl: newUrl }));
       setCropSrc(null);
-      toast({ title: "Foto profil berhasil disimpan." });
+      toast({ title: "Profile photo saved successfully." });
     } catch {
-      toast({ title: "Gagal mengupload foto.", variant: "destructive" });
+      toast({ title: "Failed to upload photo.", variant: "destructive" });
     } finally {
       setUploadingCrop(false);
     }
@@ -141,9 +141,9 @@ export default function ManageLinks() {
         linksName: profile.linksName || null,
         linksBio: profile.linksBio || null,
       });
-      toast({ title: "Profil halaman Links disimpan." });
+      toast({ title: "Links page profile saved." });
     } catch {
-      toast({ title: "Gagal menyimpan profil.", variant: "destructive" });
+      toast({ title: "Failed to save profile.", variant: "destructive" });
     } finally {
       setSavingProfile(false);
     }

@@ -15,6 +15,8 @@ const translations: Record<Language, Record<string, string>> = {
 
     "footer.rights": "© Choomad Group. All Right Reserved.",
 
+    "miniplayer.list": "Track List",
+    
     "home.badge": "Available for work",
     "home.heading": "Building digital products,",
     "home.heading.highlight": " brands",
@@ -167,6 +169,8 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.novel": "Novel",
 
     "footer.rights": "© Choomad Group. Hak Cipta Dilindungi.",
+
+    "miniplayer.list": "Daftar Lagu",
 
     "home.badge": "Tersedia untuk bekerja",
     "home.heading": "Membangun produk digital,",

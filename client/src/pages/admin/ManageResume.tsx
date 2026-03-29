@@ -45,6 +45,10 @@ export default function ManageResume() {
     resumeAbout: "",
     resumePhotoUrl: "",
     resumeBirthDate: "",
+    resumeBirthPlace: "",
+    resumeReligion: "",
+    resumeGender: "",
+    resumeMarriagestatus: "",
     resumeNationality: "",
     resumePhone: "",
     resumeAddress: "",
@@ -60,6 +64,10 @@ export default function ManageResume() {
         resumeAbout: settings.resumeAbout || "",
         resumePhotoUrl: settings.resumePhotoUrl || "",
         resumeBirthDate: settings.resumeBirthDate || "",
+        resumeBirthPlace: settings.resumeBirthPlace || "",
+        resumeReligion: settings.resumeReligion || "",
+        resumeGender: settings.resumeGender || "",
+        resumeMarriagestatus: settings.resumeMarriagestatus || "",
         resumeNationality: settings.resumeNationality || "",
         resumePhone: settings.resumePhone || "",
         resumeAddress: settings.resumeAddress || "",
@@ -78,7 +86,11 @@ export default function ManageResume() {
         resumeAbout: profile.resumeAbout || null,
         resumePhotoUrl: profile.resumePhotoUrl || null,
         resumeBirthDate: profile.resumeBirthDate || null,
-        resumeNationality: profile.resumeNationality || null,
+        resumeBirthPlace: profile.resumeBirthPlace || "",
+        resumeReligion: profile.resumeReligion || "",
+        resumeGender: profile.resumeGender || "",
+        resumeMarriagestatus: profile.resumeMarriagestatus || "",
+        resumeNationality: profile.resumeNationality || null, 
         resumePhone: profile.resumePhone || null,
         resumeAddress: profile.resumeAddress || null,
         resumeEmail: profile.resumeEmail || null,
@@ -253,6 +265,42 @@ export default function ManageResume() {
                     onChange={e => setProfile({ ...profile, resumeBirthDate: e.target.value })}
                     placeholder="e.g. 15 Maret 1995"
                     data-testid="input-resume-birthdate"
+                  />
+                </div>
+                <div>
+                  <Label>Tempat Lahir</Label>
+                  <Input
+                    value={profile.resumeBirthPlace}
+                    onChange={e => setProfile({ ...profile, resumeBirthPlace: e.target.value })}
+                    placeholder="e.g. Batam, Indonesia"
+                    data-testid="input-resume-birthplace"
+                  />
+                </div>
+                <div>
+                  <Label>Agama</Label>
+                  <Input
+                    value={profile.resumeReligion}
+                    onChange={e => setProfile({ ...profile, resumeReligion: e.target.value })}
+                    placeholder="e.g. Islam"
+                    data-testid="input-resume-religion"
+                  />
+                </div>
+                <div>
+                  <Label>Jenis Kelamin</Label>
+                  <Input
+                    value={profile.resumeGender}
+                    onChange={e => setProfile({ ...profile, resumeGender: e.target.value })}
+                    placeholder="e.g. Laki-laki"
+                    data-testid="input-resume-gender"
+                  />
+                </div>
+                <div>
+                  <Label>Status Perkawinan</Label>
+                  <Input
+                    value={profile.resumeMarriagestatus}
+                    onChange={e => setProfile({ ...profile, resumeMarriagestatus: e.target.value })}
+                    placeholder="e.g. Menikah"
+                    data-testid="input-resume-marriagestatus"
                   />
                 </div>
                 <div>

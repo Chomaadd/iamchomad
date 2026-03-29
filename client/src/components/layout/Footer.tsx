@@ -1,4 +1,4 @@
-import { Github, Linkedin, Instagram, Mail, Send } from "lucide-react";
+import { Github, Linkedin, Instagram, Mail, Send, Youtube } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 
 export function Footer() {
@@ -27,14 +27,14 @@ export function Footer() {
             <Github size={20} strokeWidth={1.5} />
           </a>
           <a
-            href="https://linkedin.com/in/iamchomad"
+            href="https://youtube.com/c/iamchomad"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-foreground transition-colors duration-200"
-            aria-label="LinkedIn"
-            data-testid="link-social-linkedin"
+            aria-label="YouTube"
+            data-testid="link-social-youtube"
           >
-            <Linkedin size={20} strokeWidth={1.5} />
+            <Youtube size={20} strokeWidth={1.5} />
           </a>
           <a
             href="https://instagram.com/iamchomad"
