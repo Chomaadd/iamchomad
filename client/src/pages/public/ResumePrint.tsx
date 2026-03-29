@@ -24,8 +24,12 @@ export default function ResumePrint() {
   const jobTitle   = settings?.resumeTitle     || "Frontend Developer";
   const about      = settings?.resumeAbout     || "";
   const photoUrl   = settings?.resumePhotoUrl  || "";
-  const birthDate  = settings?.resumeBirthDate || "";
-  const nationality= settings?.resumeNationality || "";
+  const birthDate      = settings?.resumeBirthDate      || "";
+  const birthPlace     = settings?.resumeBirthPlace     || "";
+  const religion       = settings?.resumeReligion       || "";
+  const gender         = settings?.resumeGender         || "";
+  const marriageStatus = settings?.resumeMarriagestatus || "";
+  const nationality    = settings?.resumeNationality    || "";
   const phone      = settings?.resumePhone     || "";
   const address    = settings?.resumeAddress   || "";
   const email      = settings?.resumeEmail     || "";
@@ -468,13 +472,37 @@ export default function ResumePrint() {
             )}
 
             {/* Personal Info */}
-            {(birthDate || nationality) && (
+            {(birthDate || birthPlace || religion || gender || marriageStatus || nationality) && (
               <div>
                 <div className="cv-side-label">Personal Info</div>
                 {birthDate && (
                   <>
                     <div className="cv-side-field-label">Tanggal Lahir</div>
                     <div className="cv-side-field-value">{birthDate}</div>
+                  </>
+                )}
+                {birthPlace && (
+                  <>
+                    <div className="cv-side-field-label">Tempat Lahir</div>
+                    <div className="cv-side-field-value">{birthPlace}</div>
+                  </>
+                )}
+                {gender && (
+                  <>
+                    <div className="cv-side-field-label">Jenis Kelamin</div>
+                    <div className="cv-side-field-value">{gender}</div>
+                  </>
+                )}
+                {religion && (
+                  <>
+                    <div className="cv-side-field-label">Agama</div>
+                    <div className="cv-side-field-value">{religion}</div>
+                  </>
+                )}
+                {marriageStatus && (
+                  <>
+                    <div className="cv-side-field-label">Status Perkawinan</div>
+                    <div className="cv-side-field-value">{marriageStatus}</div>
                   </>
                 )}
                 {nationality && (
