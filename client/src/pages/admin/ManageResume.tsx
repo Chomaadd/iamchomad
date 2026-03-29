@@ -123,9 +123,9 @@ export default function ManageResume() {
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
       setProfile(p => ({ ...p, resumePhotoUrl: data.url }));
-      toast({ title: "Foto berhasil diupload!" });
+      toast({ title: "Photo uploaded successfully!" });
     } catch {
-      toast({ title: "Gagal upload foto", variant: "destructive" });
+      toast({ title: "Failed to upload photo", variant: "destructive" });
     } finally {
       setUploadingPhoto(false);
     }
@@ -288,8 +288,8 @@ export default function ManageResume() {
                   )}
                 </div>
                 <div className="pb-1 flex-1 min-w-0">
-                  <p className="font-serif font-bold text-lg leading-tight truncate">{profile.resumeFullName || "Nama Lengkap"}</p>
-                  <p className="text-sm text-muted-foreground truncate">{profile.resumeTitle || "Jabatan / Profesi"}</p>
+                  <p className="font-serif font-bold text-lg leading-tight truncate">{profile.resumeFullName || "Full name"}</p>
+                  <p className="text-sm text-muted-foreground truncate">{profile.resumeTitle || "Position / Profession"}</p>
                 </div>
               </div>
 
@@ -310,12 +310,12 @@ export default function ManageResume() {
                   data-testid="button-upload-photo"
                 >
                   <Upload size={14} />
-                  {uploadingPhoto ? "Mengupload..." : "Upload & Crop Foto Profil"}
+                  {uploadingPhoto ? "Uploading..." : "Upload & Crop Profile Photo"}
                 </button>
                 <Input
                   value={profile.resumePhotoUrl}
                   onChange={e => setProfile({ ...profile, resumePhotoUrl: e.target.value })}
-                  placeholder="atau paste URL foto..."
+                  placeholder="or paste the photo URL..."
                   data-testid="input-resume-photo"
                   className="text-xs"
                 />
@@ -327,46 +327,46 @@ export default function ManageResume() {
           <div className="bg-card border border-border rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 rounded-full bg-primary" />
-              <h2 className="font-semibold text-sm text-foreground">Identitas Diri</h2>
+              <h2 className="font-semibold text-sm text-foreground">Personal identity</h2>
             </div>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Nama Lengkap</Label>
+                  <Label>Full name</Label>
                   <Input value={profile.resumeFullName} onChange={e => setProfile({ ...profile, resumeFullName: e.target.value })} placeholder="e.g. Choiril Ahmad" data-testid="input-resume-fullname" />
                 </div>
                 <div>
-                  <Label>Jabatan / Profesi</Label>
+                  <Label>Position / Profession</Label>
                   <Input value={profile.resumeTitle} onChange={e => setProfile({ ...profile, resumeTitle: e.target.value })} placeholder="e.g. Frontend Developer" data-testid="input-resume-jobtitle" />
                 </div>
                 <div>
-                  <Label>Tanggal Lahir</Label>
+                  <Label>Date of birth</Label>
                   <Input value={profile.resumeBirthDate} onChange={e => setProfile({ ...profile, resumeBirthDate: e.target.value })} placeholder="e.g. 15 Maret 1995" data-testid="input-resume-birthdate" />
                 </div>
                 <div>
-                  <Label>Tempat Lahir</Label>
+                  <Label>Place of birth</Label>
                   <Input value={profile.resumeBirthPlace} onChange={e => setProfile({ ...profile, resumeBirthPlace: e.target.value })} placeholder="e.g. Batam" data-testid="input-resume-birthplace" />
                 </div>
                 <div>
-                  <Label>Jenis Kelamin</Label>
+                  <Label>Gender</Label>
                   <Input value={profile.resumeGender} onChange={e => setProfile({ ...profile, resumeGender: e.target.value })} placeholder="e.g. Laki-laki" data-testid="input-resume-gender" />
                 </div>
                 <div>
-                  <Label>Agama</Label>
+                  <Label>Religion</Label>
                   <Input value={profile.resumeReligion} onChange={e => setProfile({ ...profile, resumeReligion: e.target.value })} placeholder="e.g. Islam" data-testid="input-resume-religion" />
                 </div>
                 <div>
-                  <Label>Status Perkawinan</Label>
-                  <Input value={profile.resumeMarriagestatus} onChange={e => setProfile({ ...profile, resumeMarriagestatus: e.target.value })} placeholder="e.g. Menikah" data-testid="input-resume-marriagestatus" />
+                  <Label>Marriage Status</Label>
+                  <Input value={profile.resumeMarriagestatus} onChange={e => setProfile({ ...profile, resumeMarriagestatus: e.target.value })} placeholder="e.g. Belum Menikah" data-testid="input-resume-marriagestatus" />
                 </div>
                 <div>
-                  <Label>Kewarganegaraan</Label>
+                  <Label>Nationality</Label>
                   <Input value={profile.resumeNationality} onChange={e => setProfile({ ...profile, resumeNationality: e.target.value })} placeholder="e.g. Indonesia" data-testid="input-resume-nationality" />
                 </div>
               </div>
               <div>
-                <Label>Tentang Saya</Label>
-                <Textarea className="min-h-[90px]" value={profile.resumeAbout} onChange={e => setProfile({ ...profile, resumeAbout: e.target.value })} placeholder="Ceritakan sedikit tentang dirimu untuk ditampilkan di CV..." data-testid="input-resume-about" />
+                <Label>About me</Label>
+                <Textarea className="min-h-[90px]" value={profile.resumeAbout} onChange={e => setProfile({ ...profile, resumeAbout: e.target.value })} placeholder="Tell us a little about yourself to feature on your CV..." data-testid="input-resume-about" />
               </div>
             </div>
           </div>
@@ -375,7 +375,7 @@ export default function ManageResume() {
           <div className="bg-card border border-border rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 rounded-full bg-primary" />
-              <h2 className="font-semibold text-sm text-foreground">Kontak</h2>
+              <h2 className="font-semibold text-sm text-foreground">Contact</h2>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -383,11 +383,11 @@ export default function ManageResume() {
                 <Input type="email" value={profile.resumeEmail} onChange={e => setProfile({ ...profile, resumeEmail: e.target.value })} placeholder="kamu@gmail.com" data-testid="input-resume-email" />
               </div>
               <div>
-                <Label>Nomor HP / WhatsApp</Label>
+                <Label>Phone Number / WhatsApp</Label>
                 <Input value={profile.resumePhone} onChange={e => setProfile({ ...profile, resumePhone: e.target.value })} placeholder="+62 812-xxxx-xxxx" data-testid="input-resume-phone" />
               </div>
               <div>
-                <Label>Alamat</Label>
+                <Label>Address</Label>
                 <Input value={profile.resumeAddress} onChange={e => setProfile({ ...profile, resumeAddress: e.target.value })} placeholder="Jakarta, Indonesia" data-testid="input-resume-address" />
               </div>
               <div>
@@ -398,7 +398,7 @@ export default function ManageResume() {
           </div>
 
           <Button type="submit" className="w-full py-3 rounded-xl" disabled={savingProfile} data-testid="button-save-profile">
-            {savingProfile ? "Menyimpan..." : "Simpan Profile Info"}
+            {savingProfile ? "Keep..." : "Save Profile Info"}
           </Button>
         </form>
       )}

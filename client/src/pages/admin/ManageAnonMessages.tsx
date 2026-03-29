@@ -60,14 +60,14 @@ export default function ManageAnonMessages() {
       queryClient.invalidateQueries({ queryKey: ["/api/anon-messages"] });
       queryClient.invalidateQueries({ queryKey: ["/api/anon-messages/unread-count"] });
       setDeletingId(null);
-      toast({ title: "Pesan dihapus." });
+      toast({ title: "Message deleted." });
     },
-    onError: () => toast({ title: "Gagal menghapus.", variant: "destructive" }),
+    onError: () => toast({ title: "Failed to delete.", variant: "destructive" }),
   });
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm("Hapus pesan ini?")) {
+    if (confirm("Delete this message?")) {
       setDeletingId(id);
       deleteMutation.mutate(id);
     }
@@ -80,7 +80,7 @@ export default function ManageAnonMessages() {
 
   const handleCopied = (id: string) => {
     setCopiedId(id);
-    toast({ title: "Teks disalin! Paste di caption/story Instagram." });
+    toast({ title: "Text copied! Paste it into your Instagram caption/story." });
     setTimeout(() => setCopiedId(null), 3000);
   };
 
@@ -122,10 +122,10 @@ export default function ManageAnonMessages() {
               {/* Top row */}
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sm text-foreground">Anonim</span>
+                  <span className="font-semibold text-sm text-foreground">Anonymous</span>
                   {!msg.isRead && (
                     <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-primary/15 text-primary">
-                      Baru
+                      New
                     </span>
                   )}
                 </div>
@@ -153,7 +153,7 @@ export default function ManageAnonMessages() {
                 </p>
                 {!isExpanded && isLong && (
                   <div className="mt-1">
-                    <span className="text-xs text-primary font-medium">Lihat selengkapnya</span>
+                    <span className="text-xs text-primary font-medium">See more</span>
                   </div>
                 )}
               </div>
@@ -166,11 +166,11 @@ export default function ManageAnonMessages() {
               <div className="flex items-center gap-1.5">
                 {msg.isRead ? (
                   <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-medium">
-                    <MailOpen size={11} /> Sudah dibaca
+                    <MailOpen size={11} /> Read
                   </span>
                 ) : (
                   <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-medium">
-                    <MessageSquare size={11} /> Belum dibaca
+                    <MessageSquare size={11} /> Unread
                   </span>
                 )}
               </div>
@@ -180,7 +180,7 @@ export default function ManageAnonMessages() {
                 <button
                   onClick={e => { e.stopPropagation(); shareToWhatsApp(msg.message); }}
                   className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 transition-colors"
-                  title="Bagikan ke WhatsApp"
+                  title="Share to WhatsApp"
                   data-testid={`button-share-wa-${msg.id}`}
                 >
                   <SiWhatsapp size={12} /> WA
@@ -190,11 +190,11 @@ export default function ManageAnonMessages() {
                 <button
                   onClick={e => { e.stopPropagation(); shareToInstagram(msg.message, () => handleCopied(msg.id)); }}
                   className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 transition-colors"
-                  title="Bagikan ke Instagram"
+                  title="Share to Instagram"
                   data-testid={`button-share-ig-${msg.id}`}
                 >
                   {copiedId === msg.id
-                    ? <><Check size={12} className="text-green-500" /> Disalin!</>
+                    ? <><Check size={12} className="text-green-500" /> Copied!</>
                     : <><SiInstagram size={12} /> IG</>
                   }
                 </button>
@@ -204,12 +204,12 @@ export default function ManageAnonMessages() {
                   onClick={e => handleDelete(msg.id, e)}
                   disabled={deletingId === msg.id}
                   className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
-                  title="Hapus pesan"
+                  title="Delete messages"
                   data-testid={`button-delete-anon-${msg.id}`}
                 >
                   {deletingId === msg.id
                     ? <Loader2 size={12} className="animate-spin" />
-                    : <><Trash2 size={12} /> Hapus</>
+                    : <><Trash2 size={12} /> Delete</>
                   }
                 </button>
               </div>
@@ -225,16 +225,16 @@ export default function ManageAnonMessages() {
       {/* Header */}
       <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">Anonim</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">Anonymous</p>
           <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-anon-title">
-            Pesan Anonim
+            Anonymous Message
           </h1>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           {unreadCount > 0 && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-xl text-xs font-semibold">
               <MessageSquare size={13} />
-              {unreadCount} belum dibaca
+              {unreadCount} unread
             </div>
           )}
           <span className="text-xs text-muted-foreground/60">{messages?.length ?? 0} total</span>
@@ -243,7 +243,7 @@ export default function ManageAnonMessages() {
             target="_blank"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
           >
-            <ExternalLink size={13} /> Halaman Kirim
+            <ExternalLink size={13} /> Submit Page
           </a>
         </div>
       </div>
@@ -261,13 +261,13 @@ export default function ManageAnonMessages() {
           <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4 text-3xl font-bold text-muted-foreground/20">
             ?
           </div>
-          <p className="font-medium text-sm">Belum ada pesan anonim</p>
+          <p className="font-medium text-sm">No anonymous messages yet</p>
           <p className="text-xs text-muted-foreground/60 mt-1 text-center max-w-xs">
             Share link{" "}
             <a href="/pesan" target="_blank" className="text-primary underline underline-offset-2">
               iamchomad.my.id/pesan
             </a>{" "}
-            untuk mulai menerima pesan
+            to start receiving messages
           </p>
         </div>
       )}
@@ -276,7 +276,7 @@ export default function ManageAnonMessages() {
       {!isLoading && unread.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Belum Dibaca</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Unread</span>
             <div className="flex-1 h-px bg-border" />
             <span className="text-[10px] text-muted-foreground">{unread.length}</span>
           </div>
@@ -290,7 +290,7 @@ export default function ManageAnonMessages() {
       {!isLoading && read.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sudah Dibaca</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Read</span>
             <div className="flex-1 h-px bg-border" />
             <span className="text-[10px] text-muted-foreground">{read.length}</span>
           </div>

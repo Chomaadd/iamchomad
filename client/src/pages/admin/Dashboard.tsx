@@ -48,7 +48,7 @@ export default function Dashboard() {
     { label: "Brand Assets", value: brands?.length || 0, icon: Image, href: "/admin/brand", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
     { label: "Music Tracks", value: tracks?.length || 0, icon: Music, href: "/admin/music", color: "bg-purple-500/10 text-purple-600 dark:text-purple-400" },
     { label: "Resume Items", value: resumeItems?.length || 0, icon: ScrollText, href: "/admin/resume", color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400" },
-    { label: "Novel & Cerita", value: novelStories?.length || 0, icon: BookOpen, href: "/admin/novel", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
+    { label: "Novels & Stories", value: novelStories?.length || 0, icon: BookOpen, href: "/admin/novel", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
   ];
 
   const recentMessages = messages?.slice(0, 3) || [];

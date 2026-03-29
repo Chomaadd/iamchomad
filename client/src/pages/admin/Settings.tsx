@@ -46,11 +46,11 @@ export default function Settings() {
       apiRequest("PUT", "/api/settings", payload).then(r => r.json()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
-      toast({ title: "Settings disimpan!" });
+      toast({ title: "Settings have been saved!" });
       setSaving(false);
     },
     onError: () => {
-      toast({ title: "Gagal menyimpan", variant: "destructive" });
+      toast({ title: "Failed to save settings", variant: "destructive" });
       setSaving(false);
     },
   });
@@ -91,9 +91,9 @@ export default function Settings() {
       }
 
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
-      toast({ title: "Foto berhasil disimpan!" });
+      toast({ title: "Photo saved successfully!" });
     } catch {
-      toast({ title: "Gagal upload foto", variant: "destructive" });
+      toast({ title: "Failed to upload photo", variant: "destructive" });
     } finally {
       setter(false);
     }
@@ -162,7 +162,7 @@ export default function Settings() {
           data-testid="button-save-settings"
         >
           {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-          Simpan Semua
+          Save
         </button>
       </div>
 
@@ -174,14 +174,14 @@ export default function Settings() {
               <Globe size={18} className="text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold text-sm">Identitas Website</h2>
-              <p className="text-xs text-muted-foreground">Nama website yang tampil di tab browser & branding</p>
+              <h2 className="font-semibold text-sm">Website Identity</h2>
+              <p className="text-xs text-muted-foreground">Website name that appears in browser tab & branding</p>
             </div>
           </div>
 
           <div className="space-y-3">
             <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Nama Website
+              Website Name
             </label>
             <input
               type="text"
@@ -192,7 +192,7 @@ export default function Settings() {
               data-testid="input-site-title"
             />
             <p className="text-xs text-muted-foreground/70">
-              Contoh: "Choiril Ahmad — Portfolio" atau "Mad — iamchomad.my.id"
+              Example: "Choiril Ahmad — Portfolio" or "Mad — iamchomad.my.id"
             </p>
           </div>
         </div>
@@ -204,8 +204,8 @@ export default function Settings() {
               <User size={18} className="text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold text-sm">Foto Profil Utama</h2>
-              <p className="text-xs text-muted-foreground">Tampil di sidebar admin & hero photo di halaman Home</p>
+              <h2 className="font-semibold text-sm">Main Profile Photo</h2>
+              <p className="text-xs text-muted-foreground">Appears in admin sidebar & hero photo on Home page</p>
             </div>
           </div>
 
@@ -235,7 +235,7 @@ export default function Settings() {
                 data-testid="button-upload-avatar"
               >
                 {uploadingAvatar ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
-                {uploadingAvatar ? "Mengupload..." : "Upload & Crop Foto"}
+                {uploadingAvatar ? "Uploading..." : "Upload & Crop Photos"}
               </button>
               {adminAvatarUrl && (
                 <button
@@ -243,16 +243,16 @@ export default function Settings() {
                     setAdminAvatarUrl(null);
                     await apiRequest("PUT", "/api/settings", { ...currentSettings, adminAvatarUrl: null });
                     queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
-                    toast({ title: "Foto profil dihapus." });
+                    toast({ title: "Profile photo deleted." });
                   }}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-destructive/30 text-destructive text-sm font-medium hover:bg-destructive/10 transition-all"
                   data-testid="button-remove-avatar"
                 >
-                  <Trash2 size={15} /> Hapus Foto
+                  <Trash2 size={15} /> Delete Photos
                 </button>
               )}
               <p className="text-xs text-muted-foreground/70 leading-relaxed">
-                Upload foto untuk menggantikan huruf "C" di sidebar. Gambar yang sama otomatis muncul di halaman utama.
+                Upload a photo to replace the "C" in the sidebar. The same image will automatically appear on the main page.
               </p>
             </div>
           </div>
@@ -265,8 +265,8 @@ export default function Settings() {
               <ImageIcon size={18} className="text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold text-sm">Foto Halaman About</h2>
-              <p className="text-xs text-muted-foreground">Gambar besar yang tampil di halaman /about</p>
+              <h2 className="font-semibold text-sm">About Page Photo</h2>
+              <p className="text-xs text-muted-foreground">The large image that appears on the /about page</p>
             </div>
           </div>
 
@@ -285,7 +285,7 @@ export default function Settings() {
                 )}
               </div>
               <p className="text-[10px] text-muted-foreground/60 text-center max-w-[96px]">
-                Halaman About
+                About Pages
               </p>
             </div>
 
@@ -299,7 +299,7 @@ export default function Settings() {
                 data-testid="button-upload-about"
               >
                 {uploadingAbout ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
-                {uploadingAbout ? "Mengupload..." : "Upload & Crop Foto"}
+                {uploadingAbout ? "Uploading..." : "Upload & Crop Photos"}
               </button>
               {aboutImageUrl && (
                 <button
@@ -307,16 +307,16 @@ export default function Settings() {
                     setAboutImageUrl(null);
                     await apiRequest("PUT", "/api/settings", { ...currentSettings, aboutImageUrl: null });
                     queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
-                    toast({ title: "Foto About dihapus." });
+                    toast({ title: "About photo deleted." });
                   }}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-destructive/30 text-destructive text-sm font-medium hover:bg-destructive/10 transition-all"
                   data-testid="button-remove-about"
                 >
-                  <Trash2 size={15} /> Hapus Foto
+                  <Trash2 size={15} /> Delete Photos
                 </button>
               )}
               <p className="text-xs text-muted-foreground/70 leading-relaxed">
-                Upload foto portrait untuk halaman About. Jika kosong, akan menggunakan gambar default.
+                Upload a portrait photo for the About page. If it's blank, the default image will be used.
               </p>
             </div>
           </div>
@@ -326,11 +326,11 @@ export default function Settings() {
         <div className="rounded-2xl border border-border/60 bg-muted/30 p-5 flex items-start gap-3">
           <SettingsIcon size={16} className="text-muted-foreground shrink-0 mt-0.5" />
           <div>
-            <p className="text-xs font-semibold text-foreground/80 mb-1">Setting lainnya tersebar di masing-masing halaman</p>
+            <p className="text-xs font-semibold text-foreground/80 mb-1">Other settings are scattered on each page.</p>
             <p className="text-xs text-muted-foreground/70 leading-relaxed">
-              Informasi Resume → halaman <span className="font-medium text-foreground/60">Resume</span> · 
-              Avatar Link-in-Bio → halaman <span className="font-medium text-foreground/60">Links</span> · 
-              Status Availability → juga di halaman Resume.
+              Resume Information → page <span className="font-medium text-foreground/60">Resume</span> · 
+              Avatar Link-in-Bio → page <span className="font-medium text-foreground/60">Links</span> · 
+              Availability Status → also on the Resume page.
             </p>
           </div>
         </div>

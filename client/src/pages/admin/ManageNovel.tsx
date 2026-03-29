@@ -102,9 +102,9 @@ function CoverUploadCrop({
       onChange(url);
       setCropOpen(false);
       setRawSrc(null);
-      toast({ title: "Sampul berhasil diupload!" });
+      toast({ title: "Cover successfully uploaded!" });
     } catch {
-      toast({ title: "Gagal upload sampul", variant: "destructive" });
+      toast({ title: "Failed to upload cover", variant: "destructive" });
     } finally {
       setUploading(false);
     }
@@ -120,7 +120,7 @@ function CoverUploadCrop({
           onClick={() => fileInputRef.current?.click()}
           data-testid="button-upload-cover"
         >
-          <Upload size={14} className="mr-1.5" /> Upload Sampul
+          <Upload size={14} className="mr-1.5" /> Upload Cover
         </Button>
         {value && (
           <Button
@@ -131,7 +131,7 @@ function CoverUploadCrop({
             onClick={() => onChange("")}
             data-testid="button-remove-cover"
           >
-            <RotateCcw size={14} className="mr-1.5" /> Hapus
+            <RotateCcw size={14} className="mr-1.5" /> Delete Cover
           </Button>
         )}
         <input
@@ -168,7 +168,7 @@ function CoverUploadCrop({
         <Input
           value={value}
           onChange={e => onChange(e.target.value)}
-          placeholder="atau paste URL gambar..."
+          placeholder="or paste the image URL..."
           className="text-xs h-8"
           data-testid="input-story-cover-url"
         />
@@ -178,7 +178,7 @@ function CoverUploadCrop({
       <Dialog open={cropOpen} onOpenChange={open => { if (!open) { setCropOpen(false); setRawSrc(null); } }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Crop Sampul</DialogTitle>
+            <DialogTitle>Crop Cover</DialogTitle>
           </DialogHeader>
           <div className="relative w-full h-72 bg-black rounded-lg overflow-hidden">
             {rawSrc && (
@@ -210,9 +210,9 @@ function CoverUploadCrop({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setCropOpen(false); setRawSrc(null); }}>Batal</Button>
+            <Button variant="outline" onClick={() => { setCropOpen(false); setRawSrc(null); }}>Cancel</Button>
             <Button onClick={handleConfirmCrop} disabled={uploading} data-testid="button-confirm-crop">
-              {uploading ? "Mengupload..." : "Gunakan Gambar Ini"}
+              {uploading ? "Uploading..." : "Use This Image"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -247,11 +247,11 @@ function StoryForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-sm font-medium mb-1 block">Judul *</label>
+        <label className="text-sm font-medium mb-1 block">Tittle *</label>
         <Input
           value={form.title}
           onChange={e => { set("title", e.target.value); if (!initial?.slug) set("slug", slugify(e.target.value)); }}
-          placeholder="Judul cerita"
+          placeholder="Story title"
           data-testid="input-story-title"
         />
       </div>
@@ -260,11 +260,11 @@ function StoryForm({
         <Input value={form.slug} onChange={e => set("slug", e.target.value)} placeholder="url-cerita" data-testid="input-story-slug" />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Deskripsi</label>
-        <Textarea value={form.description} onChange={e => set("description", e.target.value)} rows={3} placeholder="Sinopsis cerita..." data-testid="input-story-description" />
+        <label className="text-sm font-medium mb-1 block">Description</label>
+        <Textarea value={form.description} onChange={e => set("description", e.target.value)} rows={3} placeholder="Story synopsis..." data-testid="input-story-description" />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Sampul</label>
+        <label className="text-sm font-medium mb-1 block">Cover</label>
         <CoverUploadCrop value={form.coverUrl} onChange={v => set("coverUrl", v)} />
       </div>
       <div>
@@ -272,7 +272,7 @@ function StoryForm({
         <Input
           value={form.tags}
           onChange={e => set("tags", e.target.value)}
-          placeholder="cth: Action, Romance, Isekai (pisahkan dengan koma)"
+          placeholder="e.g. Action, Romance, Isekai (separate with commas)"
           data-testid="input-story-tags"
         />
         {parsedTags.length > 0 && (
@@ -285,7 +285,7 @@ function StoryForm({
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-sm font-medium mb-1 block">Kategori</label>
+          <label className="text-sm font-medium mb-1 block">Category</label>
           <Select value={form.category} onValueChange={v => set("category", v)}>
             <SelectTrigger data-testid="select-story-category"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -312,16 +312,16 @@ function StoryForm({
       <div className="flex gap-4">
         <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input type="checkbox" checked={form.published} onChange={e => set("published", e.target.checked)} className="rounded" data-testid="checkbox-story-published" />
-          Publikasikan
+          Publish
         </label>
         <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input type="checkbox" checked={form.featured} onChange={e => set("featured", e.target.checked)} className="rounded" data-testid="checkbox-story-featured" />
-          Unggulan
+          Featured
         </label>
       </div>
       <DialogFooter>
-        <Button variant="outline" onClick={onCancel} data-testid="button-cancel-story">Batal</Button>
-        <Button onClick={() => onSave({ ...form, tags: parsedTags })} disabled={!form.title || !form.slug} data-testid="button-save-story">Simpan</Button>
+        <Button variant="outline" onClick={onCancel} data-testid="button-cancel-story">Cancel</Button>
+        <Button onClick={() => onSave({ ...form, tags: parsedTags })} disabled={!form.title || !form.slug} data-testid="button-save-story">Save</Button>
       </DialogFooter>
     </div>
   );
@@ -341,16 +341,16 @@ function SeasonForm({ storyId, initial, onSave, onCancel }: {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-sm font-medium mb-1 block">Nomor Season *</label>
+        <label className="text-sm font-medium mb-1 block">Season Number *</label>
         <Input type="number" min={1} value={form.seasonNumber} onChange={e => setForm(f => ({ ...f, seasonNumber: Number(e.target.value) }))} data-testid="input-season-number" />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Judul Season *</label>
-        <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="cth: Awal Mula" data-testid="input-season-title" />
+        <label className="text-sm font-medium mb-1 block">Season Title *</label>
+        <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g: The Beginning" data-testid="input-season-title" />
       </div>
       <DialogFooter>
-        <Button variant="outline" onClick={onCancel} data-testid="button-cancel-season">Batal</Button>
-        <Button onClick={() => onSave({ ...form, storyId })} disabled={!form.title} data-testid="button-save-season">Simpan</Button>
+        <Button variant="outline" onClick={onCancel} data-testid="button-cancel-season">Cancel</Button>
+        <Button onClick={() => onSave({ ...form, storyId })} disabled={!form.title} data-testid="button-save-season">Save</Button>
       </DialogFooter>
     </div>
   );
@@ -377,51 +377,51 @@ function ChapterWrite({ chapter, storyId, seasonId, onBack }: {
       : apiRequest("POST", "/api/novel/chapters", { ...data, storyId, seasonId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/novel/seasons", seasonId, "chapters"] });
-      toast({ title: "Berhasil disimpan!" });
+      toast({ title: "Saved successfully!" });
       onBack();
     },
-    onError: () => toast({ title: "Gagal menyimpan", variant: "destructive" }),
+    onError: () => toast({ title: "Failed to save", variant: "destructive" }),
   });
 
   return (
     <div className="space-y-4">
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2" data-testid="button-back-from-write">
-        <ArrowLeft size={16} /> Kembali ke daftar bab
+        <ArrowLeft size={16} /> Return to chapter list
       </button>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-sm font-medium mb-1 block">No. Bab *</label>
+          <label className="text-sm font-medium mb-1 block">No. Chapter *</label>
           <Input type="number" min={1} value={form.chapterNumber} onChange={e => setForm(f => ({ ...f, chapterNumber: Number(e.target.value) }))} data-testid="input-chapter-number" />
         </div>
         <div className="flex items-end pb-0.5">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input type="checkbox" checked={form.published} onChange={e => setForm(f => ({ ...f, published: e.target.checked }))} className="rounded" data-testid="checkbox-chapter-published" />
-            Publikasikan
+            Publish
           </label>
         </div>
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Judul Bab *</label>
-        <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Judul bab" data-testid="input-chapter-title" />
+        <label className="text-sm font-medium mb-1 block">Chapter Title *</label>
+        <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Chapter title" data-testid="input-chapter-title" />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Isi Cerita *</label>
+        <label className="text-sm font-medium mb-1 block">Story Content *</label>
         <RichTextEditor
           value={form.content}
           onChange={html => setForm(f => ({ ...f, content: html }))}
-          placeholder="Tulis isi cerita di sini... Gunakan toolbar untuk bold, italic, list, dan lainnya."
+          placeholder="Write the story content here... Use the toolbar for bold, italic, list, and more."
           minHeight={450}
         />
         {(() => {
           const text = form.content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
           const words = text ? text.split(" ").filter(Boolean).length : 0;
-          return <p className="text-xs text-muted-foreground mt-1">{words} kata · ~{Math.max(1, Math.ceil(words / 200))} menit baca</p>;
+          return <p className="text-xs text-muted-foreground mt-1">{words} words · ~{Math.max(1, Math.ceil(words / 200))} minutes read</p>;
         })()}
       </div>
       <div className="flex gap-2 pt-2">
-        <Button variant="outline" onClick={onBack} data-testid="button-discard-chapter">Batal</Button>
+        <Button variant="outline" onClick={onBack} data-testid="button-discard-chapter">Cancel</Button>
         <Button onClick={() => save.mutate(form)} disabled={!form.title || !form.content || save.isPending} data-testid="button-save-chapter">
-          {save.isPending ? "Menyimpan..." : "Simpan Bab"}
+          {save.isPending ? "Keep..." : "Save Chapter"}
         </Button>
       </div>
     </div>
@@ -458,44 +458,44 @@ export default function ManageNovel() {
 
   const createStory = useMutation({
     mutationFn: (data: any) => apiRequest("POST", "/api/novel/stories", data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories/all"] }); setStoryDialog({ open: false }); toast({ title: "Cerita berhasil dibuat!" }); },
-    onError: () => toast({ title: "Gagal membuat cerita", variant: "destructive" }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories/all"] }); setStoryDialog({ open: false }); toast({ title: "The story has been successfully created!" }); },
+    onError: () => toast({ title: "Failed to create a story", variant: "destructive" }),
   });
 
   const updateStory = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => apiRequest("PUT", `/api/novel/stories/${id}`, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories/all"] }); setStoryDialog({ open: false }); toast({ title: "Cerita diperbarui!" }); },
-    onError: () => toast({ title: "Gagal memperbarui", variant: "destructive" }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories/all"] }); setStoryDialog({ open: false }); toast({ title: "Story updated!" }); },
+    onError: () => toast({ title: "Failed to update", variant: "destructive" }),
   });
 
   const deleteStory = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/novel/stories/${id}`),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories/all"] }); setDeleteDialog(null); toast({ title: "Cerita dihapus!" }); },
-    onError: () => toast({ title: "Gagal menghapus", variant: "destructive" }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories/all"] }); setDeleteDialog(null); toast({ title: "Story deleted!" }); },
+    onError: () => toast({ title: "Delete failed!", variant: "destructive" }),
   });
 
   const createSeason = useMutation({
     mutationFn: (data: any) => apiRequest("POST", "/api/novel/seasons", data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories", selectedStory?.id, "seasons"] }); setSeasonDialog({ open: false }); toast({ title: "Season berhasil dibuat!" }); },
-    onError: () => toast({ title: "Gagal membuat season", variant: "destructive" }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories", selectedStory?.id, "seasons"] }); setSeasonDialog({ open: false }); toast({ title: "Season successfully created!" }); },
+    onError: () => toast({ title: "Failed to make a season", variant: "destructive" }),
   });
 
   const updateSeason = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => apiRequest("PUT", `/api/novel/seasons/${id}`, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories", selectedStory?.id, "seasons"] }); setSeasonDialog({ open: false }); toast({ title: "Season diperbarui!" }); },
-    onError: () => toast({ title: "Gagal memperbarui season", variant: "destructive" }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories", selectedStory?.id, "seasons"] }); setSeasonDialog({ open: false }); toast({ title: "Season updated!" }); },
+    onError: () => toast({ title: "Failed to renew season", variant: "destructive" }),
   });
 
   const deleteSeason = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/novel/seasons/${id}`),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories", selectedStory?.id, "seasons"] }); setDeleteDialog(null); toast({ title: "Season dihapus!" }); },
-    onError: () => toast({ title: "Gagal menghapus season", variant: "destructive" }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories", selectedStory?.id, "seasons"] }); setDeleteDialog(null); toast({ title: "Season deleted!!" }); },
+    onError: () => toast({ title: "Failed to delete season", variant: "destructive" }),
   });
 
   const deleteChapter = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/novel/chapters/${id}`),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/seasons", selectedSeason?.id, "chapters"] }); setDeleteDialog(null); toast({ title: "Bab dihapus!" }); },
-    onError: () => toast({ title: "Gagal menghapus bab", variant: "destructive" }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/seasons", selectedSeason?.id, "chapters"] }); setDeleteDialog(null); toast({ title: "Chapter deleted!" }); },
+    onError: () => toast({ title: "Failed to delete chapter", variant: "destructive" }),
   });
 
   const toggleChapterPublish = useMutation({
@@ -534,7 +534,7 @@ export default function ManageNovel() {
           <Link href="/admin"><span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">Dashboard</span></Link>
           <ChevronRight size={14} className="text-muted-foreground" />
           <button onClick={() => { setView("stories"); setSelectedStory(null); setSelectedSeason(null); }} className={view === "stories" ? "font-semibold text-foreground" : "text-muted-foreground hover:text-foreground"} data-testid="breadcrumb-stories">
-            Novel & Cerita
+            Novels & Stories
           </button>
           {selectedStory && (
             <>
@@ -558,12 +558,12 @@ export default function ManageNovel() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                  <BookOpen size={22} /> Novel & Cerita
+                  <BookOpen size={22} /> Novels & Stories
                 </h1>
-                <p className="text-sm text-muted-foreground mt-1">Kelola semua cerita kamu</p>
+                <p className="text-sm text-muted-foreground mt-1">Manage all your stories</p>
               </div>
               <Button onClick={() => setStoryDialog({ open: true })} data-testid="button-add-story">
-                <Plus size={16} className="mr-1.5" /> Tambah Cerita
+                <Plus size={16} className="mr-1.5" /> Add Story
               </Button>
             </div>
 
@@ -574,7 +574,7 @@ export default function ManageNovel() {
             ) : !stories?.length ? (
               <div className="text-center py-16 border border-dashed border-border rounded-xl">
                 <BookOpen size={36} className="mx-auto mb-3 text-muted-foreground opacity-40" />
-                <p className="text-muted-foreground">Belum ada cerita. Buat cerita pertamamu!</p>
+                <p className="text-muted-foreground">There are no stories yet. Create your first story!</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -625,10 +625,10 @@ export default function ManageNovel() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold text-foreground">{selectedStory.title}</h2>
-                <p className="text-sm text-muted-foreground mt-1">Kelola season cerita ini</p>
+                <p className="text-sm text-muted-foreground mt-1">Manage seasons of this story</p>
               </div>
               <Button onClick={() => setSeasonDialog({ open: true })} data-testid="button-add-season">
-                <Plus size={16} className="mr-1.5" /> Tambah Season
+                <Plus size={16} className="mr-1.5" /> Add Seasons
               </Button>
             </div>
 
@@ -637,7 +637,7 @@ export default function ManageNovel() {
             ) : !seasons?.length ? (
               <div className="text-center py-16 border border-dashed border-border rounded-xl">
                 <Layers size={36} className="mx-auto mb-3 text-muted-foreground opacity-40" />
-                <p className="text-muted-foreground">Belum ada season. Tambahkan season pertama!</p>
+                <p className="text-muted-foreground">There are no seasons yet. Add the first season!</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -674,10 +674,10 @@ export default function ManageNovel() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold text-foreground">Season {selectedSeason.seasonNumber} — {selectedSeason.title}</h2>
-                <p className="text-sm text-muted-foreground mt-1">Kelola bab untuk season ini</p>
+                <p className="text-sm text-muted-foreground mt-1">Manage chapters for this season</p>
               </div>
               <Button onClick={() => { setEditingChapter(undefined); setView("write"); }} data-testid="button-add-chapter">
-                <Plus size={16} className="mr-1.5" /> Tulis Bab Baru
+                <Plus size={16} className="mr-1.5" /> New Chapter
               </Button>
             </div>
 
@@ -686,7 +686,7 @@ export default function ManageNovel() {
             ) : !chapters?.length ? (
               <div className="text-center py-16 border border-dashed border-border rounded-xl">
                 <FileText size={36} className="mx-auto mb-3 text-muted-foreground opacity-40" />
-                <p className="text-muted-foreground">Belum ada bab. Mulai menulis!</p>
+                <p className="text-muted-foreground">No chapters yet. Start writing!</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -725,7 +725,7 @@ export default function ManageNovel() {
         <Dialog open={storyDialog.open} onOpenChange={open => setStoryDialog({ open })}>
           <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{storyDialog.story ? "Edit Cerita" : "Tambah Cerita Baru"}</DialogTitle>
+              <DialogTitle>{storyDialog.story ? "Edit Story" : "Add New Story"}</DialogTitle>
             </DialogHeader>
             <StoryForm
               initial={storyDialog.story}
@@ -742,7 +742,7 @@ export default function ManageNovel() {
         <Dialog open={seasonDialog.open} onOpenChange={open => setSeasonDialog({ open })}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{seasonDialog.season ? "Edit Season" : "Tambah Season Baru"}</DialogTitle>
+              <DialogTitle>{seasonDialog.season ? "Edit Seasons" : "Add New Season"}</DialogTitle>
             </DialogHeader>
             {selectedStory && (
               <SeasonForm
@@ -762,14 +762,14 @@ export default function ManageNovel() {
         <Dialog open={!!deleteDialog?.open} onOpenChange={() => setDeleteDialog(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Konfirmasi Hapus</DialogTitle>
+              <DialogTitle>Confirm Delete</DialogTitle>
             </DialogHeader>
             <p className="text-muted-foreground text-sm">
-              Yakin ingin menghapus <strong className="text-foreground">"{deleteDialog?.name}"</strong>? Tindakan ini tidak bisa dibatalkan.
+              Are you sure you want to delete <strong className="text-foreground">"{deleteDialog?.name}"</strong>? This action cannot be undone.
             </p>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDeleteDialog(null)} data-testid="button-cancel-delete">Batal</Button>
-              <Button variant="destructive" onClick={handleDelete} data-testid="button-confirm-delete">Hapus</Button>
+              <Button variant="outline" onClick={() => setDeleteDialog(null)} data-testid="button-cancel-delete">Cancel</Button>
+              <Button variant="destructive" onClick={handleDelete} data-testid="button-confirm-delete">Delete</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
