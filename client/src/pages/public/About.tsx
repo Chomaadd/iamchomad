@@ -6,6 +6,7 @@ import { Palette, Code, PenTool, Mail, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { SeoHead } from "@/components/seometa/SeoHead";
 import { Button } from "@/components/ui/button";
+import { useSiteSettings } from "@/hooks/use-settings";
 
 const skillCategories = [
   {
@@ -51,6 +52,7 @@ const skillCategories = [
 
 export default function About() {
   const { t } = useLanguage();
+  const { data: settings } = useSiteSettings();
 
   const highlights = [
     { icon: Palette, title: t("about.highlight.creative"), desc: t("about.highlight.creative.desc") },
@@ -78,7 +80,7 @@ export default function About() {
             <div className="sticky top-24">
               <div className="rounded-2xl overflow-hidden soft-shadow-lg">
                 <img
-                  src="/image/iamchomad.png"
+                  src={settings?.aboutImageUrl || "/image/iamchomad.png"}
                   alt="Profile Choiril Ahmad"
                   className="w-full h-full object-cover"
                 />

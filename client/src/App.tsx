@@ -33,6 +33,7 @@ import Novel from "./pages/public/Novel";
 import NovelDetail from "./pages/public/NovelDetail";
 import NovelRead from "./pages/public/NovelRead";
 import ManageNovel from "./pages/admin/ManageNovel";
+import AdminSettings from "./pages/admin/Settings";
 
 // Base Fallback
 import NotFound from "@/pages/public/Not-Found";
@@ -73,6 +74,7 @@ function Router() {
       <Route path="/admin/links" component={ManageLinks} />
       <Route path="/admin/anon" component={ManageAnonMessages} />
       <Route path="/admin/novel" component={ManageNovel} />
+      <Route path="/admin/settings" component={AdminSettings} />
 
       {/* Fallback */}
       <Route component={NotFound} />

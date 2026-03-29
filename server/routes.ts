@@ -761,6 +761,7 @@ ${blogEntries}
   app.put('/api/settings', requireAuth, async (req, res) => {
     try {
       const {
+        siteTitle, adminAvatarUrl, aboutImageUrl,
         availabilityStatus, availabilityLabel, linksAvatarUrl, linksName, linksBio,
         resumeFullName, resumeTitle, resumeAbout, resumePhotoUrl,
         resumeBirthDate, resumeBirthPlace, resumeReligion, resumeGender, resumeMarriagestatus,
@@ -768,6 +769,9 @@ ${blogEntries}
         resumeEmail, resumeWebsite,
       } = req.body;
       const settings = await storage.updateSiteSettings({
+        siteTitle,
+        adminAvatarUrl,
+        aboutImageUrl,
         availabilityStatus,
         availabilityLabel,
         linksAvatarUrl,

@@ -91,6 +91,9 @@ import mongoose from 'mongoose';
   }, { timestamps: { createdAt: true, updatedAt: false } });
 
   const siteSettingsSchema = new mongoose.Schema({
+    siteTitle: { type: String },
+    adminAvatarUrl: { type: String },
+    aboutImageUrl: { type: String },
     availabilityStatus: { type: String, enum: ['open', 'busy', 'unavailable'], default: 'open' },
     availabilityLabel: { type: String, default: 'Open to Work' },
     linksAvatarUrl: { type: String },

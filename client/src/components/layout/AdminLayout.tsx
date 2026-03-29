@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, ScrollText, BarChart2, Link2, MessageSquare, BookOpen } from "lucide-react";
+import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, ScrollText, BarChart2, Link2, MessageSquare, BookOpen, Settings } from "lucide-react";
+import { useSiteSettings } from "@/hooks/use-settings";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -14,6 +15,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     enabled: !!user,
   });
   const unreadCount = unreadData?.count ?? 0;
+  const { data: siteSettings } = useSiteSettings();
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -35,6 +37,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { href: "/admin/messages", label: "Messages", icon: Mail },
     { href: "/admin/anon", label: "Pesan Anonim", icon: MessageSquare, badge: unreadCount > 0 ? unreadCount : undefined },
     { href: "/admin/novel", label: "Novel & Cerita", icon: BookOpen },
+    { href: "/admin/settings", label: "Settings", icon: Settings },
   ];
 
   const currentPage = links.find(l => l.href === location)?.label || "Overview";
@@ -48,8 +51,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <aside className={`fixed md:sticky top-0 left-0 h-screen w-72 border-r border-border bg-card z-50 flex flex-col transition-transform duration-300 md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-serif text-lg font-bold shrink-0">
-              {user.name.charAt(0)}
+            <div className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-serif text-lg font-bold shrink-0 overflow-hidden">
+              {siteSettings?.adminAvatarUrl ? (
+                <img src={siteSettings.adminAvatarUrl} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                user.name.charAt(0)
+              )}
             </div>
             <div className="min-w-0">
               <h2 className="font-serif text-lg font-bold tracking-tight truncate">{user.name}</h2>

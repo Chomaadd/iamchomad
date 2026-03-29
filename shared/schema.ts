@@ -151,6 +151,9 @@ export type Analytics = z.infer<typeof analyticsSchema>;
 export const availabilityStatusSchema = z.enum(["open", "busy", "unavailable"]);
 export const siteSettingsSchema = z.object({
   id: z.string(),
+  siteTitle: z.string().nullable().optional(),
+  adminAvatarUrl: z.string().nullable().optional(),
+  aboutImageUrl: z.string().nullable().optional(),
   availabilityStatus: availabilityStatusSchema.default("open"),
   availabilityLabel: z.string().default("Open to Work"),
   linksAvatarUrl: z.string().nullable().optional(),
