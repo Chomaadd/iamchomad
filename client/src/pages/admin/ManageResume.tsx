@@ -3,7 +3,7 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useResumeItems, useCreateResumeItem, useUpdateResumeItem, useDeleteResumeItem } from "@/hooks/use-resume";
 import { useSiteSettings, useUpdateSiteSettings } from "@/hooks/use-settings";
 import { Button, Input, Textarea, Label, Modal } from "@/components/ui/core";
-import { Plus, Edit2, Trash2, Briefcase, GraduationCap, Lightbulb, User, Upload, X } from "lucide-react";
+import { Plus, Edit2, Trash2, Briefcase, GraduationCap, Lightbulb, User, Upload, X, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ImageCropModal from "@/components/ui/ImageCropModal";
 import type { ResumeItem } from "@shared/schema";
@@ -201,28 +201,40 @@ export default function ManageResume() {
           aspectRatio={1}
         />
       )}
-      <div className="flex justify-between items-center mb-6">
+
+      {/* Header */}
+      <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
         <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">Career</p>
           <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-resume-admin-title">Resume / CV</h1>
           <p className="text-sm text-muted-foreground mt-1">{items?.length || 0} items total</p>
         </div>
-        {activeTab !== "profile" && (
-          <Button onClick={() => openCreate(activeTab as any)} className="gap-2" data-testid="button-add-resume-item">
-            <Plus size={16} /> Add {typeConfig[activeTab as keyof typeof typeConfig].label}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <a
+            href="/resume"
+            target="_blank"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
+          >
+            <FileText size={15} /> Preview CV
+          </a>
+          {activeTab !== "profile" && (
+            <Button onClick={() => openCreate(activeTab as any)} className="gap-2" data-testid="button-add-resume-item">
+              <Plus size={16} /> Add {typeConfig[activeTab as keyof typeof typeConfig].label}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border border-border rounded-lg p-1 bg-muted/30 w-fit flex-wrap">
+      <div className="flex gap-1 mb-8 border border-border rounded-xl p-1 bg-muted/30 w-fit flex-wrap">
         <button
           onClick={() => setActiveTab("profile")}
-          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
             activeTab === "profile" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
           }`}
           data-testid="tab-profile"
         >
-          <User size={16} />
+          <User size={15} />
           <span className="hidden sm:inline">Profile Info</span>
         </button>
         {(["experience", "education", "skill"] as const).map((type) => {
@@ -233,265 +245,220 @@ export default function ManageResume() {
             <button
               key={type}
               onClick={() => setActiveTab(type)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
                 activeTab === type ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
               data-testid={`tab-${type}`}
             >
-              <Icon size={16} />
+              <Icon size={15} />
               <span className="hidden sm:inline">{config.label}</span>
-              <span className="text-xs opacity-60">({count})</span>
+              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${activeTab === type ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>{count}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Profile Info Panel */}
+      {/* ── Profile Info Panel ── */}
       {activeTab === "profile" && (
         <form onSubmit={handleSaveProfile} className="max-w-2xl space-y-5">
-          <div className="bg-card border border-border rounded-xl p-5">
-            <h2 className="font-semibold text-sm mb-4 flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
-              <User size={14} /> Identitas Diri
-            </h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Nama Lengkap</Label>
-                  <Input
-                    value={profile.resumeFullName}
-                    onChange={e => setProfile({ ...profile, resumeFullName: e.target.value })}
-                    placeholder="e.g. Choiril Ahmad"
-                    data-testid="input-resume-fullname"
-                  />
-                </div>
-                <div>
-                  <Label>Jabatan / Profesi</Label>
-                  <Input
-                    value={profile.resumeTitle}
-                    onChange={e => setProfile({ ...profile, resumeTitle: e.target.value })}
-                    placeholder="e.g. Frontend Developer"
-                    data-testid="input-resume-jobtitle"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Tanggal Lahir</Label>
-                  <Input
-                    value={profile.resumeBirthDate}
-                    onChange={e => setProfile({ ...profile, resumeBirthDate: e.target.value })}
-                    placeholder="e.g. 15 Maret 1995"
-                    data-testid="input-resume-birthdate"
-                  />
-                </div>
-                <div>
-                  <Label>Tempat Lahir</Label>
-                  <Input
-                    value={profile.resumeBirthPlace}
-                    onChange={e => setProfile({ ...profile, resumeBirthPlace: e.target.value })}
-                    placeholder="e.g. Batam, Indonesia"
-                    data-testid="input-resume-birthplace"
-                  />
-                </div>
-                <div>
-                  <Label>Agama</Label>
-                  <Input
-                    value={profile.resumeReligion}
-                    onChange={e => setProfile({ ...profile, resumeReligion: e.target.value })}
-                    placeholder="e.g. Islam"
-                    data-testid="input-resume-religion"
-                  />
-                </div>
-                <div>
-                  <Label>Jenis Kelamin</Label>
-                  <Input
-                    value={profile.resumeGender}
-                    onChange={e => setProfile({ ...profile, resumeGender: e.target.value })}
-                    placeholder="e.g. Laki-laki"
-                    data-testid="input-resume-gender"
-                  />
-                </div>
-                <div>
-                  <Label>Status Perkawinan</Label>
-                  <Input
-                    value={profile.resumeMarriagestatus}
-                    onChange={e => setProfile({ ...profile, resumeMarriagestatus: e.target.value })}
-                    placeholder="e.g. Menikah"
-                    data-testid="input-resume-marriagestatus"
-                  />
-                </div>
-                <div>
-                  <Label>Kewarganegaraan</Label>
-                  <Input
-                    value={profile.resumeNationality}
-                    onChange={e => setProfile({ ...profile, resumeNationality: e.target.value })}
-                    placeholder="e.g. Indonesia"
-                    data-testid="input-resume-nationality"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label>Tentang Saya (About Me)</Label>
-                <Textarea
-                  className="min-h-[100px]"
-                  value={profile.resumeAbout}
-                  onChange={e => setProfile({ ...profile, resumeAbout: e.target.value })}
-                  placeholder="Ceritakan sedikit tentang dirimu untuk ditampilkan di CV..."
-                  data-testid="input-resume-about"
-                />
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-card border border-border rounded-xl p-5">
-            <h2 className="font-semibold text-sm mb-4 flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
-              Kontak & Foto
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <Label>Foto Profil</Label>
-                <input
-                  type="file"
-                  ref={photoInputRef}
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handlePhotoFileSelect}
-                  data-testid="input-resume-photo-file"
-                />
-                <div className="flex items-center gap-3 mt-1.5">
+          {/* Photo + name preview */}
+          <div className="bg-card border border-border rounded-2xl overflow-hidden">
+            <div className="h-20 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent" />
+            <div className="px-6 pb-6 -mt-10">
+              <div className="flex items-end gap-4">
+                <div className="relative group shrink-0">
                   {profile.resumePhotoUrl ? (
-                    <div className="relative group shrink-0">
-                      <img src={profile.resumePhotoUrl} alt="preview" className="w-16 h-16 rounded-full object-cover border-2 border-border" />
+                    <>
+                      <img src={profile.resumePhotoUrl} alt="preview"
+                        className="w-20 h-20 rounded-2xl object-cover border-4 border-card shadow-md" />
                       <button
                         type="button"
                         onClick={() => setProfile(p => ({ ...p, resumePhotoUrl: "" }))}
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
                         data-testid="button-remove-photo"
                       >
                         <X size={10} />
                       </button>
-                    </div>
+                    </>
                   ) : (
-                    <div className="w-16 h-16 rounded-full bg-muted border-2 border-dashed border-border flex items-center justify-center shrink-0">
-                      <User size={20} className="text-muted-foreground" />
+                    <div className="w-20 h-20 rounded-2xl bg-muted border-4 border-card shadow-md flex items-center justify-center">
+                      <User size={28} className="text-muted-foreground/40" />
                     </div>
                   )}
-                  <div className="flex-1 space-y-2">
-                    <button
-                      type="button"
-                      onClick={() => photoInputRef.current?.click()}
-                      disabled={uploadingPhoto}
-                      className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-dashed border-border rounded-md text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
-                      data-testid="button-upload-photo"
-                    >
-                      <Upload size={14} />
-                      {uploadingPhoto ? "Mengupload..." : "Upload Foto dari File"}
-                    </button>
-                    <Input
-                      value={profile.resumePhotoUrl}
-                      onChange={e => setProfile({ ...profile, resumePhotoUrl: e.target.value })}
-                      placeholder="atau paste URL foto..."
-                      data-testid="input-resume-photo"
-                      className="text-xs"
-                    />
-                  </div>
+                </div>
+                <div className="pb-1 flex-1 min-w-0">
+                  <p className="font-serif font-bold text-lg leading-tight truncate">{profile.resumeFullName || "Nama Lengkap"}</p>
+                  <p className="text-sm text-muted-foreground truncate">{profile.resumeTitle || "Jabatan / Profesi"}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Email</Label>
-                  <Input
-                    type="email"
-                    value={profile.resumeEmail}
-                    onChange={e => setProfile({ ...profile, resumeEmail: e.target.value })}
-                    placeholder="kamu@gmail.com"
-                    data-testid="input-resume-email"
-                  />
-                </div>
-                <div>
-                  <Label>Nomor HP / WhatsApp</Label>
-                  <Input
-                    value={profile.resumePhone}
-                    onChange={e => setProfile({ ...profile, resumePhone: e.target.value })}
-                    placeholder="e.g. +62 812-xxxx-xxxx"
-                    data-testid="input-resume-phone"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Alamat</Label>
-                  <Input
-                    value={profile.resumeAddress}
-                    onChange={e => setProfile({ ...profile, resumeAddress: e.target.value })}
-                    placeholder="e.g. Jakarta, Indonesia"
-                    data-testid="input-resume-address"
-                  />
-                </div>
-                <div>
-                  <Label>Website</Label>
-                  <Input
-                    value={profile.resumeWebsite}
-                    onChange={e => setProfile({ ...profile, resumeWebsite: e.target.value })}
-                    placeholder="e.g. iamchomad.my.id"
-                    data-testid="input-resume-website"
-                  />
-                </div>
+
+              <input
+                type="file"
+                ref={photoInputRef}
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoFileSelect}
+                data-testid="input-resume-photo-file"
+              />
+              <div className="mt-4 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => photoInputRef.current?.click()}
+                  disabled={uploadingPhoto}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 border border-dashed border-border rounded-xl text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
+                  data-testid="button-upload-photo"
+                >
+                  <Upload size={14} />
+                  {uploadingPhoto ? "Mengupload..." : "Upload & Crop Foto Profil"}
+                </button>
+                <Input
+                  value={profile.resumePhotoUrl}
+                  onChange={e => setProfile({ ...profile, resumePhotoUrl: e.target.value })}
+                  placeholder="atau paste URL foto..."
+                  data-testid="input-resume-photo"
+                  className="text-xs"
+                />
               </div>
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={savingProfile} data-testid="button-save-profile">
+          {/* Identitas */}
+          <div className="bg-card border border-border rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 rounded-full bg-primary" />
+              <h2 className="font-semibold text-sm text-foreground">Identitas Diri</h2>
+            </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Nama Lengkap</Label>
+                  <Input value={profile.resumeFullName} onChange={e => setProfile({ ...profile, resumeFullName: e.target.value })} placeholder="e.g. Choiril Ahmad" data-testid="input-resume-fullname" />
+                </div>
+                <div>
+                  <Label>Jabatan / Profesi</Label>
+                  <Input value={profile.resumeTitle} onChange={e => setProfile({ ...profile, resumeTitle: e.target.value })} placeholder="e.g. Frontend Developer" data-testid="input-resume-jobtitle" />
+                </div>
+                <div>
+                  <Label>Tanggal Lahir</Label>
+                  <Input value={profile.resumeBirthDate} onChange={e => setProfile({ ...profile, resumeBirthDate: e.target.value })} placeholder="e.g. 15 Maret 1995" data-testid="input-resume-birthdate" />
+                </div>
+                <div>
+                  <Label>Tempat Lahir</Label>
+                  <Input value={profile.resumeBirthPlace} onChange={e => setProfile({ ...profile, resumeBirthPlace: e.target.value })} placeholder="e.g. Batam" data-testid="input-resume-birthplace" />
+                </div>
+                <div>
+                  <Label>Jenis Kelamin</Label>
+                  <Input value={profile.resumeGender} onChange={e => setProfile({ ...profile, resumeGender: e.target.value })} placeholder="e.g. Laki-laki" data-testid="input-resume-gender" />
+                </div>
+                <div>
+                  <Label>Agama</Label>
+                  <Input value={profile.resumeReligion} onChange={e => setProfile({ ...profile, resumeReligion: e.target.value })} placeholder="e.g. Islam" data-testid="input-resume-religion" />
+                </div>
+                <div>
+                  <Label>Status Perkawinan</Label>
+                  <Input value={profile.resumeMarriagestatus} onChange={e => setProfile({ ...profile, resumeMarriagestatus: e.target.value })} placeholder="e.g. Menikah" data-testid="input-resume-marriagestatus" />
+                </div>
+                <div>
+                  <Label>Kewarganegaraan</Label>
+                  <Input value={profile.resumeNationality} onChange={e => setProfile({ ...profile, resumeNationality: e.target.value })} placeholder="e.g. Indonesia" data-testid="input-resume-nationality" />
+                </div>
+              </div>
+              <div>
+                <Label>Tentang Saya</Label>
+                <Textarea className="min-h-[90px]" value={profile.resumeAbout} onChange={e => setProfile({ ...profile, resumeAbout: e.target.value })} placeholder="Ceritakan sedikit tentang dirimu untuk ditampilkan di CV..." data-testid="input-resume-about" />
+              </div>
+            </div>
+          </div>
+
+          {/* Kontak */}
+          <div className="bg-card border border-border rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 rounded-full bg-primary" />
+              <h2 className="font-semibold text-sm text-foreground">Kontak</h2>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Email</Label>
+                <Input type="email" value={profile.resumeEmail} onChange={e => setProfile({ ...profile, resumeEmail: e.target.value })} placeholder="kamu@gmail.com" data-testid="input-resume-email" />
+              </div>
+              <div>
+                <Label>Nomor HP / WhatsApp</Label>
+                <Input value={profile.resumePhone} onChange={e => setProfile({ ...profile, resumePhone: e.target.value })} placeholder="+62 812-xxxx-xxxx" data-testid="input-resume-phone" />
+              </div>
+              <div>
+                <Label>Alamat</Label>
+                <Input value={profile.resumeAddress} onChange={e => setProfile({ ...profile, resumeAddress: e.target.value })} placeholder="Jakarta, Indonesia" data-testid="input-resume-address" />
+              </div>
+              <div>
+                <Label>Website</Label>
+                <Input value={profile.resumeWebsite} onChange={e => setProfile({ ...profile, resumeWebsite: e.target.value })} placeholder="iamchomad.my.id" data-testid="input-resume-website" />
+              </div>
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full py-3 rounded-xl" disabled={savingProfile} data-testid="button-save-profile">
             {savingProfile ? "Menyimpan..." : "Simpan Profile Info"}
           </Button>
         </form>
       )}
 
-      {/* Resume Items List */}
+      {/* ── Resume Items List ── */}
       {activeTab !== "profile" && (
         <div className="space-y-3">
-          {filteredItems.map((item) => {
+          {filteredItems.map((item, idx) => {
             const config = typeConfig[item.type];
             const Icon = config.icon;
+            const isLast = idx === filteredItems.length - 1;
             return (
               <div
                 key={item.id}
-                className="group flex items-start gap-4 border border-border rounded-lg p-4 bg-card hover:border-primary/40 transition-all"
+                className="group relative flex items-start gap-4 border border-border rounded-2xl p-5 bg-card hover:border-primary/30 hover:shadow-sm transition-all duration-200"
                 data-testid={`card-resume-item-${item.id}`}
               >
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${config.color}`}>
-                  <Icon size={18} />
+                {/* Timeline connector */}
+                {!isLast && (
+                  <div className="absolute left-[30px] top-[60px] bottom-[-12px] w-px bg-border z-0" />
+                )}
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 relative z-10 ${config.color}`}>
+                  <Icon size={17} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-sm">{item.title}</h3>
-                    <span className="text-[10px] text-muted-foreground font-mono">#{item.order}</span>
+                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${config.color}`}>
+                      #{item.order}
+                    </span>
                   </div>
-                  {item.subtitle && <p className="text-xs text-muted-foreground mt-0.5">{item.subtitle}</p>}
+                  {item.subtitle && <p className="text-xs text-muted-foreground mt-0.5 font-medium">{item.subtitle}</p>}
                   {(item.startDate || item.endDate) && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {[item.startDate, item.endDate].filter(Boolean).join(" — ")}
+                    <p className="text-[11px] text-muted-foreground/70 mt-1 font-mono">
+                      {[item.startDate, item.endDate].filter(Boolean).join(" → ")}
                     </p>
                   )}
                   {item.tags && item.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
+                    <div className="flex flex-wrap gap-1 mt-2.5">
                       {item.tags.map((tag, i) => (
-                        <span key={i} className="px-1.5 py-0.5 bg-muted text-muted-foreground text-[10px] rounded">{tag}</span>
+                        <span key={i} className="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] rounded-full font-medium">{tag}</span>
                       ))}
                     </div>
                   )}
                 </div>
                 <div className="flex items-center gap-1 shrink-0 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => openEdit(item)} className="p-2 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors" data-testid={`button-edit-resume-${item.id}`}><Edit2 size={14} /></button>
-                  <button onClick={() => handleDelete(item.id)} className="p-2 rounded-md hover:bg-destructive hover:text-destructive-foreground transition-colors" data-testid={`button-delete-resume-${item.id}`}><Trash2 size={14} /></button>
+                  <button onClick={() => openEdit(item)} className="p-2 rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors" data-testid={`button-edit-resume-${item.id}`}><Edit2 size={14} /></button>
+                  <button onClick={() => handleDelete(item.id)} className="p-2 rounded-lg hover:bg-destructive hover:text-destructive-foreground transition-colors" data-testid={`button-delete-resume-${item.id}`}><Trash2 size={14} /></button>
                 </div>
               </div>
             );
           })}
 
           {filteredItems.length === 0 && (
-            <div className="text-center py-16 border border-dashed border-border rounded-lg text-muted-foreground text-sm italic">
-              No {typeConfig[activeTab as keyof typeof typeConfig].label.toLowerCase()} items yet.
+            <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border rounded-2xl text-muted-foreground">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3 ${typeConfig[activeTab as keyof typeof typeConfig].color}`}>
+                {(() => { const Icon = typeConfig[activeTab as keyof typeof typeConfig].icon; return <Icon size={24} />; })()}
+              </div>
+              <p className="font-medium text-sm">No {typeConfig[activeTab as keyof typeof typeConfig].label.toLowerCase()} entries yet</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">Click "Add {typeConfig[activeTab as keyof typeof typeConfig].label}" to get started</p>
             </div>
           )}
         </div>
@@ -504,7 +471,7 @@ export default function ManageResume() {
             <select
               value={form.type}
               onChange={e => setForm({ ...form, type: e.target.value as any })}
-              className="flex w-full border border-input bg-background px-4 py-2.5 text-sm rounded-md focus:outline-none focus:border-primary transition-all"
+              className="flex w-full border border-input bg-background px-4 py-2.5 text-sm rounded-xl focus:outline-none focus:border-primary transition-all"
               data-testid="select-resume-type"
             >
               <option value="experience">Experience</option>
@@ -536,16 +503,18 @@ export default function ManageResume() {
             <Label>Description</Label>
             <Textarea className="min-h-[80px]" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} data-testid="input-resume-description" />
           </div>
-          <div>
-            <Label>Tags (comma-separated)</Label>
-            <Input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="e.g. React, TypeScript, Node.js" data-testid="input-resume-tags" />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Tags (comma-separated)</Label>
+              <Input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="e.g. React, Node.js" data-testid="input-resume-tags" />
+            </div>
+            <div>
+              <Label>Sort Order</Label>
+              <Input type="number" value={form.order} onChange={e => setForm({ ...form, order: parseInt(e.target.value) || 0 })} data-testid="input-resume-order" />
+            </div>
           </div>
-          <div>
-            <Label>Sort Order</Label>
-            <Input type="number" value={form.order} onChange={e => setForm({ ...form, order: parseInt(e.target.value) || 0 })} data-testid="input-resume-order" />
-          </div>
-          <Button type="submit" className="w-full" data-testid="button-save-resume">
-            Save {typeConfig[form.type].label}
+          <Button type="submit" className="w-full rounded-xl" data-testid="button-save-resume">
+            {editingId ? `Save Changes` : `Add ${typeConfig[form.type].label}`}
           </Button>
         </form>
       </Modal>
