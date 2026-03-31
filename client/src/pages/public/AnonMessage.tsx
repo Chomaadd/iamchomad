@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, AlertCircle, Share2, Copy, Check } from "lucide-react";
 import { SiWhatsapp, SiInstagram } from "react-icons/si";
 import { SeoHead } from "@/components/seometa/SeoHead";
+import { useSiteSettings } from "@/hooks/use-settings";
 
 const MAX_CHARS = 1000;
 const PAGE_URL = "https://iamchomad.my.id/pesan";
@@ -24,6 +25,8 @@ async function shareToInstagram(onCopied: () => void) {
 }
 
 export default function AnonMessage() {
+  const { data: settings } = useSiteSettings();
+  const ownerName = settings?.resumeFullName || "Choiril Ahmad";
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [copied, setCopied] = useState(false);
@@ -59,7 +62,7 @@ export default function AnonMessage() {
     <>
       <SeoHead
         title="Anonymous Message"
-        description="Have something to say? Send an anonymous message to Choiril Ahmad — no name, no trace, your identity is 100% protected."
+        description={`Have something to say? Send an anonymous message to ${ownerName} — no name, no trace, your identity is 100% protected.`}
         url="/pesan"
       />
 
@@ -88,7 +91,7 @@ export default function AnonMessage() {
             </h1>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
               Tulis apa saja untuk{" "}
-              <span className="font-semibold text-foreground">Choiril Ahmad</span> —<br />
+              <span className="font-semibold text-foreground">{ownerName}</span> —<br />
               identitasmu <span className="font-semibold text-foreground">100% rahasia</span>.
             </p>
           </div>

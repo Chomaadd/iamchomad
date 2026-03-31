@@ -34,7 +34,7 @@ export function Navbar() {
             <img
               src={theme === "dark" ? "/favicon-white.svg" : "/favicon-black.svg"}
               alt="Logo"
-              className="w-8 h-8 object-contain transition-transform group-hover:scale-110"
+              className="h-12 w-12 object-contain transition-transform group-hover:scale-110"
             />
           </Link>
 

@@ -71,7 +71,7 @@ const translations: Record<Language, Record<string, string>> = {
     "links.empty": "No links available yet.",
 
     "pesan.title": "Anonymous Message",
-    "pesan.subtitle": "Have something to say? Send an anonymous message to Choiril Ahmad — no name, no trace, your identity is 100% protected.",
+    "pesan.subtitle": "Have something to say? Send an anonymous message — no name, no trace, your identity is 100% protected.",
 
     "blogpost.back": "Back to Blog",
     "blogpost.return": "Return to Blog",
@@ -87,7 +87,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     "music.badge": "Music",
     "music.heading": "Soundscapes",
-    "music.description": "Choiril Ahmad's favorite that he listens to all the time.",
+    "music.description": "Personal favorites that get played on repeat, every single time.",
     "music.empty.title": "No tracks yet",
     "music.empty.desc": "Check back soon.",
 
@@ -226,7 +226,7 @@ const translations: Record<Language, Record<string, string>> = {
     "links.empty": "Belum ada link yang tersedia.",
 
     "pesan.title": "Pesan Anonim",
-    "pesan.subtitle": "Punya sesuatu yang ingin kamu sampaikan? Kirim pesan anonim untuk Choiril Ahmad — tanpa nama, tanpa jejak, identitasmu 100% dijaga.",
+    "pesan.subtitle": "Punya sesuatu yang ingin kamu sampaikan? Kirim pesan anonim — tanpa nama, tanpa jejak, identitasmu 100% dijaga.",
 
     "blogpost.back": "Kembali ke Blog",
     "blogpost.return": "Kembali ke Blog",
@@ -242,7 +242,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     "music.badge": "Musik",
     "music.heading": "Lanskap Suara",
-    "music.description": "Favorit Choiril Ahmad yang selalu didengarkan setiap saat.",
+    "music.description": "Favorit pribadi yang selalu didengarkan setiap saat.",
     "music.empty.title": "Belum ada lagu",
     "music.empty.desc": "Kunjungi kembali nanti.",
 

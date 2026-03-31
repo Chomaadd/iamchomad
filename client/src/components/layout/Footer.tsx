@@ -1,8 +1,11 @@
 import { Github, Linkedin, Instagram, Mail, Send, Youtube } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
+import { useSiteSettings } from "@/hooks/use-settings";
 
 export function Footer() {
   const { t } = useLanguage();
+  const { data: settings } = useSiteSettings();
+  const ownerName = settings?.resumeFullName || "Choiril Ahmad";
 
   return (
     <footer className="bg-transparent text-muted-foreground py-5">
@@ -10,7 +13,7 @@ export function Footer() {
         <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3">
           <span>&copy; {new Date().getFullYear()}</span>
           <span className="opacity-30 hidden md:inline">/</span>
-          <span className="text-foreground font-semibold">Choiril Ahmad</span>
+          <span className="text-foreground font-semibold">{ownerName}</span>
           <span className="opacity-30 hidden md:inline">/</span>
           <span className="italic">{t("footer.rights")}</span>
         </div>
