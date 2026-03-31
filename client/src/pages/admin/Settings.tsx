@@ -13,6 +13,7 @@ export default function Settings() {
   const [initialized, setInitialized] = useState(false);
 
   // Form state
+  const [ownerName, setOwnerName] = useState("");
   const [siteTitle, setSiteTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [metaKeywords, setMetaKeywords] = useState("");
@@ -37,6 +38,7 @@ export default function Settings() {
 
   useEffect(() => {
     if (currentSettings && !initialized) {
+      setOwnerName(currentSettings.resumeFullName ?? "");
       setSiteTitle(currentSettings.siteTitle ?? "");
       setMetaDescription(currentSettings.metaDescription ?? "");
       setMetaKeywords(currentSettings.metaKeywords ?? "");
@@ -65,6 +67,7 @@ export default function Settings() {
     setSaving(true);
     saveMutation.mutate({
       ...currentSettings,
+      resumeFullName: ownerName || null,
       siteTitle: siteTitle || null,
       metaDescription: metaDescription || null,
       metaKeywords: metaKeywords || null,
@@ -184,25 +187,44 @@ export default function Settings() {
             </div>
             <div>
               <h2 className="font-semibold text-sm">Website Identity</h2>
-              <p className="text-xs text-muted-foreground">Website name that appears in browser tab & branding</p>
+              <p className="text-xs text-muted-foreground">Your name and site title shown across the website</p>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Website Name
-            </label>
-            <input
-              type="text"
-              value={siteTitle}
-              onChange={e => setSiteTitle(e.target.value)}
-              placeholder="Choiril Ahmad — Portfolio"
-              className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-              data-testid="input-site-title"
-            />
-            <p className="text-xs text-muted-foreground/70">
-              Example: "Choiril Ahmad — Portfolio" or "Mad — iamchomad.my.id"
-            </p>
+          <div className="space-y-5">
+            <div className="space-y-3">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Your Name
+              </label>
+              <input
+                type="text"
+                value={ownerName}
+                onChange={e => setOwnerName(e.target.value)}
+                placeholder="Choiril Ahmad"
+                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                data-testid="input-owner-name"
+              />
+              <p className="text-xs text-muted-foreground/70">
+                Your real name — appears in the footer, resume, and other places across the site.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Website Name
+              </label>
+              <input
+                type="text"
+                value={siteTitle}
+                onChange={e => setSiteTitle(e.target.value)}
+                placeholder="Choiril Ahmad — Portfolio"
+                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                data-testid="input-site-title"
+              />
+              <p className="text-xs text-muted-foreground/70">
+                Appears in the browser tab. Example: "Choiril Ahmad — Portfolio" or "Mad — iamchomad.my.id"
+              </p>
+            </div>
           </div>
         </div>
 
