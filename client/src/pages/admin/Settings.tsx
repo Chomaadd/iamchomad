@@ -4,7 +4,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { ImageCropModal } from "@/components/ui/ImageCropModal";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Loader2, Upload, Trash2, Globe, User, ImageIcon, Search } from "lucide-react";
+import { Save, Loader2, Upload, Trash2, Globe, User, ImageIcon, Search, Settings as SettingsIcon } from "lucide-react";
 import type { SiteSettings } from "@shared/schema";
 
 export default function Settings() {
