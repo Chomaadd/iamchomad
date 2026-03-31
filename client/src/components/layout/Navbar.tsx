@@ -34,7 +34,7 @@ export function Navbar() {
             <img
               src="/favicon.ico"
               alt="Logo"
-              className="h-12 w-12 object-contain transition-transform group-hover:scale-110"
+              className="h-8 w-8 object-contain transition-transform group-hover:scale-110"
             />
           </Link>
 
