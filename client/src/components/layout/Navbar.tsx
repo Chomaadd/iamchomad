@@ -31,7 +31,11 @@ export function Navbar() {
       <div className="glass">
         <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6 lg:px-8">
           <Link href="/" className="flex items-center group">
-            <img src="/favicon.ico" alt="Logo" className="w-8 h-8 object-contain transition-transform group-hover:scale-110" onError={(e) => e.currentTarget.style.display='none'} />
+            <img
+              src={theme === "dark" ? "/favicon-white.svg" : "/favicon-black.svg"}
+              alt="Logo"
+              className="w-8 h-8 object-contain transition-transform group-hover:scale-110"
+            />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1 text-sm font-medium">

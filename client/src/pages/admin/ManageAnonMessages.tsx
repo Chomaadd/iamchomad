@@ -5,6 +5,7 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Trash2, MailOpen, MessageSquare, Loader2, Check, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { SiWhatsapp, SiInstagram } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
+import { useConfirm } from "@/hooks/use-confirm";
 import type { AnonMessage } from "@shared/schema";
 
 const PAGE_URL = "https://iamchomad.my.id/pesan";
@@ -40,6 +41,7 @@ async function shareToInstagram(message: string, onCopied: () => void) {
 
 export default function ManageAnonMessages() {
   const { toast } = useToast();
+  const { confirm: showConfirm, ConfirmDialog } = useConfirm();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -65,9 +67,10 @@ export default function ManageAnonMessages() {
     onError: () => toast({ title: "Failed to delete.", variant: "destructive" }),
   });
 
-  const handleDelete = (id: string, e: React.MouseEvent) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm("Delete this message?")) {
+    const ok = await showConfirm({ title: "Delete message?", description: "This action cannot be undone.", confirmLabel: "Delete" });
+    if (ok) {
       setDeletingId(id);
       deleteMutation.mutate(id);
     }
@@ -299,6 +302,7 @@ export default function ManageAnonMessages() {
           </div>
         </div>
       )}
+      <ConfirmDialog />
     </AdminLayout>
   );
 }

@@ -4,7 +4,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { ImageCropModal } from "@/components/ui/ImageCropModal";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Loader2, Upload, Trash2, Globe, User, ImageIcon, Settings as SettingsIcon } from "lucide-react";
+import { Save, Loader2, Upload, Trash2, Globe, User, ImageIcon, Search } from "lucide-react";
 import type { SiteSettings } from "@shared/schema";
 
 export default function Settings() {
@@ -14,6 +14,9 @@ export default function Settings() {
 
   // Form state
   const [siteTitle, setSiteTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+  const [metaKeywords, setMetaKeywords] = useState("");
+  const [ogImageUrl, setOgImageUrl] = useState("");
   const [adminAvatarUrl, setAdminAvatarUrl] = useState<string | null>(null);
   const [aboutImageUrl, setAboutImageUrl] = useState<string | null>(null);
 
@@ -35,6 +38,9 @@ export default function Settings() {
   useEffect(() => {
     if (currentSettings && !initialized) {
       setSiteTitle(currentSettings.siteTitle ?? "");
+      setMetaDescription(currentSettings.metaDescription ?? "");
+      setMetaKeywords(currentSettings.metaKeywords ?? "");
+      setOgImageUrl(currentSettings.ogImageUrl ?? "");
       setAdminAvatarUrl(currentSettings.adminAvatarUrl ?? null);
       setAboutImageUrl(currentSettings.aboutImageUrl ?? null);
       setInitialized(true);
@@ -60,6 +66,9 @@ export default function Settings() {
     saveMutation.mutate({
       ...currentSettings,
       siteTitle: siteTitle || null,
+      metaDescription: metaDescription || null,
+      metaKeywords: metaKeywords || null,
+      ogImageUrl: ogImageUrl || null,
       adminAvatarUrl,
       aboutImageUrl,
     });
@@ -194,6 +203,77 @@ export default function Settings() {
             <p className="text-xs text-muted-foreground/70">
               Example: "Choiril Ahmad — Portfolio" or "Mad — iamchomad.my.id"
             </p>
+          </div>
+        </div>
+
+        {/* SEO Settings */}
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Search size={18} className="text-primary" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-sm">SEO & Social Sharing</h2>
+              <p className="text-xs text-muted-foreground">Controls how this website appears in search results and when shared</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Meta Description
+              </label>
+              <textarea
+                value={metaDescription}
+                onChange={e => setMetaDescription(e.target.value)}
+                placeholder="Personal website of Choiril Ahmad — Entrepreneur & Software Developer crafting digital experiences with precision and purpose."
+                rows={3}
+                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
+                data-testid="input-meta-description"
+              />
+              <p className="text-xs text-muted-foreground/70">
+                Shown in Google search results. Recommended: 120–160 characters. Currently: {metaDescription.length} chars.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Keywords
+              </label>
+              <input
+                type="text"
+                value={metaKeywords}
+                onChange={e => setMetaKeywords(e.target.value)}
+                placeholder="Choiril Ahmad, portfolio, software developer, entrepreneur, Indonesia"
+                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                data-testid="input-meta-keywords"
+              />
+              <p className="text-xs text-muted-foreground/70">
+                Comma-separated keywords. Helps search engines understand your content.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Social Share Image URL (OG Image)
+              </label>
+              <input
+                type="text"
+                value={ogImageUrl}
+                onChange={e => setOgImageUrl(e.target.value)}
+                placeholder="https://iamchomad.my.id/og-thumb.png"
+                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                data-testid="input-og-image-url"
+              />
+              <p className="text-xs text-muted-foreground/70">
+                Image shown when website is shared on WhatsApp, Telegram, Twitter, etc. Recommended size: 1200×630px.
+              </p>
+              {ogImageUrl && (
+                <div className="mt-2 rounded-xl overflow-hidden border border-border max-w-xs">
+                  <img src={ogImageUrl} alt="OG preview" className="w-full object-cover" onError={e => (e.currentTarget.style.display = "none")} />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

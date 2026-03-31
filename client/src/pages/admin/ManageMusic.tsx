@@ -4,6 +4,7 @@ import { useMusicTracks, useCreateMusicTrack, useUpdateMusicTrack, useDeleteMusi
 import { Button, Input, Label, Modal } from "@/components/ui/core";
 import { Plus, Edit2, Trash2, Loader2, Play } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useConfirm } from "@/hooks/use-confirm";
 
 export default function ManageMusic() {
   const { data: tracks } = useMusicTracks();
@@ -11,6 +12,7 @@ export default function ManageMusic() {
   const { mutateAsync: updateTrack } = useUpdateMusicTrack();
   const { mutateAsync: deleteTrack } = useDeleteMusicTrack();
   const { toast } = useToast();
+  const { confirm: showConfirm, ConfirmDialog } = useConfirm();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -96,7 +98,8 @@ export default function ManageMusic() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this track?")) {
+    const ok = await showConfirm({ title: "Delete track?", description: "This action cannot be undone.", confirmLabel: "Delete" });
+    if (ok) {
       try {
         await deleteTrack(id);
         toast({ title: "Track deleted." });
@@ -200,6 +203,7 @@ export default function ManageMusic() {
           </Button>
         </form>
       </Modal>
+      <ConfirmDialog />
     </AdminLayout>
   );
 }

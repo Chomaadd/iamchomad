@@ -6,6 +6,7 @@ import { useSiteSettings, useUpdateSiteSettings } from "@/hooks/use-settings";
 import { Button, Input, Label, Modal } from "@/components/ui/core";
 import { Plus, Edit2, Trash2, GripVertical, Eye, EyeOff, Upload, User, Loader2, CropIcon, ZoomIn, ZoomOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useConfirm } from "@/hooks/use-confirm";
 import { LinkIcon, LinkIconPreview } from "@/lib/social-icons";
 import type { LinkItem } from "@shared/schema";
 
@@ -57,6 +58,7 @@ export default function ManageLinks() {
   const { mutateAsync: deleteLink } = useDeleteLinkItem();
   const { mutateAsync: updateSettings } = useUpdateSiteSettings();
   const { toast } = useToast();
+  const { confirm: showConfirm, ConfirmDialog } = useConfirm();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -190,7 +192,8 @@ export default function ManageLinks() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Delete this link?")) {
+    const ok = await showConfirm({ title: "Delete link?", description: "This action cannot be undone.", confirmLabel: "Delete" });
+    if (ok) {
       try {
         await deleteLink(id);
         toast({ title: "Link deleted." });
@@ -229,7 +232,7 @@ export default function ManageLinks() {
       </div>
 
       <div className="mb-8 border border-border rounded-xl p-5 bg-card space-y-5">
-        <h2 className="text-base font-semibold">Profil Halaman</h2>
+        <h2 className="text-base font-semibold">Page Profile</h2>
 
         <div className="flex items-start gap-5">
           <div className="relative shrink-0">
@@ -243,7 +246,7 @@ export default function ManageLinks() {
             <label
               htmlFor="avatar-upload"
               className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity shadow-md"
-              title="Upload & crop foto"
+              title="Upload & crop photo"
               data-testid="button-upload-avatar"
             >
               <CropIcon size={12} />
@@ -261,7 +264,7 @@ export default function ManageLinks() {
 
           <div className="flex-1 space-y-3">
             <div>
-              <Label>Nama</Label>
+              <Label>Name</Label>
               <Input
                 placeholder="Choiril Ahmad"
                 value={profile.linksName}
@@ -270,7 +273,7 @@ export default function ManageLinks() {
               />
             </div>
             <div>
-              <Label>Bio / Deskripsi</Label>
+              <Label>Bio / Description</Label>
               <Input
                 placeholder="Frontend Developer & Visual Designer"
                 value={profile.linksBio}
@@ -279,7 +282,7 @@ export default function ManageLinks() {
               />
             </div>
             <div>
-              <Label>URL Foto <span className="text-xs text-muted-foreground">(atau masukkan URL langsung)</span></Label>
+              <Label>Photo URL <span className="text-xs text-muted-foreground">(or enter URL directly)</span></Label>
               <Input
                 placeholder="https://..."
                 value={profile.linksAvatarUrl}
@@ -291,7 +294,7 @@ export default function ManageLinks() {
         </div>
 
         <Button onClick={handleSaveProfile} disabled={savingProfile} className="w-full" data-testid="button-save-profile">
-          {savingProfile ? <><Loader2 size={14} className="animate-spin mr-2" />Menyimpan...</> : "Simpan Profil"}
+          {savingProfile ? <><Loader2 size={14} className="animate-spin mr-2" />Saving...</> : "Save Profile"}
         </Button>
       </div>
 
@@ -358,7 +361,7 @@ export default function ManageLinks() {
         )}
       </div>
 
-      <Modal isOpen={!!cropSrc} onClose={() => setCropSrc(null)} title="Crop Foto Profil">
+      <Modal isOpen={!!cropSrc} onClose={() => setCropSrc(null)} title="Crop Profile Photo">
         <div className="space-y-4">
           <div className="relative w-full bg-black rounded-lg overflow-hidden" style={{ height: 320 }}>
             {cropSrc && (
@@ -393,12 +396,12 @@ export default function ManageLinks() {
 
           <div className="flex gap-3">
             <Button variant="outline" className="flex-1" onClick={() => setCropSrc(null)} disabled={uploadingCrop}>
-              Batal
+              Cancel
             </Button>
             <Button className="flex-1" onClick={handleCropConfirm} disabled={uploadingCrop} data-testid="button-confirm-crop">
               {uploadingCrop
-                ? <><Loader2 size={14} className="animate-spin mr-2" />Menyimpan...</>
-                : "Gunakan Foto"}
+                ? <><Loader2 size={14} className="animate-spin mr-2" />Saving...</>
+                : "Use Photo"}
             </Button>
           </div>
         </div>
@@ -442,7 +445,7 @@ export default function ManageLinks() {
           </div>
           <div>
             <Label>
-              Custom Emoji <span className="text-xs text-muted-foreground">(kosongkan untuk auto-detect)</span>
+              Custom Emoji <span className="text-xs text-muted-foreground">(leave empty for auto-detect)</span>
             </Label>
             <Input
               placeholder="e.g. 📸 🎵 ✉️"
@@ -476,6 +479,7 @@ export default function ManageLinks() {
           </Button>
         </form>
       </Modal>
+      <ConfirmDialog />
     </AdminLayout>
   );
 }

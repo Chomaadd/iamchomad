@@ -4,6 +4,7 @@ import { useBrandItems, useCreateBrandItem, useUpdateBrandItem, useDeleteBrandIt
 import { Button, Input, Textarea, Label, Modal } from "@/components/ui/core";
 import { Plus, Edit2, Trash2, ExternalLink, Image as ImageIcon, Star, Grid3X3, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useConfirm } from "@/hooks/use-confirm";
 
 export default function ManageBrand() {
   const { data: items } = useBrandItems();
@@ -11,6 +12,7 @@ export default function ManageBrand() {
   const { mutateAsync: updateItem } = useUpdateBrandItem();
   const { mutateAsync: deleteItem } = useDeleteBrandItem();
   const { toast } = useToast();
+  const { confirm: showConfirm, ConfirmDialog } = useConfirm();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -75,7 +77,8 @@ export default function ManageBrand() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Delete this asset?")) {
+    const ok = await showConfirm({ title: "Delete asset?", description: "This action cannot be undone.", confirmLabel: "Delete" });
+    if (ok) {
       try {
         await deleteItem(id);
         toast({ title: "Asset deleted." });
@@ -222,6 +225,7 @@ export default function ManageBrand() {
           </Button>
         </form>
       </Modal>
+      <ConfirmDialog />
     </AdminLayout>
   );
 }

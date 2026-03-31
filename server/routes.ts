@@ -762,6 +762,7 @@ ${blogEntries}
     try {
       const {
         siteTitle, adminAvatarUrl, aboutImageUrl,
+        metaDescription, metaKeywords, ogImageUrl,
         availabilityStatus, availabilityLabel, linksAvatarUrl, linksName, linksBio,
         resumeFullName, resumeTitle, resumeAbout, resumePhotoUrl,
         resumeBirthDate, resumeBirthPlace, resumeReligion, resumeGender, resumeMarriagestatus,
@@ -772,6 +773,9 @@ ${blogEntries}
         siteTitle,
         adminAvatarUrl,
         aboutImageUrl,
+        metaDescription,
+        metaKeywords,
+        ogImageUrl,
         availabilityStatus,
         availabilityLabel,
         linksAvatarUrl,
@@ -1048,29 +1052,35 @@ ${blogEntries}
   // never seen by their crawlers. We detect bots and return a minimal HTML
   // page with the correct Open Graph tags, which then redirects real users.
   const SITE_URL = "https://iamchomad.my.id";
-  const SITE_NAME = "Choiril Ahmad";
-  const LOGO_URL = `${SITE_URL}/og-thumb.png`;
-
-  const PAGE_META: Record<string, { title: string; description: string }> = {
-    "/":        { title: `${SITE_NAME}'s`, description: "Personal website of Choiril Ahmad — Entrepreneur & Software Developer crafting digital experiences with precision and purpose." },
-    "/about":   { title: `About | ${SITE_NAME}`, description: "Learn about Choiril Ahmad — Entrepreneur & Software Developer from Indonesia, crafting digital experiences with precision and purpose." },
-    "/blog":    { title: `Blog | ${SITE_NAME}`, description: "Thoughts, stories, and ideas from Choiril Ahmad on entrepreneurship, software development, and creativity." },
-    "/brand":   { title: `Brand | ${SITE_NAME}`, description: "Brand projects and creative work by Choiril Ahmad — a showcase of design, identity, and visual storytelling." },
-    "/music":   { title: `Sound | ${SITE_NAME}`, description: "Music and audio collection by Choiril Ahmad — a personal selection of sounds and compositions." },
-    "/resume":  { title: `Resume | ${SITE_NAME}`, description: "Professional resume of Choiril Ahmad — experience, education, and skills as an Entrepreneur & Software Developer." },
-    "/contact": { title: `Contact | ${SITE_NAME}`, description: "Get in touch with Choiril Ahmad — send a message for collaborations, projects, or just to say hello." },
-    "/links":   { title: `Links | ${SITE_NAME}`, description: "All of Choiril Ahmad's important links in one place — social media, portfolio, contact, and more." },
-    "/pesan":   { title: `Anonymous Message | ${SITE_NAME}`, description: "Have something to say? Send an anonymous message to Choiril Ahmad — your identity is 100% protected." },
-    "/novel":   { title: `Novel & Comic | ${SITE_NAME}`, description: "A collection of novels and comics, stories with a rich world and lively characters." },
-  };
+  const DEFAULT_SITE_NAME = "Choiril Ahmad";
+  const DEFAULT_LOGO_URL = `${SITE_URL}/og-thumb.png`;
+  const DEFAULT_DESCRIPTION = "Personal website of Choiril Ahmad — Entrepreneur & Software Developer crafting digital experiences with precision and purpose.";
 
   const SOCIAL_BOTS = ["WhatsApp", "TelegramBot", "facebookexternalhit", "Twitterbot", "LinkedInBot", "Slackbot", "Discordbot", "SkypeUriPreview", "google", "bingbot"];
 
-  app.use((req, res, next) => {
+  app.use(async (req, res, next) => {
     if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) return next();
     const ua = req.headers["user-agent"] || "";
     const isBot = SOCIAL_BOTS.some(bot => ua.toLowerCase().includes(bot.toLowerCase()));
     if (!isBot) return next();
+
+    const siteSettings = await storage.getSiteSettings().catch(() => null);
+    const SITE_NAME = siteSettings?.siteTitle || DEFAULT_SITE_NAME;
+    const LOGO_URL = siteSettings?.ogImageUrl || DEFAULT_LOGO_URL;
+    const siteDesc = siteSettings?.metaDescription || DEFAULT_DESCRIPTION;
+
+    const PAGE_META: Record<string, { title: string; description: string }> = {
+      "/":        { title: `${SITE_NAME}'s`, description: siteDesc },
+      "/about":   { title: `About | ${SITE_NAME}`, description: `Learn about ${SITE_NAME} — Entrepreneur & Software Developer from Indonesia, crafting digital experiences with precision and purpose.` },
+      "/blog":    { title: `Blog | ${SITE_NAME}`, description: `Thoughts, stories, and ideas from ${SITE_NAME} on entrepreneurship, software development, and creativity.` },
+      "/brand":   { title: `Brand | ${SITE_NAME}`, description: `Brand projects and creative work by ${SITE_NAME} — a showcase of design, identity, and visual storytelling.` },
+      "/music":   { title: `Sound | ${SITE_NAME}`, description: `Music and audio collection by ${SITE_NAME} — a personal selection of sounds and compositions.` },
+      "/resume":  { title: `Resume | ${SITE_NAME}`, description: `Professional resume of ${SITE_NAME} — experience, education, and skills as an Entrepreneur & Software Developer.` },
+      "/contact": { title: `Contact | ${SITE_NAME}`, description: `Get in touch with ${SITE_NAME} — send a message for collaborations, projects, or just to say hello.` },
+      "/links":   { title: `Links | ${SITE_NAME}`, description: `All of ${SITE_NAME}'s important links in one place — social media, portfolio, contact, and more.` },
+      "/pesan":   { title: `Anonymous Message | ${SITE_NAME}`, description: `Have something to say? Send an anonymous message to ${SITE_NAME} — your identity is 100% protected.` },
+      "/novel":   { title: `Novel & Comic | ${SITE_NAME}`, description: "A collection of novels and comics, stories with a rich world and lively characters." },
+    };
 
     const meta = PAGE_META[req.path] || PAGE_META["/"];
     const canonicalUrl = `${SITE_URL}${req.path === "/" ? "" : req.path}`;
@@ -1087,7 +1097,7 @@ ${blogEntries}
   <meta property="og:image:alt" content="${SITE_NAME} logo">
   <meta property="og:url" content="${canonicalUrl}">
   <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${meta.title}">
   <meta name="twitter:description" content="${meta.description}">
   <meta name="twitter:image" content="${LOGO_URL}">

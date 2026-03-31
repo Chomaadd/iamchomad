@@ -6,6 +6,7 @@ import { Button, Input, Textarea, Label, Modal } from "@/components/ui/core";
 import { Plus, Edit2, Trash2, Briefcase, GraduationCap, Lightbulb, User, Upload, X, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ImageCropModal from "@/components/ui/ImageCropModal";
+import { useConfirm } from "@/hooks/use-confirm";
 import type { ResumeItem } from "@shared/schema";
 
 const typeConfig = {
@@ -22,6 +23,7 @@ export default function ManageResume() {
   const { mutateAsync: deleteItem } = useDeleteResumeItem();
   const { mutateAsync: updateSettings, isPending: savingProfile } = useUpdateSiteSettings();
   const { toast } = useToast();
+  const { confirm: showConfirm, ConfirmDialog } = useConfirm();
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
@@ -179,7 +181,8 @@ export default function ManageResume() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Delete this resume item?")) {
+    const ok = await showConfirm({ title: "Delete resume item?", description: "This action cannot be undone.", confirmLabel: "Delete" });
+    if (ok) {
       try {
         await deleteItem(id);
         toast({ title: "Item deleted." });
@@ -518,6 +521,7 @@ export default function ManageResume() {
           </Button>
         </form>
       </Modal>
+      <ConfirmDialog />
     </AdminLayout>
   );
 }

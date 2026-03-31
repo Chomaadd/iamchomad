@@ -3,6 +3,7 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useContactMessages, useMarkMessageRead, useDeleteMessage } from "@/hooks/use-contact";
 import { Check, Trash2, MailOpen, Mail as MailIcon, Inbox, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useConfirm } from "@/hooks/use-confirm";
 
 function getInitials(name: string) {
   return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
@@ -36,6 +37,7 @@ export default function ManageMessages() {
   const { mutateAsync: markRead } = useMarkMessageRead();
   const { mutateAsync: deleteMsg } = useDeleteMessage();
   const { toast } = useToast();
+  const { confirm: showConfirm, ConfirmDialog } = useConfirm();
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const unread = messages?.filter(m => !m.read) ?? [];
@@ -53,7 +55,8 @@ export default function ManageMessages() {
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm("Delete this message?")) {
+    const ok = await showConfirm({ title: "Delete message?", description: "This action cannot be undone.", confirmLabel: "Delete" });
+    if (ok) {
       try {
         await deleteMsg(id);
         toast({ title: "Message deleted." });
@@ -206,6 +209,7 @@ export default function ManageMessages() {
           </div>
         </div>
       )}
+      <ConfirmDialog />
     </AdminLayout>
   );
 }

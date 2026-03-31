@@ -4,6 +4,7 @@ import { usePosts, useCreatePost, useUpdatePost, useDeletePost } from "@/hooks/u
 import { Button, Input, Textarea, Label, Modal } from "@/components/ui/core";
 import { Plus, Edit2, Trash2, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useConfirm } from "@/hooks/use-confirm";
 import { RichTextEditor, renderRichContent } from "@/components/ui/rich-text-editor";
 
 export default function ManageBlog() {
@@ -12,6 +13,7 @@ export default function ManageBlog() {
   const { mutateAsync: updatePost } = useUpdatePost();
   const { mutateAsync: deletePost } = useDeletePost();
   const { toast } = useToast();
+  const { confirm: showConfirm, ConfirmDialog } = useConfirm();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -111,7 +113,8 @@ export default function ManageBlog() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this entry?")) {
+    const ok = await showConfirm({ title: "Delete entry?", description: "This action cannot be undone.", confirmLabel: "Delete" });
+    if (ok) {
       try {
         await deletePost(id);
         toast({ title: "Entry deleted." });
@@ -235,6 +238,7 @@ export default function ManageBlog() {
           </Button>
         </form>
       </Modal>
+      <ConfirmDialog />
     </AdminLayout>
   );
 }

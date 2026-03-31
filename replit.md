@@ -28,6 +28,7 @@ A personal portfolio website with blog, brand showcase, music collection, and co
 
 ### Admin Dashboard
 - **Secure Authentication** - Session-based login (no public registration)
+- **Custom Confirm Dialogs** - All delete confirmations use a shadcn AlertDialog instead of native browser `confirm()` (prevents "OKE" text in Indonesian Chrome)
 - **Dashboard** (`/admin`) - Overview stats
 - **Analytics** (`/admin/analytics`) - Site analytics: total/today/week/month views, 30-day bar chart, top pages, device breakdown (desktop vs mobile)
 - **Blog Management** (`/admin/blog`) - Create, edit, delete blog posts with image uploads
@@ -36,6 +37,7 @@ A personal portfolio website with blog, brand showcase, music collection, and co
 - **Resume Management** (`/admin/resume`) - Manage resume/CV items (experience, education, skills) with ordering. Includes **Profile Info** tab to set personal biographical data (full name, job title, about me, photo URL, birth date, nationality, phone, address, email, website) that appears in the PDF printout
 - **Links Management** (`/admin/links`) - Add/edit/delete links with title, URL, emoji icon, description, order, and visibility toggle
 - **Messages** (`/admin/messages`) - View and manage contact messages
+- **Settings** (`/admin/settings`) - Site Identity (site title, site name), SEO (meta description, keywords, OG image URL), and Photos (profile/cover) — all changes saved to MongoDB and served dynamically
 
 ## Admin Access
 

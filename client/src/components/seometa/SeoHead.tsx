@@ -1,9 +1,10 @@
 import { Helmet } from "react-helmet-async";
+import { useSiteSettings } from "@/hooks/use-settings";
 
-const SITE_NAME = "Choiril Ahmad";
 const SITE_URL = "https://iamchomad.my.id";
-const DEFAULT_DESCRIPTION = "Personal website of Choiril Ahmad — Entrepreneur & Software Developer crafting digital experiences with precision and purpose.";
-const DEFAULT_IMAGE = `${SITE_URL}/og-thumb.png`;
+const FALLBACK_NAME = "Choiril Ahmad";
+const FALLBACK_DESCRIPTION = "Personal website of Choiril Ahmad — Entrepreneur & Software Developer crafting digital experiences with precision and purpose.";
+const FALLBACK_IMAGE = `${SITE_URL}/og-thumb.png`;
 
 interface SeoHeadProps {
   title?: string;
@@ -20,27 +21,35 @@ interface SeoHeadProps {
 
 export function SeoHead({
   title,
-  description = DEFAULT_DESCRIPTION,
-  image = DEFAULT_IMAGE,
+  description,
+  image,
   url,
   type = "website",
   cardType = "summary",
   article,
 }: SeoHeadProps) {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}'s`;
+  const { data: settings } = useSiteSettings();
+
+  const siteName = settings?.siteTitle || FALLBACK_NAME;
+  const defaultDesc = settings?.metaDescription || FALLBACK_DESCRIPTION;
+  const defaultImage = settings?.ogImageUrl || FALLBACK_IMAGE;
+
+  const resolvedDescription = description ?? defaultDesc;
+  const resolvedImage = image ?? defaultImage;
+  const fullTitle = title ? `${title} | ${siteName}` : `${siteName}'s`;
   const canonicalUrl = url ? `${SITE_URL}${url}` : SITE_URL;
 
   return (
     <Helmet>
       <title>{fullTitle}</title>
-      <meta name="description" content={description} />
+      <meta name="description" content={resolvedDescription} />
       <link rel="canonical" href={canonicalUrl} />
 
-      <meta property="og:site_name" content={SITE_NAME} />
+      <meta property="og:site_name" content={siteName} />
       <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={image} />
-      <meta property="og:image:alt" content={`${SITE_NAME} logo`} />
+      <meta property="og:description" content={resolvedDescription} />
+      <meta property="og:image" content={resolvedImage} />
+      <meta property="og:image:alt" content={`${siteName} logo`} />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:type" content={type} />
 
@@ -53,8 +62,8 @@ export function SeoHead({
 
       <meta name="twitter:card" content={cardType} />
       <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={image} />
+      <meta name="twitter:description" content={resolvedDescription} />
+      <meta name="twitter:image" content={resolvedImage} />
     </Helmet>
   );
 }
