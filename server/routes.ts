@@ -300,7 +300,17 @@ export async function registerRoutes(
       { url: "/music", priority: "0.7", changefreq: "monthly" },
       { url: "/resume", priority: "0.8", changefreq: "monthly" },
       { url: "/contact", priority: "0.6", changefreq: "yearly" },
+      { url: "/links", priority: "0.6", changefreq: "monthly" },
+      { url: "/pesan", priority: "0.5", changefreq: "yearly" },
+      { url: "/novel", priority: "0.8", changefreq: "weekly" },
     ];
+
+    const makeUrl = (loc: string, lastmod: string, changefreq: string, priority: string) =>
+      `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+
+    const staticEntries = staticPages
+      .map((p) => makeUrl(`${SITE_URL}${p.url}`, today, p.changefreq, p.priority))
+      .join("\n");
 
     let blogEntries = "";
     try {
@@ -313,33 +323,47 @@ export async function registerRoutes(
             : post.createdAt
               ? new Date(post.createdAt).toISOString().split("T")[0]
               : today;
-          return `  <url>
-    <loc>${SITE_URL}/blog/${post.slug}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>`;
+          return makeUrl(`${SITE_URL}/blog/${post.slug}`, lastmod, "monthly", "0.7");
         })
         .join("\n");
     } catch {
       blogEntries = "";
     }
 
-    const staticEntries = staticPages
-      .map(
-        (p) => `  <url>
-    <loc>${SITE_URL}${p.url}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>${p.changefreq}</changefreq>
-    <priority>${p.priority}</priority>
-  </url>`,
-      )
-      .join("\n");
+    let novelEntries = "";
+    try {
+      const stories = await storage.getNovelStories(true);
+      const lines: string[] = [];
+      for (const story of stories) {
+        lines.push(makeUrl(`${SITE_URL}/novel/${story.slug}`, today, "weekly", "0.7"));
+        const seasons = await storage.getNovelSeasons(story.id);
+        for (const season of seasons) {
+          const chapters = await storage.getNovelChapters(season.id, true);
+          for (const chapter of chapters) {
+            const lastmod = (chapter as any).updatedAt
+              ? new Date((chapter as any).updatedAt).toISOString().split("T")[0]
+              : today;
+            lines.push(
+              makeUrl(
+                `${SITE_URL}/novel/${story.slug}/season-${season.seasonNumber}/bab-${chapter.chapterNumber}`,
+                lastmod,
+                "monthly",
+                "0.6",
+              ),
+            );
+          }
+        }
+      }
+      novelEntries = lines.join("\n");
+    } catch {
+      novelEntries = "";
+    }
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticEntries}
 ${blogEntries}
+${novelEntries}
 </urlset>`;
 
     res.setHeader("Content-Type", "application/xml");
