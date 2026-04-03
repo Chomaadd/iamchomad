@@ -151,19 +151,7 @@ export default function BlogPost() {
       />
       <Navbar />
 
-      {/* ── Cover Image — full width cinematic ── */}
-      {post.imageUrl && (
-        <div className="w-full max-h-[480px] overflow-hidden bg-muted">
-          <img
-            src={post.imageUrl}
-            alt={post.title}
-            className="w-full h-full object-cover"
-            style={{ maxHeight: 480 }}
-          />
-        </div>
-      )}
-
-      <main className="max-w-6xl mx-auto px-6 lg:px-8 py-10 lg:py-14">
+      <main className="max-w-5xl mx-auto px-6 lg:px-8 py-10 lg:py-14">
 
         {/* Back link */}
         <Link
@@ -174,7 +162,18 @@ export default function BlogPost() {
           <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" /> {t("blogpost.back")}
         </Link>
 
-        <div className="lg:grid lg:grid-cols-[1fr_230px] lg:gap-16 lg:items-start">
+        {/* ── Cover Image — contained, centered, rounded ── */}
+        {post.imageUrl && (
+          <div className="mb-10 rounded-2xl overflow-hidden bg-muted soft-shadow-lg aspect-video">
+            <img
+              src={post.imageUrl}
+              alt={post.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
+        <div className="lg:grid lg:grid-cols-[1fr_210px] lg:gap-14 lg:items-start">
 
           {/* ── Article ── */}
           <motion.article initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
