@@ -1,49 +1,59 @@
-# Personal Portfolio Website - Choiril Ahmad
+# Personal Portfolio Website - Choiril Ahmad (iamchomad.my.id)
 
-A personal portfolio website with blog, brand showcase, music collection, and contact functionality. Features an elegant black/white theme toggle and secure admin dashboard for content management.
+A personal portfolio website with blog, brand showcase, music collection, and contact functionality. Features an elegant black/white theme toggle and secure admin dashboard for content management. Agent name: **Madrols**.
 
 ## Features
 
 ### Multi-Language Support
 - English (EN) and Indonesian (ID) with toggle in navbar
 - Language preference persisted in localStorage
-- All public page UI text translated; dynamic content from DB stays as-is
-- Date formatting adapts to selected locale
+- All public page UI text translated via i18n; dynamic content from DB stays as-is
+- Availability status label always translated through i18n (NOT from DB string directly)
 - Translation system: `client/src/lib/i18n.ts` + `client/src/hooks/use-language.tsx`
+- **i18n keys for availability:** `home.activity.openwork`, `home.activity.curentlybusy` (typo: one 'r'), `home.activity.notavailable`
 
 ### Public Pages
-- **Home** (`/`) - Landing page with featured content
-- **About** (`/about`) - Personal information and professional background
-- **Blog** (`/blog`) - Article listing with slug-based URLs (`/blog/:slug`), search bar, and category tag filter
-  - Each article has: view count, share buttons (WhatsApp, X, copy link), reaction buttons (👍 ❤️), and Table of Contents sidebar (auto-extracted from headings, visible on desktop for articles with 2+ sections)
-- **Brand** (`/brand`) - Showcase of brand items and projects
-- **Music** (`/music`) - Music collection player with auto-play support
-- **Resume** (`/resume`) - Professional CV/resume with experience, education, skills sections and print/PDF support
-- **Contact** (`/contact`) - Working contact form for visitor messages
-- **Links** (`/links`) - Linktree-style page listing all important links with emoji icons, manageable from admin
+- **Home** (`/`) - Landing page with hero avatar, status badge, animated heading, and 3-col blog grid (simple, no complex asymmetric layout)
+- **About** (`/about`) - Redesigned: photo panel left (lg:sticky lg:top-24), stats row, text content right with badge/heading/quote card/3 highlight cards; Skills section 4 categories; dark CTA section at bottom
+- **Blog** (`/blog`) - Full-bleed cinematic featured post with overlay; grid cards with read time badge, tags, date/views footer; search bar; tag filter. Article count NOT shown in header.
+- **BlogPost** (`/blog/:slug`) - Cover image contained in max-w-5xl (aspect-video, rounded-2xl); tags before title; excerpt with left accent border; TOC card sidebar (desktop only); large reaction buttons; share buttons
+- **Brand** (`/brand`) - Full-bleed cinematic featured card; grid cards below; project count NOT shown in header
+- **Music** (`/music`) - Music collection player with auto-play support and queue
+- **Resume** (`/resume`) - Card header with photo/name/jobTitle/contact info; timeline for experience/education; skills grid; PDF print page at `/resume/pdf`
+- **Contact** (`/contact`) - 2-column layout: contact info cards left, message form right; stacks vertically on mobile
+- **Links** (`/links`) - Linktree-style page with:
+  - Larger avatar (w-32 h-32)
+  - Custom background image support (with dark overlay, NO `background-attachment: fixed` — iOS bug)
+  - 5 border styles: `default` (rounded-2xl), `pill` (rounded-full), `sharp` (rounded-md), `dashed` (border-2 dashed), `glow` (shadow, no border)
+  - Colors adapt automatically based on whether background image is present
 - **Novel & Komik** (`/novel`) - Reading platform for stories with grid cover display, search & category filter
-  - Story detail (`/novel/:slug`) - Synopsis, season & chapter accordion list with read time estimate
+  - Story detail (`/novel/:slug`) - Synopsis, season & chapter accordion list with publish date
   - Reading page (`/novel/:slug/season-:n/bab-:n`) - Clean reading view with prev/next chapter navigation
   - Supports categories: novel, komik, cerpen, puisi, lainnya; statuses: ongoing, completed, hiatus
 
 ### Admin Dashboard
 - **Secure Authentication** - Session-based login (no public registration)
-- **Custom Confirm Dialogs** - All delete confirmations use a shadcn AlertDialog instead of native browser `confirm()` (prevents "OKE" text in Indonesian Chrome)
-- **Dashboard** (`/admin`) - Overview stats
-- **Analytics** (`/admin/analytics`) - Site analytics: total/today/week/month views, 30-day bar chart, top pages, device breakdown (desktop vs mobile)
-- **Blog Management** (`/admin/blog`) - Create, edit, delete blog posts with image uploads
-- **Brand Management** (`/admin/brand`) - Manage brand portfolio items
+- **Custom Confirm Dialogs** - All delete confirmations use shadcn AlertDialog via `useConfirm()` hook (prevents "OKE" text in Indonesian Chrome)
+- **Dashboard** (`/admin`) - Overview stats; availability status dropdown (bilingual, uses i18n)
+- **Analytics** (`/admin/analytics`) - Total/today/week/month views, 30-day bar chart, top pages, device breakdown
+- **Blog Management** (`/admin/blog`) - Create, edit, delete blog posts with rich text editor and image uploads
+- **Brand Management** (`/admin/brand`) - Manage brand portfolio items; featured toggle; grid/list view
 - **Music Management** (`/admin/music`) - Add/manage music tracks with auto-duration detection
-- **Resume Management** (`/admin/resume`) - Manage resume/CV items (experience, education, skills) with ordering. Includes **Profile Info** tab to set personal biographical data (full name, job title, about me, photo URL, birth date, nationality, phone, address, email, website) that appears in the PDF printout
-- **Links Management** (`/admin/links`) - Add/edit/delete links with title, URL, emoji icon, description, order, and visibility toggle
-- **Messages** (`/admin/messages`) - View and manage contact messages
-- **Settings** (`/admin/settings`) - Site Identity (site title, site name), SEO (meta description, keywords, OG image URL), and Photos (profile/cover) — all changes saved to MongoDB and served dynamically
+- **Resume Management** (`/admin/resume`) - Manage resume items (experience, education, skills) with ordering. Profile Info tab for full name, job title, about, photo, birth date, nationality, phone, address, email, website
+- **Links Management** (`/admin/links`) - Add/edit/delete links; Page Profile section with:
+  - Avatar upload with circular crop (react-easy-crop)
+  - Name and bio fields
+  - **Background Image**: upload or paste URL, preview, remove button
+  - **Border Style picker**: 5 options (Rounded/Pill/Sharp/Dashed/Glow) with visual previews, auto-saves on click
+  - Grid: 3 cols on mobile, 5 cols on sm+
+- **Messages** (`/admin/messages`) - View and manage contact form messages
+- **Settings** (`/admin/settings`) - Site Identity (title, name, owner name), SEO (meta description, keywords, OG image), Photos (profile/about photos), Availability status
 
 ## Admin Access
 
 **Login URL:** `/login`
 
-Credentials are configured via environment secrets:
+Credentials via environment secrets:
 - `ADMIN_USERNAME` - Admin username
 - `ADMIN_PASSWORD` - Admin password
 
@@ -54,24 +64,43 @@ Credentials are configured via environment secrets:
 - TanStack Query v5 for data fetching
 - Wouter for routing
 - Framer Motion for animations
-- Lucide React for icons
+- Lucide React + react-icons/si for icons
 - Shadcn/ui components
 - Tailwind CSS
+- react-easy-crop for image cropping
 
 ### Backend
 - Node.js with Express
-- **MongoDB** with Mongoose ODM
+- **MongoDB** with Mongoose ODM (strict mode — all new fields MUST be added to `server/db.ts` Mongoose schema)
 - Session-based authentication (express-session + connect-mongo)
-- Multer for file uploads
+- Multer for file uploads (stored in MongoDB GridFS)
 - music-metadata for audio duration extraction
 - RESTful API design
 
 ### Data Collections (MongoDB)
 - `blogposts` - Blog articles with images
 - `contactmessages` - Visitor messages
-- `musictracks` - Music collection with duration
+- `musictracks` - Music collection
 - `branditems` - Brand portfolio
-- `resumeitems` - Resume/CV items (experience, education, skills)
+- `resumeitems` - Resume/CV items
+- `sitesettings` - All site settings (one document)
+- `linkitems` - Links page items
+- `pageviews` - Analytics data
+
+## Key Files
+- `client/src/pages/public/Home.tsx` — Hero + simple 3-col blog grid
+- `client/src/pages/public/Blog.tsx` — Featured cinematic post, grid cards with badges
+- `client/src/pages/public/BlogPost.tsx` — Reading page, contained image, TOC sidebar
+- `client/src/pages/public/About.tsx` — Photo panel left (lg:sticky), skills, dark CTA
+- `client/src/pages/public/Brand.tsx` — Full-bleed featured card
+- `client/src/pages/public/Contact.tsx` — 2-col layout
+- `client/src/pages/public/Resume.tsx` — Card header + timeline
+- `client/src/pages/public/Links.tsx` — Background image, 5 border styles, large avatar
+- `client/src/pages/admin/ManageLinks.tsx` — Background upload, border picker, avatar crop
+- `shared/schema.ts` — Zod schemas including siteSettingsSchema with linksBackgroundUrl, linksBorderStyle
+- `server/db.ts` — Mongoose schemas (ALL new fields must be added here)
+- `server/routes.ts` — API routes
+- `server/storage.ts` — Storage interface + MongoDB implementation
 
 ## API Endpoints
 
@@ -83,62 +112,60 @@ Credentials are configured via environment secrets:
 ### Blog
 - `GET /api/blog` - List all posts
 - `GET /api/blog/:slug` - Get post by slug
-- `POST /api/blog` - Create post (auth required)
-- `PUT /api/blog/:id` - Update post (auth required)
-- `DELETE /api/blog/:id` - Delete post (auth required)
+- `POST /api/blog` - Create post (auth)
+- `PUT /api/blog/:id` - Update post (auth)
+- `DELETE /api/blog/:id` - Delete post (auth)
 - `POST /api/blog/:slug/view` - Increment view count (public)
-- `POST /api/blog/:slug/react` - Add reaction `{ type: 'thumbsUp' | 'heart' }` (public, localStorage prevents duplicates)
+- `POST /api/blog/:slug/react` - Add reaction `{ type: 'thumbsUp' | 'heart' }` (public, localStorage dedup)
 
-### Contact
-- `POST /api/contact` - Submit message
-- `GET /api/contact` - List messages (auth required)
-- `PATCH /api/contact/:id/read` - Mark as read (auth required)
-- `DELETE /api/contact/:id` - Delete message (auth required)
+### Settings
+- `GET /api/settings` - Get site settings
+- `PUT /api/settings` - Update settings (auth)
 
-### Music
-- `GET /api/music` - List tracks
-- `GET /api/music/:id` - Get track
-- `POST /api/music` - Add track (auth required)
-- `PUT /api/music/:id` - Update track (auth required)
-- `DELETE /api/music/:id` - Delete track (auth required)
-
-### Brand & Resume (same CRUD pattern)
-- `GET /api/brand` / `GET /api/resume` - List items
-- `GET /api/brand/:id` / `GET /api/resume/:id` - Get item
-- `POST /api/brand` / `POST /api/resume` - Create (auth required)
-- `PUT /api/brand/:id` / `PUT /api/resume/:id` - Update (auth required)
-- `DELETE /api/brand/:id` / `DELETE /api/resume/:id` - Delete (auth required)
+### Links
+- `GET /api/links` - List link items
+- `POST /api/links` - Create link (auth)
+- `PUT /api/links/:id` - Update link (auth)
+- `DELETE /api/links/:id` - Delete link (auth)
 
 ### File Upload
-- `POST /api/upload` - Upload file (auth required, returns URL and duration for audio)
+- `POST /api/upload` - Upload file (auth, returns URL + duration for audio)
 
 ## Environment Variables
 - `MONGODB_URI` - MongoDB connection string
-- `SESSION_SECRET` - Session encryption secret
+- `GMAIL_USER` - Gmail address for contact form notifications
+- `GMAIL_APP_PASSWORD` - Gmail app password for nodemailer
 - `ADMIN_USERNAME` - Admin login username
 - `ADMIN_PASSWORD` - Admin login password
+- `SESSION_SECRET` - Session encryption secret
 - `PORT` - Server port (default: 5000)
 
 ## Development
-- `npm run dev` - Start development server (Express + Vite)
-- `npm run build` - Build for production
-- Production: `node ./dist/index.cjs` serves from `build/` directory
+- `npm run dev` - Start development server (Express + Vite on port 5000)
+- Vite root is project root; public dir is `public/` NOT `client/public/`
+- Upload files stored in MongoDB GridFS, served at `/uploads/:filename`
+
+## Critical Implementation Notes
+- **Mongoose strict mode**: Any new field in siteSettings MUST be added to `server/db.ts` siteSettingsSchema, otherwise it's silently ignored
+- `use-confirm.tsx` hook: `const { confirm: showConfirm, ConfirmDialog } = useConfirm()`
+- Avatar/photo crop uses `react-easy-crop` (getCroppedBlob helper)
+- All upload fetch calls include `credentials: "include"` for session auth
+- Blog posts use slug-based URLs
+- MongoDB `_id` mapped to `id` string via `mapId<T>()` helper
+
+## Design Preferences (Mad's preferences)
+- Likes full-bleed overlay cards (Blog featured, Brand featured) — cinematic style
+- Dislikes overly complex asymmetric layouts on Home — keep simple 3-col grid
+- Article/project count numbers NOT shown on page headers
+- BlogPost cover image: contained (not full-width), aspect-video, rounded-2xl
+- Photo sticky only on desktop (`lg:sticky lg:top-24`), not mobile
+- NO `background-attachment: fixed` (iOS Safari bug)
 
 ## Blog Update Convention
-- Setiap ada pembaruan website (fitur baru, bug fix, dll), buatkan **postingan baru yang terpisah** di blog dengan tag "Update"
-- Jangan digabungkan ke postingan sebelumnya — tiap sesi/hari kerja = satu postingan baru
-- **Tunggu semua pekerjaan dalam satu sesi selesai dulu**, baru buat satu postingan blog yang merangkum semuanya — jangan posting 1 per 1 setiap perubahan kecil
-- Format judul: "Pembaruan [Tanggal] — [ringkasan singkat perubahan]"
-- Slug: `pembaruan-[tanggal]-[slug-singkat]`, contoh: `pembaruan-27-maret-chapter-waktu-terbit`
-- Isi postingan: ringkasan semua perubahan hari itu (fitur baru, bug fix, dll)
+- Setiap ada pembaruan website, buat **postingan baru terpisah** di blog dengan tag "Update"
+- **Tunggu semua pekerjaan satu sesi selesai**, baru rangkum jadi satu postingan — jangan post satu per satu
+- **Tunjukkan draf dulu ke Mad** sebelum diposting — jangan langsung posting tanpa review
+- Format judul: `Pembaruan Website — [ringkasan singkat]`
+- Slug: `pembaruan-[kata-kunci-singkat]`
+- Ikuti template postingan sebelumnya: intro paragraph, h2 per section dengan emoji, ul/li untuk detail
 - Banner bisa diupload sendiri oleh Mad melalui Admin → Blog
-
-## Key Implementation Details
-- File uploads stored in MongoDB GridFS (persistent across deployments), served at `/uploads/:filename`
-- Falls back to local `./uploads/` directory for legacy files
-- All upload fetch calls include `credentials: "include"` for session auth
-- Audio files get auto-detected duration formatted as "M:SS"
-- Blog posts use slug-based URLs (not ID-based)
-- MongoDB `_id` mapped to `id` string via `mapId<T>()` helper
-- Production uses MongoStore for sessions, dev uses MemoryStore
-- Server starts immediately for healthchecks, initializes DB/routes async
