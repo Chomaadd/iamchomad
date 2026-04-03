@@ -93,7 +93,7 @@ export default function About() {
             transition={{ duration: 0.6 }}
             className="lg:col-span-5"
           >
-            <div className="sticky top-24">
+            <div className="lg:sticky lg:top-24">
               {/* Photo inside a styled panel */}
               <div className="relative bg-card border border-border/60 rounded-3xl overflow-hidden soft-shadow-lg">
                 {/* Ambient top accent */}

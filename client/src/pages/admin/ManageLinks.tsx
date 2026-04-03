@@ -341,7 +341,7 @@ export default function ManageLinks() {
         {/* ── Border Style ── */}
         <div>
           <Label className="mb-3 block">Link Card Border Style</Label>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             {BORDER_OPTIONS.map(opt => (
               <button
                 key={opt.value}

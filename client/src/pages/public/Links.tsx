@@ -59,7 +59,6 @@ export default function Links() {
                 backgroundImage: `url(${backgroundUrl})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                backgroundAttachment: "fixed",
               }
             : undefined
         }
