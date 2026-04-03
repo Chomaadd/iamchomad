@@ -10,11 +10,14 @@ import { FileText, Mail, Image, Music, TrendingUp, Clock, ScrollText, Briefcase,
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import type { AvailabilityStatus, NovelStory } from "@shared/schema";
+import { useLanguage } from "@/hooks/use-language";
+
+const { t } = useLanguage();
 
 const availabilityOptions: { value: AvailabilityStatus; label: string; color: string; dot: string }[] = [
-  { value: "open", label: "Open to Work", color: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-500" },
-  { value: "busy", label: "Currently Busy", color: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400", dot: "bg-amber-500" },
-  { value: "unavailable", label: "Not Available", color: "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-400", dot: "bg-red-500" },
+  { value: "open", label: {t("home.activity.openwork")}, color: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-500" },
+  { value: "busy", label: "Currently Busy" {t("home.activity.currently.busy")}, color: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400", dot: "bg-amber-500" },
+  { value: "unavailable", label: "Not Available" {t("home.activity.notavailable")}, color: "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-400", dot: "bg-red-500" },
 ];
 
 export default function Dashboard() {

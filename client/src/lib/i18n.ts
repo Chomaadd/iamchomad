@@ -18,6 +18,9 @@ const translations: Record<Language, Record<string, string>> = {
     "miniplayer.list": "Track List",
     
     "home.badge": "Available for work",
+    "home.activity.openwork": "Open for works",
+    "home.activity.curentlybusy": "Currently Busy",
+    "home.activity.notavailable": "Not Available",
     "home.heading": "Building digital products,",
     "home.heading.highlight": " brands",
     "home.heading.end": ", and experience.",
@@ -173,6 +176,9 @@ const translations: Record<Language, Record<string, string>> = {
     "miniplayer.list": "Daftar Lagu",
 
     "home.badge": "Tersedia untuk bekerja",
+    "home.activity.openwork": "Terbuka untuk Bekerja",
+    "home.activity.curentlybusy": "Sedang Sibuk",
+    "home.activity.notavailable": "Sedang Libur",
     "home.heading": "Membangun produk digital,",
     "home.heading.highlight": " brand",
     "home.heading.end": ", dan pengalaman.",
