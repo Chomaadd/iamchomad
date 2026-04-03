@@ -102,6 +102,8 @@ import mongoose from 'mongoose';
     linksAvatarUrl: { type: String },
     linksName: { type: String },
     linksBio: { type: String },
+    linksBackgroundUrl: { type: String },
+    linksBorderStyle: { type: String, default: 'default' },
     resumeFullName: { type: String },
     resumeTitle: { type: String },
     resumeAbout: { type: String },
