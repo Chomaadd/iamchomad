@@ -25,8 +25,13 @@ export default function Home() {
   const featuredPosts = posts?.slice(0, 3) || [];
   const { t, language } = useLanguage();
   const { data: settings } = useSiteSettings();
-  const status = settings?.availabilityStatus ?? "open";
-  const label = settings?.availabilityLabel ?? "Open to Work";
+  const status = (settings?.availabilityStatus ?? "open") as "open" | "busy" | "unavailable";
+  const statusLabelMap = {
+    open: t("home.activity.openwork"),
+    busy: t("home.activity.curentlybusy"),
+    unavailable: t("home.activity.notavailable"),
+  };
+  const label = statusLabelMap[status];
 
   return (
     <div className="min-h-screen bg-background text-foreground">
