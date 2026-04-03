@@ -763,7 +763,7 @@ ${blogEntries}
       const {
         siteTitle, adminAvatarUrl, aboutImageUrl,
         metaDescription, metaKeywords, ogImageUrl,
-        availabilityStatus, availabilityLabel, linksAvatarUrl, linksName, linksBio,
+        availabilityStatus, availabilityLabel, linksAvatarUrl, linksName, linksBio, linksBackgroundUrl, linksBorderStyle,
         resumeFullName, resumeTitle, resumeAbout, resumePhotoUrl,
         resumeBirthDate, resumeBirthPlace, resumeReligion, resumeGender, resumeMarriagestatus,
         resumeNationality, resumePhone, resumeAddress,
@@ -781,6 +781,8 @@ ${blogEntries}
         linksAvatarUrl,
         linksName,
         linksBio,
+        linksBackgroundUrl,
+        linksBorderStyle,
         resumeFullName,
         resumeTitle,
         resumeAbout,

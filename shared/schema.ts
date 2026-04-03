@@ -162,6 +162,8 @@ export const siteSettingsSchema = z.object({
   linksAvatarUrl: z.string().nullable().optional(),
   linksName: z.string().nullable().optional(),
   linksBio: z.string().nullable().optional(),
+  linksBackgroundUrl: z.string().nullable().optional(),
+  linksBorderStyle: z.string().nullable().optional(),
   resumeFullName: z.string().nullable().optional(),
   resumeTitle: z.string().nullable().optional(),
   resumeAbout: z.string().nullable().optional(),
