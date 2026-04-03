@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Palette, Code, PenTool, Mail, ExternalLink, Sparkles, Zap, Globe } from "lucide-react";
+import { Palette, Code, PenTool, Mail, ExternalLink, Sparkles, Zap, Globe, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { SeoHead } from "@/components/seometa/SeoHead";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ const skillCategories = [
   {
     key: "programming",
     icon: Code,
-    color: "text-blue-500",
+    color: "text-blue-600 dark:text-blue-400",
     bg: "bg-blue-500/10",
     items: [
       { name: "TypeScript", color: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
@@ -26,7 +26,7 @@ const skillCategories = [
   {
     key: "design",
     icon: Palette,
-    color: "text-purple-500",
+    color: "text-purple-600 dark:text-purple-400",
     bg: "bg-purple-500/10",
     items: [
       { name: "Figma", color: "bg-purple-500/10 text-purple-600 dark:text-purple-400" },
@@ -38,7 +38,7 @@ const skillCategories = [
   {
     key: "tools",
     icon: Zap,
-    color: "text-amber-500",
+    color: "text-amber-600 dark:text-amber-400",
     bg: "bg-amber-500/10",
     items: [
       { name: "MongoDB", color: "bg-green-500/10 text-green-600 dark:text-green-400" },
@@ -51,7 +51,7 @@ const skillCategories = [
   {
     key: "softskills",
     icon: Globe,
-    color: "text-emerald-500",
+    color: "text-emerald-600 dark:text-emerald-400",
     bg: "bg-emerald-500/10",
     items: [
       { name: "Leadership", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
@@ -60,12 +60,6 @@ const skillCategories = [
       { name: "Creative Thinking", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
     ],
   },
-];
-
-const stats = [
-  { label: "Years Learning", value: "3+" },
-  { label: "Projects Built", value: "20+" },
-  { label: "Brands Created", value: "5+" },
 ];
 
 export default function About() {
@@ -90,46 +84,57 @@ export default function About() {
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
 
         {/* ── HERO ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start mb-24">
 
-          {/* Left – photo */}
+          {/* LEFT – Photo card */}
           <motion.div
-            initial={{ opacity: 0, x: -24 }}
+            initial={{ opacity: 0, x: -28 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             className="lg:col-span-5"
           >
-            <div className="sticky top-24 space-y-5">
-              {/* Photo frame */}
-              <div className="relative group">
-                <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-primary/20 via-violet-500/10 to-primary/5 blur-xl opacity-60 group-hover:opacity-90 transition-opacity duration-700" />
-                <div className="relative rounded-2xl overflow-hidden ring-1 ring-border/40">
+            <div className="sticky top-24">
+              {/* Photo inside a styled panel */}
+              <div className="relative bg-card border border-border/60 rounded-3xl overflow-hidden soft-shadow-lg">
+                {/* Ambient top accent */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/60 via-violet-500/60 to-primary/20 z-10" />
+
+                <div className="aspect-[3/4] overflow-hidden">
                   <img
                     src={settings?.aboutImageUrl || "/image/iamchomad.png"}
                     alt="Profile Choiril Ahmad"
-                    className="w-full aspect-[4/5] object-cover object-center"
+                    className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                </div>
+
+                {/* Overlay info bar at bottom of photo */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent px-6 py-5">
+                  <p className="text-white font-bold text-lg leading-tight">Choiril Ahmad</p>
+                  <p className="text-white/70 text-xs mt-0.5">Frontend Developer · Visual Designer</p>
                 </div>
               </div>
 
               {/* Stats row */}
-              <div className="grid grid-cols-3 gap-3">
-                {stats.map((s) => (
-                  <div key={s.label} className="bg-card border border-border/60 rounded-xl p-4 text-center soft-shadow hover-lift transition-all">
-                    <div className="text-xl font-bold text-primary">{s.value}</div>
-                    <div className="text-[10px] text-muted-foreground font-medium mt-0.5 leading-tight">{s.label}</div>
+              <div className="grid grid-cols-3 gap-3 mt-4">
+                {[
+                  { value: "3+", label: "Tahun Belajar" },
+                  { value: "20+", label: "Proyek" },
+                  { value: "5+", label: "Brand" },
+                ].map((s) => (
+                  <div key={s.label} className="bg-card border border-border/60 rounded-2xl py-4 text-center soft-shadow hover:-translate-y-0.5 transition-transform">
+                    <div className="text-2xl font-bold text-primary leading-none">{s.value}</div>
+                    <div className="text-[10px] text-muted-foreground font-medium mt-1">{s.label}</div>
                   </div>
                 ))}
               </div>
             </div>
           </motion.div>
 
-          {/* Right – content */}
+          {/* RIGHT – Text content */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
+            transition={{ delay: 0.15, duration: 0.6 }}
             className="lg:col-span-7"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-6 uppercase tracking-wider">
@@ -141,40 +146,35 @@ export default function About() {
               <span className="gradient-text">{t("about.heading.highlight")}</span>
             </h1>
 
-            <div className="space-y-5 text-muted-foreground leading-relaxed mb-8">
-              <p className="text-lg font-medium text-foreground">
-                {t("about.intro")}
-              </p>
-              <p>{t("about.philosophy")}</p>
-            </div>
+            <p className="text-lg font-medium text-foreground mb-4 leading-relaxed">
+              {t("about.intro")}
+            </p>
+            <p className="text-muted-foreground leading-relaxed mb-8">
+              {t("about.philosophy")}
+            </p>
 
-            {/* Experience card */}
-            <div className="bg-card border border-border/60 rounded-2xl p-6 soft-shadow mb-8">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Sparkles size={15} className="text-primary" />
-                </div>
-                <h3 className="font-serif text-lg font-bold text-foreground">
-                  {t("about.experience.title")}
-                </h3>
-              </div>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+            {/* Experience quote-card */}
+            <div className="border-l-4 border-primary/60 bg-primary/5 rounded-r-2xl pl-5 pr-5 py-5 mb-10">
+              <h3 className="font-serif text-base font-bold text-foreground mb-2">
+                {t("about.experience.title")}
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {t("about.experience.desc")}
               </p>
             </div>
 
             {/* Highlight cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
               {highlights.map(({ icon: Icon, title, desc }, i) => (
                 <motion.div
                   key={title}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 + i * 0.1 }}
-                  className="bg-card border border-border/60 rounded-xl p-5 hover-lift soft-shadow group cursor-default"
+                  className="group bg-card border border-border/60 rounded-2xl p-5 hover:border-primary/30 hover:shadow-md transition-all cursor-default"
                   data-testid={`card-skill-${title.toLowerCase().replace(/\s/g, '-')}`}
                 >
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
                     <Icon size={18} className="text-primary" />
                   </div>
                   <h4 className="font-semibold text-sm text-foreground mb-1">{title}</h4>
@@ -182,6 +182,14 @@ export default function About() {
                 </motion.div>
               ))}
             </div>
+
+            {/* Quick CTA */}
+            <Link href="/contact">
+              <button className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all" data-testid="button-quick-cta">
+                <Mail size={15} /> {t("about.cta.contact")}
+                <ArrowRight size={14} />
+              </button>
+            </Link>
           </motion.div>
         </div>
 
@@ -190,22 +198,19 @@ export default function About() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mt-28"
+          transition={{ duration: 0.55 }}
         >
-          {/* Section header */}
-          <div className="flex items-center gap-4 mb-4">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-border/60" />
-            <div className="text-center">
-              <h2 className="font-serif text-3xl md:text-4xl font-bold" data-testid="text-skills-heading">
-                {t("about.skills.title")}
-              </h2>
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider">
+              <Zap size={12} /> Tech Stack
             </div>
-            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-border/60" />
+            <h2 className="font-serif text-3xl md:text-4xl font-bold" data-testid="text-skills-heading">
+              {t("about.skills.title")}
+            </h2>
+            <p className="text-muted-foreground mt-3 max-w-xl mx-auto text-sm">
+              {t("about.skills.subtitle")}
+            </p>
           </div>
-          <p className="text-muted-foreground text-center mb-12 max-w-xl mx-auto">
-            {t("about.skills.subtitle")}
-          </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {skillCategories.map(({ key, icon: CatIcon, color, bg, items }, i) => (
@@ -215,12 +220,12 @@ export default function About() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.07 }}
-                className="bg-card border border-border/60 rounded-2xl p-6 soft-shadow hover:shadow-md transition-all hover:-translate-y-0.5"
+                className="bg-card border border-border/60 rounded-2xl p-6 soft-shadow hover:shadow-md hover:-translate-y-0.5 transition-all"
                 data-testid={`card-skillcat-${key}`}
               >
-                <div className="flex items-center gap-2.5 mb-4">
-                  <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center`}>
-                    <CatIcon size={15} className={color} />
+                <div className="flex items-center gap-2.5 mb-5">
+                  <div className={`w-9 h-9 rounded-xl ${bg} flex items-center justify-center`}>
+                    <CatIcon size={16} className={color} />
                   </div>
                   <h3 className="font-semibold text-xs uppercase tracking-wider text-foreground">
                     {t(`about.skills.${key}`)}
@@ -230,7 +235,7 @@ export default function About() {
                   {items.map(({ name, color: c }) => (
                     <span
                       key={name}
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium ${c}`}
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium ${c}`}
                       data-testid={`badge-skill-${name.toLowerCase().replace(/\s/g, '-')}`}
                     >
                       {name}
@@ -247,33 +252,33 @@ export default function About() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mt-24 mb-8"
+          transition={{ duration: 0.55 }}
+          className="mt-20 mb-8"
         >
-          <div className="relative bg-card border border-border/60 rounded-3xl p-10 md:p-16 text-center overflow-hidden soft-shadow-lg">
-            {/* Background decoration */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-violet-500/10 pointer-events-none" />
-            <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full bg-violet-500/5 blur-3xl pointer-events-none" />
+          <div className="relative rounded-3xl overflow-hidden">
+            {/* Dark gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-foreground via-foreground/95 to-foreground/80" />
+            <div className="absolute -top-32 -right-32 w-72 h-72 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-32 -left-32 w-72 h-72 rounded-full bg-violet-500/15 blur-3xl pointer-events-none" />
 
-            <div className="relative">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-5 uppercase tracking-wider">
-                <Mail size={12} /> {t("contact.badge")}
+            <div className="relative px-10 md:px-16 py-14 md:py-20 text-center">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold mb-6 uppercase tracking-wider">
+                <Sparkles size={12} /> Let's Connect
               </div>
-              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold mb-4" data-testid="text-cta-heading">
+              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white" data-testid="text-cta-heading">
                 {t("about.cta.title")}
               </h2>
-              <p className="text-muted-foreground text-lg mb-8 max-w-lg mx-auto">
+              <p className="text-white/60 text-lg mb-10 max-w-lg mx-auto">
                 {t("about.cta.desc")}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link href="/contact">
-                  <Button size="lg" className="gap-2 px-8 rounded-full shadow-lg shadow-primary/20" data-testid="button-cta-contact">
+                  <Button size="lg" className="gap-2 px-8 rounded-full bg-white text-foreground hover:bg-white/90 shadow-lg" data-testid="button-cta-contact">
                     <Mail size={18} /> {t("about.cta.contact")}
                   </Button>
                 </Link>
                 <Link href="/links">
-                  <Button variant="outline" size="lg" className="gap-2 px-8 rounded-full" data-testid="button-cta-links">
+                  <Button variant="outline" size="lg" className="gap-2 px-8 rounded-full border-white/20 text-white hover:bg-white/10 hover:text-white" data-testid="button-cta-links">
                     <ExternalLink size={18} /> {t("about.cta.links")}
                   </Button>
                 </Link>
