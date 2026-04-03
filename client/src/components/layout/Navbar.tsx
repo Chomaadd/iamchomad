@@ -34,12 +34,12 @@ export function Navbar() {
             <img
               src="/favicon-black.ico"
               alt="Logo"
-              className="h-10 w-10 object-contain transition-transform group-hover:scale-110 block dark:hidden"
+              className="h-12 w-12 object-contain transition-transform group-hover:scale-110 block dark:hidden"
             />
             <img
               src="/favicon-white.ico"
               alt="Logo"
-              className="h-10 w-10 object-contain transition-transform group-hover:scale-110 hidden dark:block"
+              className="h-12 w-12 object-contain transition-transform group-hover:scale-110 hidden dark:block"
             />
           </Link>
 
