@@ -66,26 +66,16 @@ export default function Blog() {
           transition={{ duration: 0.55 }}
           className="mb-12"
         >
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-5 uppercase tracking-wider">
-                <BookOpen size={12} /> {t("blog.badge")}
-              </div>
-              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight" data-testid="text-blog-heading">
-                {t("blog.heading")}
-              </h1>
-              <p className="text-muted-foreground mt-3 max-w-xl">
-                {t("blog.description")}
-              </p>
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-5 uppercase tracking-wider">
+              <BookOpen size={12} /> {t("blog.badge")}
             </div>
-            {publishedPosts.length > 0 && (
-              <div className="shrink-0 text-right">
-                <div className="text-5xl font-black text-foreground/8 leading-none select-none">
-                  {String(publishedPosts.length).padStart(2, "0")}
-                </div>
-                <div className="text-xs text-muted-foreground font-medium mt-0.5">articles</div>
-              </div>
-            )}
+            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight" data-testid="text-blog-heading">
+              {t("blog.heading")}
+            </h1>
+            <p className="text-muted-foreground mt-3 max-w-xl">
+              {t("blog.description")}
+            </p>
           </div>
         </motion.header>
 
