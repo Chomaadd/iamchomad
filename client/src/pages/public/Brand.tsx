@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useBrandItems } from "@/hooks/use-brand";
-import { ArrowUpRight, Layers, Star } from "lucide-react";
+import { ArrowUpRight, Layers, Star, SlidersHorizontal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/hooks/use-language";
 import { SeoHead } from "@/components/seometa/SeoHead";
@@ -44,53 +44,48 @@ export default function Brand() {
         <motion.header
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          transition={{ duration: 0.55 }}
+          className="mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider">
-            <Layers size={14} /> {t("brand.badge")}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-5 uppercase tracking-wider">
+            <Layers size={12} /> {t("brand.badge")}
           </div>
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold" data-testid="text-brand-heading">
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-tight" data-testid="text-brand-heading">
             {t("brand.heading")}
           </h1>
-          <p className="text-lg text-muted-foreground mt-3 max-w-2xl">
+          <p className="text-lg text-muted-foreground mt-3 max-w-xl">
             {t("brand.description")}
           </p>
         </motion.header>
 
         {isLoading ? (
           <div className="space-y-16">
-            {/* Featured item skeleton */}
             <div className="bg-card border border-border/60 rounded-3xl overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2">
-                <Skeleton className="min-h-[260px] lg:min-h-[340px] w-full" />
-                <div className="p-8 lg:p-12 flex flex-col justify-center gap-4">
+                <Skeleton className="min-h-[280px] lg:min-h-[380px] w-full" />
+                <div className="p-8 lg:p-14 flex flex-col justify-center gap-4">
                   <div className="flex gap-2">
                     <Skeleton className="h-6 w-28 rounded-full" />
                     <Skeleton className="h-6 w-20 rounded-full" />
                   </div>
-                  <Skeleton className="h-8 w-3/4" />
-                  <Skeleton className="h-7 w-1/2" />
+                  <Skeleton className="h-9 w-3/4" />
                   <div className="space-y-2">
-                    <Skeleton className="h-3 w-full" />
-                    <Skeleton className="h-3 w-full" />
-                    <Skeleton className="h-3 w-2/3" />
+                    <Skeleton className="h-3.5 w-full" />
+                    <Skeleton className="h-3.5 w-5/6" />
+                    <Skeleton className="h-3.5 w-2/3" />
                   </div>
                   <Skeleton className="h-4 w-28 mt-2" />
                 </div>
               </div>
             </div>
-            {/* Grid skeletons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="bg-card border border-border/60 rounded-2xl overflow-hidden flex flex-col">
+                <div key={i} className="bg-card border border-border/60 rounded-2xl overflow-hidden">
                   <Skeleton className="aspect-[4/3] w-full" />
                   <div className="p-5 space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <Skeleton className="h-5 w-32" />
-                      <Skeleton className="h-4 w-16 rounded-full" />
-                    </div>
-                    <Skeleton className="h-3 w-full" />
-                    <Skeleton className="h-3 w-4/5" />
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-3.5 w-full" />
+                    <Skeleton className="h-3.5 w-4/5" />
                   </div>
                 </div>
               ))}
@@ -104,15 +99,18 @@ export default function Brand() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="flex flex-wrap gap-2 mb-12"
+                className="flex flex-wrap items-center gap-2 mb-14"
               >
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mr-1">
+                  <SlidersHorizontal size={12} /> Filter:
+                </div>
                 <button
                   onClick={() => setActiveCategory(null)}
                   data-testid="button-category-all"
-                  className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                  className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 ${
                     !activeCategory
-                      ? "bg-foreground text-background border-foreground"
-                      : "bg-transparent text-muted-foreground border-border hover:border-foreground hover:text-foreground"
+                      ? "bg-foreground text-background border-foreground shadow-sm"
+                      : "bg-transparent text-muted-foreground border-border hover:border-foreground/50 hover:text-foreground"
                   }`}
                 >
                   All
@@ -122,10 +120,10 @@ export default function Brand() {
                     key={cat}
                     onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
                     data-testid={`button-category-${cat}`}
-                    className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                    className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 ${
                       activeCategory === cat
-                        ? "bg-foreground text-background border-foreground"
-                        : "bg-transparent text-muted-foreground border-border hover:border-foreground hover:text-foreground"
+                        ? "bg-foreground text-background border-foreground shadow-sm"
+                        : "bg-transparent text-muted-foreground border-border hover:border-foreground/50 hover:text-foreground"
                     }`}
                   >
                     {cat}
@@ -134,9 +132,9 @@ export default function Brand() {
               </motion.div>
             )}
 
-            {/* Featured Items — Hero Layout */}
+            {/* Featured Items */}
             {filteredFeatured.length > 0 && (
-              <div className="space-y-6 mb-16">
+              <div className="space-y-6 mb-18">
                 {filteredFeatured.map((item, i) => (
                   <motion.div
                     key={item.id}
@@ -146,39 +144,41 @@ export default function Brand() {
                     transition={{ delay: i * 0.08 }}
                     data-testid={`card-brand-featured-${item.id}`}
                   >
-                    <div className="group relative bg-card border border-border/60 rounded-3xl overflow-hidden hover:border-border transition-all duration-300 soft-shadow hover:shadow-xl">
+                    <div className="group relative bg-card border border-border/60 rounded-3xl overflow-hidden hover:border-primary/20 transition-all duration-500 soft-shadow hover:shadow-2xl">
                       <div className="grid grid-cols-1 lg:grid-cols-2">
                         {/* Image */}
-                        <div className="relative overflow-hidden bg-muted/60 order-2 lg:order-1" style={{ minHeight: 260 }}>
+                        <div className="relative overflow-hidden bg-muted/40 order-2 lg:order-1" style={{ minHeight: 300 }}>
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
                               alt={item.title}
-                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700"
+                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700 ease-out"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-violet-500/5">
-                              <Layers size={36} className="text-muted-foreground/20" />
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-violet-500/10">
+                              <Layers size={40} className="text-muted-foreground/20" />
                             </div>
                           )}
+                          {/* Vignette overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/10 pointer-events-none" />
                         </div>
 
                         {/* Info */}
-                        <div className="p-8 lg:p-12 flex flex-col justify-center order-1 lg:order-2">
-                          <div className="flex items-center gap-2 mb-4 flex-wrap">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold">
-                              <Star size={11} className="fill-amber-500 text-amber-500" /> Featured Partner
+                        <div className="p-8 lg:p-14 flex flex-col justify-center order-1 lg:order-2">
+                          <div className="flex items-center gap-2 mb-5 flex-wrap">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold border border-amber-500/20">
+                              <Star size={10} className="fill-amber-500 text-amber-500" /> Featured Partner
                             </span>
                             {item.category && (
-                              <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                              <span className="px-3 py-1 rounded-full bg-primary/8 text-primary text-xs font-semibold border border-primary/15">
                                 {item.category}
                               </span>
                             )}
                           </div>
-                          <h2 className="font-serif text-2xl lg:text-3xl font-bold mb-3 group-hover:text-primary transition-colors">
+                          <h2 className="font-serif text-2xl lg:text-3xl xl:text-4xl font-bold mb-4 group-hover:text-primary transition-colors leading-tight">
                             {item.title}
                           </h2>
-                          <p className="text-muted-foreground leading-relaxed mb-6">
+                          <p className="text-muted-foreground leading-relaxed mb-8 text-base">
                             {item.description}
                           </p>
                           {item.link && (
@@ -187,9 +187,10 @@ export default function Brand() {
                               target="_blank"
                               rel="noopener noreferrer"
                               data-testid={`link-brand-featured-${item.id}`}
-                              className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all w-fit"
+                              className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all w-fit group/link"
                             >
-                              Visit Website <ArrowUpRight size={16} />
+                              Visit Website
+                              <ArrowUpRight size={16} className="group-hover/link:rotate-12 transition-transform" />
                             </a>
                           )}
                         </div>
@@ -200,80 +201,80 @@ export default function Brand() {
               </div>
             )}
 
+            {/* Divider */}
+            {filteredFeatured.length > 0 && regularItems.length > 0 && (
+              <div className="flex items-center gap-4 mb-10 mt-14">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-border/60" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-2">All Brands</span>
+                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-border/60" />
+              </div>
+            )}
+
             {/* Regular Items Grid */}
             {regularItems.length > 0 && (
-              <>
-                {filteredFeatured.length > 0 && (
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="h-px flex-1 bg-border/60" />
-                    <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">All Brands</span>
-                    <div className="h-px flex-1 bg-border/60" />
-                  </div>
-                )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {regularItems.map((item, i) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 16 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-40px" }}
-                      transition={{ delay: (i % 3) * 0.07 }}
-                      data-testid={`card-brand-${item.id}`}
-                    >
-                      <div className="group bg-card border border-border/60 rounded-2xl overflow-hidden hover:border-border hover:shadow-lg transition-all duration-300 soft-shadow h-full flex flex-col">
-                        {/* Logo / Image */}
-                        <div className="aspect-[4/3] overflow-hidden bg-muted/50 relative">
-                          {item.imageUrl ? (
-                            <img
-                              src={item.imageUrl}
-                              alt={item.title}
-                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-violet-500/5 rounded-xl">
-                              <Layers size={28} className="text-muted-foreground/20" />
-                            </div>
-                          )}
-                          {item.link && (
-                            <a
-                              href={item.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm text-foreground p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-primary hover:text-primary-foreground shadow-md"
-                              data-testid={`link-brand-external-${item.id}`}
-                            >
-                              <ArrowUpRight size={15} />
-                            </a>
-                          )}
-                        </div>
-
-                        {/* Info */}
-                        <div className="p-5 flex flex-col flex-1">
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <h3 className="font-serif text-lg font-bold leading-snug group-hover:text-primary transition-colors">
-                              {item.title}
-                            </h3>
-                            {item.category && (
-                              <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                                {item.category}
-                              </span>
-                            )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {regularItems.map((item, i) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ delay: (i % 3) * 0.07 }}
+                    data-testid={`card-brand-${item.id}`}
+                  >
+                    <div className="group bg-card border border-border/60 rounded-2xl overflow-hidden hover:border-primary/20 hover:shadow-lg transition-all duration-300 soft-shadow h-full flex flex-col">
+                      {/* Logo / Image */}
+                      <div className="aspect-[4/3] overflow-hidden bg-muted/40 relative">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-violet-500/5">
+                            <Layers size={30} className="text-muted-foreground/20" />
                           </div>
-                          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 flex-1">
-                            {item.description}
-                          </p>
-                        </div>
+                        )}
+                        {item.link && (
+                          <a
+                            href={item.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="absolute top-3 right-3 bg-background/85 backdrop-blur-sm text-foreground p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-md hover:bg-primary hover:text-primary-foreground"
+                            data-testid={`link-brand-external-${item.id}`}
+                          >
+                            <ArrowUpRight size={14} />
+                          </a>
+                        )}
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </>
+
+                      {/* Info */}
+                      <div className="p-5 flex flex-col flex-1">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <h3 className="font-serif text-base font-bold leading-snug group-hover:text-primary transition-colors">
+                            {item.title}
+                          </h3>
+                          {item.category && (
+                            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                              {item.category}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 flex-1">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             )}
 
             {/* Empty State */}
             {filteredFeatured.length === 0 && regularItems.length === 0 && (
-              <div className="text-center py-24 bg-card border border-dashed border-border rounded-2xl">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <div className="text-center py-28 bg-card border border-dashed border-border/60 rounded-3xl">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
                   <Layers size={28} className="text-primary" />
                 </div>
                 <p className="font-serif text-xl font-bold">{t("brand.empty.title")}</p>

@@ -22,13 +22,12 @@ export default function Dashboard() {
   const { mutateAsync: updateSettings, isPending } = useUpdateSiteSettings();
   const { toast } = useToast();
   const { t } = useLanguage();
-
   const availabilityOptions: { value: AvailabilityStatus; label: string; color: string; dot: string }[] = [
     { value: "open", label: t("home.activity.openwork"), color: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-500" },
     { value: "busy", label: t("home.activity.curentlybusy"), color: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400", dot: "bg-amber-500" },
     { value: "unavailable", label: t("home.activity.notavailable"), color: "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-400", dot: "bg-red-500" },
   ];
-
+  
   const { data: novelStories } = useQuery<NovelStory[]>({ queryKey: ["/api/novel/stories/all"] });
 
   const unreadMessages = messages?.filter(m => !m.read).length || 0;

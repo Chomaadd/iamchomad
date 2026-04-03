@@ -4,7 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { useResumeItems } from "@/hooks/use-resume";
 import { useSiteSettings } from "@/hooks/use-settings";
 import { useLanguage } from "@/hooks/use-language";
-import { Download, Briefcase, GraduationCap, Lightbulb, Calendar, MapPin, FileText } from "lucide-react";
+import { Download, Briefcase, GraduationCap, Lightbulb, Calendar, MapPin, FileText, Mail, Globe } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { QRCodeSVG } from "qrcode.react";
 import type { ResumeItem } from "@shared/schema";
@@ -69,52 +69,81 @@ export default function Resume() {
       {/* ── SCREEN LAYOUT ── */}
       <div className="screen-only">
         <Navbar />
+
         <main className="max-w-4xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
-          <motion.header initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider">
-                  <FileText size={14} /> {t("resume.badge")}
+
+          {/* Header */}
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="mb-12">
+            <div className="relative bg-card border border-border/60 rounded-3xl overflow-hidden soft-shadow-lg">
+              {/* Gradient bg */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-violet-500/5 pointer-events-none" />
+              <div className="absolute -top-20 -right-20 w-56 h-56 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+
+              <div className="relative p-7 md:p-9 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                {/* Photo */}
+                {photoUrl && (
+                  <div className="shrink-0">
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden ring-2 ring-border/60 shadow-md">
+                      <img src={photoUrl} alt={fullName} className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3 uppercase tracking-wider">
+                    <FileText size={12} /> {t("resume.badge")}
+                  </div>
+                  <h1 className="font-serif text-3xl md:text-4xl font-bold tracking-tight leading-tight" data-testid="text-resume-title">
+                    {fullName}
+                  </h1>
+                  <p className="text-sm text-muted-foreground mt-1.5 font-medium">{jobTitle}</p>
+                  <div className="flex flex-wrap gap-3 mt-3">
+                    {address && (
+                      <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <MapPin size={12} className="text-primary/60" /> {address}
+                      </span>
+                    )}
+                    {email && (
+                      <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Mail size={12} className="text-primary/60" /> {email}
+                      </span>
+                    )}
+                    {website && (
+                      <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Globe size={12} className="text-primary/60" /> {website}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <h1 className="font-serif text-4xl md:text-5xl font-bold tracking-tight" data-testid="text-resume-title">
-                  {fullName}
-                </h1>
-                <p className="text-base text-muted-foreground mt-2 max-w-xl">{jobTitle}</p>
-                <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1.5"><MapPin size={14} /> {address}</span>
-                  <span>{email}</span>
-                </div>
+
+                {/* Download button */}
+                <button
+                  onClick={handlePrint}
+                  className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-all shadow-lg shadow-primary/25 hover:-translate-y-0.5"
+                  data-testid="button-download-resume"
+                >
+                  <Download size={15} />
+                  <span className="hidden sm:inline">{t("resume.savePdf")}</span>
+                </button>
               </div>
-              <button
-                onClick={handlePrint}
-                className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-all shadow-lg shadow-primary/25"
-                data-testid="button-download-resume"
-              >
-                <Download size={16} />
-                <span className="hidden sm:inline">{t("resume.savePdf")}</span>
-              </button>
             </div>
-          </motion.header>
+          </motion.div>
 
           {isLoading ? (
-            <div className="space-y-12">
+            <div className="space-y-10">
               {[{ color: "bg-blue-500/10" }, { color: "bg-emerald-500/10" }].map((s, si) => (
-                <div key={si}>
+                <div key={si} className="bg-card border border-border/60 rounded-2xl p-6">
                   <div className="flex items-center gap-3 mb-6">
                     <div className={`w-10 h-10 rounded-xl ${s.color} shrink-0`} />
-                    <Skeleton className="h-7 w-40" />
+                    <Skeleton className="h-6 w-36" />
                   </div>
-                  <div className="space-y-0">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="flex gap-4">
-                        <div className="flex flex-col items-center pt-2">
-                          <Skeleton className="w-3 h-3 rounded-full shrink-0" />
-                          {i < 2 && <div className="w-px flex-1 bg-border mt-1" />}
-                        </div>
-                        <div className="pb-8 flex-1 space-y-2">
-                          <Skeleton className="h-4 w-48" /><Skeleton className="h-3 w-36" /><Skeleton className="h-3 w-28" />
-                          <div className="space-y-1.5 mt-2"><Skeleton className="h-3 w-full" /><Skeleton className="h-3 w-4/5" /></div>
-                        </div>
+                  <div className="space-y-5">
+                    {Array.from({ length: 2 }).map((_, i) => (
+                      <div key={i} className="space-y-2 pb-5 border-b border-border/40 last:border-0 last:pb-0">
+                        <Skeleton className="h-4 w-52" />
+                        <Skeleton className="h-3 w-36" />
+                        <Skeleton className="h-3 w-28" />
                       </div>
                     ))}
                   </div>
@@ -122,43 +151,47 @@ export default function Resume() {
               ))}
             </div>
           ) : (
-            <div className="space-y-12">
+            <div className="space-y-6">
               {experience.length > 0 && (
-                <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                      <Briefcase size={20} className="text-blue-600 dark:text-blue-400" />
+                <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-card border border-border/60 rounded-2xl overflow-hidden soft-shadow">
+                  <div className="flex items-center gap-3 px-6 py-5 border-b border-border/50">
+                    <div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                      <Briefcase size={17} className="text-blue-600 dark:text-blue-400" />
                     </div>
-                    <h2 className="font-serif text-2xl font-bold">{t("resume.experience")}</h2>
+                    <h2 className="font-serif text-xl font-bold">{t("resume.experience")}</h2>
                   </div>
-                  <div className="space-y-0">{experience.map((item, i) => <ResumeEntry key={item.id} item={item} isLast={i === experience.length - 1} color="blue" />)}</div>
+                  <div className="p-6 space-y-0">
+                    {experience.map((item, i) => <ResumeEntry key={item.id} item={item} isLast={i === experience.length - 1} color="blue" />)}
+                  </div>
                 </motion.section>
               )}
               {education.length > 0 && (
-                <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                      <GraduationCap size={20} className="text-emerald-600 dark:text-emerald-400" />
+                <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-card border border-border/60 rounded-2xl overflow-hidden soft-shadow">
+                  <div className="flex items-center gap-3 px-6 py-5 border-b border-border/50">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                      <GraduationCap size={17} className="text-emerald-600 dark:text-emerald-400" />
                     </div>
-                    <h2 className="font-serif text-2xl font-bold">{t("resume.education")}</h2>
+                    <h2 className="font-serif text-xl font-bold">{t("resume.education")}</h2>
                   </div>
-                  <div className="space-y-0">{education.map((item, i) => <ResumeEntry key={item.id} item={item} isLast={i === education.length - 1} color="emerald" />)}</div>
+                  <div className="p-6 space-y-0">
+                    {education.map((item, i) => <ResumeEntry key={item.id} item={item} isLast={i === education.length - 1} color="emerald" />)}
+                  </div>
                 </motion.section>
               )}
               {skills.length > 0 && (
-                <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                      <Lightbulb size={20} className="text-purple-600 dark:text-purple-400" />
+                <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-card border border-border/60 rounded-2xl overflow-hidden soft-shadow">
+                  <div className="flex items-center gap-3 px-6 py-5 border-b border-border/50">
+                    <div className="w-9 h-9 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                      <Lightbulb size={17} className="text-purple-600 dark:text-purple-400" />
                     </div>
-                    <h2 className="font-serif text-2xl font-bold">{t("resume.skills")}</h2>
+                    <h2 className="font-serif text-xl font-bold">{t("resume.skills")}</h2>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {skills.map((item) => (
-                      <div key={item.id} className="bg-card border border-border/60 rounded-xl p-4 hover-lift soft-shadow transition-all" data-testid={`card-skill-${item.id}`}>
-                        <h3 className="font-semibold text-sm">{item.title}</h3>
+                      <div key={item.id} className="group bg-background border border-border/50 rounded-xl p-4 hover:border-primary/30 hover:shadow-sm transition-all" data-testid={`card-skill-${item.id}`}>
+                        <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">{item.title}</h3>
                         {item.subtitle && <p className="text-xs text-muted-foreground mt-0.5">{item.subtitle}</p>}
-                        {item.description && <p className="text-xs text-muted-foreground mt-2">{item.description}</p>}
+                        {item.description && <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{item.description}</p>}
                         {item.tags && item.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 mt-3">
                             {item.tags.map((tag, i) => <span key={i} className="px-2 py-0.5 bg-primary/5 text-primary text-[10px] font-semibold rounded-full">{tag}</span>)}
@@ -170,8 +203,8 @@ export default function Resume() {
                 </motion.section>
               )}
               {!experience.length && !education.length && !skills.length && (
-                <div className="text-center py-24 bg-card border border-dashed border-border rounded-2xl">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <div className="text-center py-28 bg-card border border-dashed border-border/60 rounded-3xl">
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
                     <FileText size={28} className="text-primary" />
                   </div>
                   <p className="font-serif text-xl font-bold">{t("resume.empty.title")}</p>
@@ -429,18 +462,40 @@ export default function Resume() {
 /* ── Screen layout sub-component ── */
 function ResumeEntry({ item, isLast, color }: { item: ResumeItem; isLast: boolean; color: string }) {
   const dateRange = [item.startDate, item.endDate].filter(Boolean).join(" — ") || "";
-  const dotColors: Record<string, string> = { blue: "bg-blue-500", emerald: "bg-emerald-500", purple: "bg-purple-500" };
+  const dotColors: Record<string, string> = {
+    blue: "bg-blue-500 ring-blue-500/20",
+    emerald: "bg-emerald-500 ring-emerald-500/20",
+    purple: "bg-purple-500 ring-purple-500/20",
+  };
+  const lineColors: Record<string, string> = {
+    blue: "bg-blue-200 dark:bg-blue-900/40",
+    emerald: "bg-emerald-200 dark:bg-emerald-900/40",
+    purple: "bg-purple-200 dark:bg-purple-900/40",
+  };
+  const dateBadgeColors: Record<string, string> = {
+    blue: "bg-blue-500/8 text-blue-600 dark:text-blue-400",
+    emerald: "bg-emerald-500/8 text-emerald-600 dark:text-emerald-400",
+    purple: "bg-purple-500/8 text-purple-600 dark:text-purple-400",
+  };
   return (
     <div className="flex gap-4" data-testid={`card-resume-${item.id}`}>
-      <div className="flex flex-col items-center pt-2">
-        <div className={`w-3 h-3 rounded-full ${dotColors[color] || "bg-primary"} shrink-0 ring-4 ring-background`} />
-        {!isLast && <div className="w-px flex-1 bg-border mt-1" />}
+      <div className="flex flex-col items-center pt-1.5">
+        <div className={`w-3 h-3 rounded-full ${dotColors[color] || "bg-primary ring-primary/20"} shrink-0 ring-4 ring-card`} />
+        {!isLast && <div className={`w-px flex-1 mt-1.5 ${lineColors[color] || "bg-border"}`} />}
       </div>
-      <div className="pb-8 min-w-0">
-        <h3 className="font-semibold">{item.title}</h3>
-        {item.subtitle && <p className="text-sm text-muted-foreground mt-0.5">{item.subtitle}</p>}
-        {dateRange && <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5"><Calendar size={12} />{dateRange}</p>}
-        {item.description && <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{item.description}</p>}
+      <div className={`${isLast ? "pb-0" : "pb-7"} min-w-0 flex-1`}>
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <h3 className="font-semibold text-sm">{item.title}</h3>
+            {item.subtitle && <p className="text-xs text-muted-foreground mt-0.5 font-medium">{item.subtitle}</p>}
+          </div>
+          {dateRange && (
+            <span className={`shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full ${dateBadgeColors[color] || "bg-primary/8 text-primary"}`}>
+              <Calendar size={10} /> {dateRange}
+            </span>
+          )}
+        </div>
+        {item.description && <p className="text-xs text-muted-foreground mt-2.5 leading-relaxed">{item.description}</p>}
         {item.tags && item.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
             {item.tags.map((tag, i) => <span key={i} className="px-2 py-0.5 bg-primary/5 text-primary text-[10px] font-semibold rounded-full">{tag}</span>)}
