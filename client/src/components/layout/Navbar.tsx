@@ -30,17 +30,19 @@ export function Navbar() {
     <header className="sticky top-0 z-40 w-full">
       <div className="glass">
         <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6 lg:px-8">
-          <Link href="/" className="flex items-center group">
-            <img
-              src="/favicon-black.ico"
-              alt="Logo"
-              className="h-12 w-12 object-contain transition-transform group-hover:scale-110 block dark:hidden"
-            />
-            <img
-              src="/favicon-white.ico"
-              alt="Logo"
-              className="h-12 w-12 object-contain transition-transform group-hover:scale-110 hidden dark:block"
-            />
+          <Link href="/" className="flex items-center group h-16">
+            <div className="relative w-12 h-12 flex items-center justify-center">
+              <img
+                src="/favicon-black.ico"
+                alt="Logo"
+                className="w-12 h-12 object-contain transition-transform group-hover:scale-110 block dark:hidden"
+              />
+              <img
+                src="/favicon-white.ico"
+                alt="Logo"
+                className="w-12 h-12 object-contain transition-transform group-hover:scale-110 hidden dark:block"
+              />
+            </div>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1 text-sm font-medium">
