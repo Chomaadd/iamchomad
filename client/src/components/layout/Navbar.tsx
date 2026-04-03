@@ -32,9 +32,14 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6 lg:px-8">
           <Link href="/" className="flex items-center group">
             <img
-              src={theme === "light" ? "/favicon-black.ico" : "/favicon-white.ico"}
+              src="/favicon-black.ico"
               alt="Logo"
-              className="h-8 w-8 object-contain transition-transform group-hover:scale-110"
+              className="h-10 w-10 object-contain transition-transform group-hover:scale-110 block dark:hidden"
+            />
+            <img
+              src="/favicon-white.ico"
+              alt="Logo"
+              className="h-10 w-10 object-contain transition-transform group-hover:scale-110 hidden dark:block"
             />
           </Link>
 
