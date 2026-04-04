@@ -135,8 +135,8 @@ export async function registerRoutes(
         });
 
         await new Promise<void>((resolve, reject) => {
-          uploadStream.on('finish', resolve);
-          uploadStream.on('error', reject);
+          uploadStream.on("finish", resolve);
+          uploadStream.on("error", reject);
           uploadStream.end(req.file.buffer);
         });
 
@@ -305,11 +305,18 @@ export async function registerRoutes(
       { url: "/novel", priority: "0.8", changefreq: "weekly" },
     ];
 
-    const makeUrl = (loc: string, lastmod: string, changefreq: string, priority: string) =>
+    const makeUrl = (
+      loc: string,
+      lastmod: string,
+      changefreq: string,
+      priority: string,
+    ) =>
       `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
 
     const staticEntries = staticPages
-      .map((p) => makeUrl(`${SITE_URL}${p.url}`, today, p.changefreq, p.priority))
+      .map((p) =>
+        makeUrl(`${SITE_URL}${p.url}`, today, p.changefreq, p.priority),
+      )
       .join("\n");
 
     let blogEntries = "";
@@ -323,7 +330,12 @@ export async function registerRoutes(
             : post.createdAt
               ? new Date(post.createdAt).toISOString().split("T")[0]
               : today;
-          return makeUrl(`${SITE_URL}/blog/${post.slug}`, lastmod, "monthly", "0.7");
+          return makeUrl(
+            `${SITE_URL}/blog/${post.slug}`,
+            lastmod,
+            "monthly",
+            "0.7",
+          );
         })
         .join("\n");
     } catch {
@@ -335,7 +347,9 @@ export async function registerRoutes(
       const stories = await storage.getNovelStories(true);
       const lines: string[] = [];
       for (const story of stories) {
-        lines.push(makeUrl(`${SITE_URL}/novel/${story.slug}`, today, "weekly", "0.7"));
+        lines.push(
+          makeUrl(`${SITE_URL}/novel/${story.slug}`, today, "weekly", "0.7"),
+        );
         const seasons = await storage.getNovelSeasons(story.id);
         for (const season of seasons) {
           const chapters = await storage.getNovelChapters(season.id, true);
@@ -442,10 +456,13 @@ ${novelEntries}
   app.post("/api/blog/:slug/react", async (req, res) => {
     try {
       const { type } = req.body;
-      if (!['thumbsUp', 'heart'].includes(type)) {
+      if (!["thumbsUp", "heart"].includes(type)) {
         return res.status(400).json({ message: "Invalid reaction type" });
       }
-      const post = await storage.reactToBlogPost(req.params.slug, type as 'thumbsUp' | 'heart');
+      const post = await storage.reactToBlogPost(
+        req.params.slug,
+        type as "thumbsUp" | "heart",
+      );
       res.json({ reactions: post.reactions });
     } catch (err) {
       res.status(404).json({ message: "Blog post not found" });
@@ -716,7 +733,7 @@ ${novelEntries}
     }
   });
 
-  app.get('/api/settings', async (_req, res) => {
+  app.get("/api/settings", async (_req, res) => {
     try {
       const settings = await storage.getSiteSettings();
       res.json(settings);
@@ -726,14 +743,20 @@ ${novelEntries}
     }
   });
 
-  app.post('/api/anon-messages', async (req, res) => {
+  app.post("/api/anon-messages", async (req, res) => {
     try {
       const { message } = req.body;
-      if (!message || typeof message !== 'string' || message.trim().length === 0) {
+      if (
+        !message ||
+        typeof message !== "string" ||
+        message.trim().length === 0
+      ) {
         return res.status(400).json({ message: "Message is required" });
       }
       if (message.length > 1000) {
-        return res.status(400).json({ message: "Message too long (max 1000 characters)" });
+        return res
+          .status(400)
+          .json({ message: "Message too long (max 1000 characters)" });
       }
       const msg = await storage.createAnonMessage({ message: message.trim() });
       res.status(201).json(msg);
@@ -743,7 +766,7 @@ ${novelEntries}
     }
   });
 
-  app.get('/api/anon-messages', requireAuth, async (_req, res) => {
+  app.get("/api/anon-messages", requireAuth, async (_req, res) => {
     try {
       const messages = await storage.getAnonMessages();
       res.json(messages);
@@ -753,7 +776,7 @@ ${novelEntries}
     }
   });
 
-  app.get('/api/anon-messages/unread-count', requireAuth, async (_req, res) => {
+  app.get("/api/anon-messages/unread-count", requireAuth, async (_req, res) => {
     try {
       const count = await storage.getUnreadAnonMessageCount();
       res.json({ count });
@@ -762,7 +785,7 @@ ${novelEntries}
     }
   });
 
-  app.patch('/api/anon-messages/:id/read', requireAuth, async (req, res) => {
+  app.patch("/api/anon-messages/:id/read", requireAuth, async (req, res) => {
     try {
       const msg = await storage.markAnonMessageRead(req.params.id);
       res.json(msg);
@@ -772,7 +795,7 @@ ${novelEntries}
     }
   });
 
-  app.delete('/api/anon-messages/:id', requireAuth, async (req, res) => {
+  app.delete("/api/anon-messages/:id", requireAuth, async (req, res) => {
     try {
       await storage.deleteAnonMessage(req.params.id);
       res.status(204).send();
@@ -782,17 +805,41 @@ ${novelEntries}
     }
   });
 
-  app.put('/api/settings', requireAuth, async (req, res) => {
+  app.put("/api/settings", requireAuth, async (req, res) => {
     try {
       const {
-        siteTitle, adminAvatarUrl, aboutImageUrl,
-        metaDescription, metaKeywords, ogImageUrl,
-        availabilityStatus, availabilityLabel, linksAvatarUrl, linksName, linksBio, linksBackgroundUrl, linksBorderStyle,
-        resumeFullName, resumeTitle, resumeAbout, resumePhotoUrl,
-        resumeBirthDate, resumeBirthPlace, resumeReligion, resumeGender, resumeMarriagestatus,
-        resumeNationality, resumePhone, resumeAddress,
-        resumeEmail, resumeWebsite,
-        lanyardDiscordId, nowListening, nowReading, nowWorking, nowLocation,
+        siteTitle,
+        adminAvatarUrl,
+        aboutImageUrl,
+        metaDescription,
+        metaKeywords,
+        ogImageUrl,
+        availabilityStatus,
+        availabilityLabel,
+        linksAvatarUrl,
+        linksName,
+        linksBio,
+        linksBackgroundUrl,
+        linksBorderStyle,
+        resumeFullName,
+        resumeTitle,
+        resumeAbout,
+        resumePhotoUrl,
+        resumeBirthDate,
+        resumeBirthPlace,
+        resumeReligion,
+        resumeGender,
+        resumeMarriagestatus,
+        resumeNationality,
+        resumePhone,
+        resumeAddress,
+        resumeEmail,
+        resumeWebsite,
+        lanyardDiscordId,
+        nowListening,
+        nowReading,
+        nowWorking,
+        nowLocation,
       } = req.body;
       const settings = await storage.updateSiteSettings({
         siteTitle,
@@ -835,14 +882,14 @@ ${novelEntries}
     }
   });
 
-  app.post('/api/analytics/pageview', async (req, res) => {
+  app.post("/api/analytics/pageview", async (req, res) => {
     try {
       const { page } = req.body;
-      if (!page || typeof page !== 'string') {
+      if (!page || typeof page !== "string") {
         return res.status(400).json({ message: "page is required" });
       }
-      const userAgent = req.headers['user-agent'] || '';
-      const referrer = req.headers['referer'] || '';
+      const userAgent = req.headers["user-agent"] || "";
+      const referrer = req.headers["referer"] || "";
       await storage.recordPageView(page, userAgent, referrer);
       res.status(204).send();
     } catch (err) {
@@ -851,7 +898,7 @@ ${novelEntries}
     }
   });
 
-  app.get('/api/analytics', requireAuth, async (_req, res) => {
+  app.get("/api/analytics", requireAuth, async (_req, res) => {
     try {
       const analytics = await storage.getAnalytics();
       res.json(analytics);
@@ -861,7 +908,7 @@ ${novelEntries}
     }
   });
 
-  app.get('/api/links', async (_req, res) => {
+  app.get("/api/links", async (_req, res) => {
     try {
       const items = await storage.getLinkItems();
       res.json(items);
@@ -870,7 +917,7 @@ ${novelEntries}
     }
   });
 
-  app.post('/api/links', requireAuth, async (req, res) => {
+  app.post("/api/links", requireAuth, async (req, res) => {
     try {
       const item = await storage.createLinkItem(req.body);
       res.status(201).json(item);
@@ -879,7 +926,7 @@ ${novelEntries}
     }
   });
 
-  app.put('/api/links/:id', requireAuth, async (req, res) => {
+  app.put("/api/links/:id", requireAuth, async (req, res) => {
     try {
       const item = await storage.updateLinkItem(req.params.id, req.body);
       res.json(item);
@@ -888,7 +935,7 @@ ${novelEntries}
     }
   });
 
-  app.delete('/api/links/:id', requireAuth, async (req, res) => {
+  app.delete("/api/links/:id", requireAuth, async (req, res) => {
     try {
       await storage.deleteLinkItem(req.params.id);
       res.status(204).send();
@@ -902,31 +949,38 @@ ${novelEntries}
   app.get("/api/novel/stories", async (req, res) => {
     try {
       const stories = await storage.getNovelStories(true);
-      const enriched = await Promise.all(stories.map(async (story) => {
-        const seasons = await storage.getNovelSeasons(story.id);
-        let totalChapters = 0;
-        let lastChapterAt: Date | null = null;
-        for (const season of seasons) {
-          const chapters = await storage.getNovelChapters(season.id, true);
-          totalChapters += chapters.length;
-          for (const ch of chapters) {
-            const d = new Date((ch as any).createdAt);
-            if (!lastChapterAt || d > lastChapterAt) lastChapterAt = d;
+      const enriched = await Promise.all(
+        stories.map(async (story) => {
+          const seasons = await storage.getNovelSeasons(story.id);
+          let totalChapters = 0;
+          let lastChapterAt: Date | null = null;
+          for (const season of seasons) {
+            const chapters = await storage.getNovelChapters(season.id, true);
+            totalChapters += chapters.length;
+            for (const ch of chapters) {
+              const d = new Date((ch as any).createdAt);
+              if (!lastChapterAt || d > lastChapterAt) lastChapterAt = d;
+            }
           }
-        }
-        return { ...story, totalChapters, lastChapterAt };
-      }));
+          return { ...story, totalChapters, lastChapterAt };
+        }),
+      );
       res.json(enriched);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Admin: get all stories (including unpublished)
   app.get("/api/novel/stories/all", async (req, res) => {
-    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    if (!req.session?.adminId)
+      return res.status(401).json({ message: "Unauthorized" });
     try {
       const stories = await storage.getNovelStories();
       res.json(stories);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Public: get single story by slug
@@ -935,7 +989,9 @@ ${novelEntries}
       const story = await storage.getNovelStory(req.params.slug);
       if (!story) return res.status(404).json({ message: "Story not found" });
       res.json(story);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Increment novel view count (public)
@@ -943,34 +999,45 @@ ${novelEntries}
     try {
       const story = await storage.incrementNovelViewCount(req.params.slug);
       res.json({ viewCount: story.viewCount });
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Admin: create story
   app.post("/api/novel/stories", async (req, res) => {
-    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    if (!req.session?.adminId)
+      return res.status(401).json({ message: "Unauthorized" });
     try {
       const story = await storage.createNovelStory(req.body);
       res.status(201).json(story);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Admin: update story
   app.put("/api/novel/stories/:id", async (req, res) => {
-    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    if (!req.session?.adminId)
+      return res.status(401).json({ message: "Unauthorized" });
     try {
       const story = await storage.updateNovelStory(req.params.id, req.body);
       res.json(story);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Admin: delete story
   app.delete("/api/novel/stories/:id", async (req, res) => {
-    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    if (!req.session?.adminId)
+      return res.status(401).json({ message: "Unauthorized" });
     try {
       await storage.deleteNovelStory(req.params.id);
       res.status(204).send();
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Public: get seasons for a story (by storyId)
@@ -978,7 +1045,9 @@ ${novelEntries}
     try {
       const seasons = await storage.getNovelSeasons(req.params.storyId);
       res.json(seasons);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Public: story stats (total seasons + total published chapters)
@@ -991,97 +1060,138 @@ ${novelEntries}
         totalChapters += chapters.length;
       }
       res.json({ totalSeasons: seasons.length, totalChapters });
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Admin: create season
   app.post("/api/novel/seasons", async (req, res) => {
-    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    if (!req.session?.adminId)
+      return res.status(401).json({ message: "Unauthorized" });
     try {
       const season = await storage.createNovelSeason(req.body);
       res.status(201).json(season);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Admin: update season
   app.put("/api/novel/seasons/:id", async (req, res) => {
-    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    if (!req.session?.adminId)
+      return res.status(401).json({ message: "Unauthorized" });
     try {
       const season = await storage.updateNovelSeason(req.params.id, req.body);
       res.json(season);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Admin: delete season
   app.delete("/api/novel/seasons/:id", async (req, res) => {
-    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    if (!req.session?.adminId)
+      return res.status(401).json({ message: "Unauthorized" });
     try {
       await storage.deleteNovelSeason(req.params.id);
       res.status(204).send();
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Public: get chapters for a season (only published)
   app.get("/api/novel/seasons/:seasonId/chapters", async (req, res) => {
     try {
-      const chapters = await storage.getNovelChapters(req.params.seasonId, true);
+      const chapters = await storage.getNovelChapters(
+        req.params.seasonId,
+        true,
+      );
       res.json(chapters);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Admin: get all chapters for a season (including unpublished)
   app.get("/api/novel/seasons/:seasonId/chapters/all", async (req, res) => {
-    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    if (!req.session?.adminId)
+      return res.status(401).json({ message: "Unauthorized" });
     try {
       const chapters = await storage.getNovelChapters(req.params.seasonId);
       res.json(chapters);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Public: get single chapter by id
   app.get("/api/novel/chapters/:id", async (req, res) => {
     try {
       const chapter = await storage.getNovelChapter(req.params.id);
-      if (!chapter || !chapter.published) return res.status(404).json({ message: "Chapter not found" });
+      if (!chapter || !chapter.published)
+        return res.status(404).json({ message: "Chapter not found" });
       res.json(chapter);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Public: get chapter by slug/season/chapter number
-  app.get("/api/novel/read/:slug/season-:seasonNum/bab-:chapterNum", async (req, res) => {
-    try {
-      const { slug, seasonNum, chapterNum } = req.params;
-      const chapter = await storage.getNovelChapterByNumber(slug, seasonNum, Number(chapterNum));
-      if (!chapter) return res.status(404).json({ message: "Chapter not found" });
-      res.json(chapter);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
-  });
+  app.get(
+    "/api/novel/read/:slug/season-:seasonNum/bab-:chapterNum",
+    async (req, res) => {
+      try {
+        const { slug, seasonNum, chapterNum } = req.params;
+        const chapter = await storage.getNovelChapterByNumber(
+          slug,
+          seasonNum,
+          Number(chapterNum),
+        );
+        if (!chapter)
+          return res.status(404).json({ message: "Chapter not found" });
+        res.json(chapter);
+      } catch {
+        res.status(500).json({ message: "Internal server error" });
+      }
+    },
+  );
 
   // Admin: create chapter
   app.post("/api/novel/chapters", async (req, res) => {
-    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    if (!req.session?.adminId)
+      return res.status(401).json({ message: "Unauthorized" });
     try {
       const chapter = await storage.createNovelChapter(req.body);
       res.status(201).json(chapter);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Admin: update chapter
   app.put("/api/novel/chapters/:id", async (req, res) => {
-    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    if (!req.session?.adminId)
+      return res.status(401).json({ message: "Unauthorized" });
     try {
       const chapter = await storage.updateNovelChapter(req.params.id, req.body);
       res.json(chapter);
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Admin: delete chapter
   app.delete("/api/novel/chapters/:id", async (req, res) => {
-    if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });
+    if (!req.session?.adminId)
+      return res.status(401).json({ message: "Unauthorized" });
     try {
       await storage.deleteNovelChapter(req.params.id);
       res.status(204).send();
-    } catch { res.status(500).json({ message: "Internal server error" }); }
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -1094,14 +1204,29 @@ ${novelEntries}
   const SITE_URL = "https://iamchomad.my.id";
   const DEFAULT_SITE_NAME = "Choiril Ahmad";
   const DEFAULT_LOGO_URL = `${SITE_URL}/og-thumb.png`;
-  const DEFAULT_DESCRIPTION = "Personal website of Choiril Ahmad — Entrepreneur & Software Developer crafting digital experiences with precision and purpose.";
+  const DEFAULT_DESCRIPTION =
+    "Personal website of Choiril Ahmad — Entrepreneur & Software Developer crafting digital experiences with precision and purpose.";
 
-  const SOCIAL_BOTS = ["WhatsApp", "TelegramBot", "facebookexternalhit", "Twitterbot", "LinkedInBot", "Slackbot", "Discordbot", "SkypeUriPreview", "google", "bingbot"];
+  const SOCIAL_BOTS = [
+    "WhatsApp",
+    "TelegramBot",
+    "facebookexternalhit",
+    "Twitterbot",
+    "LinkedInBot",
+    "Slackbot",
+    "Discordbot",
+    "SkypeUriPreview",
+    "google",
+    "bingbot",
+  ];
 
   app.use(async (req, res, next) => {
-    if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) return next();
+    if (req.path.startsWith("/api") || req.path.startsWith("/uploads"))
+      return next();
     const ua = req.headers["user-agent"] || "";
-    const isBot = SOCIAL_BOTS.some(bot => ua.toLowerCase().includes(bot.toLowerCase()));
+    const isBot = SOCIAL_BOTS.some((bot) =>
+      ua.toLowerCase().includes(bot.toLowerCase()),
+    );
     if (!isBot) return next();
 
     const siteSettings = await storage.getSiteSettings().catch(() => null);
@@ -1110,16 +1235,44 @@ ${novelEntries}
     const siteDesc = siteSettings?.metaDescription || DEFAULT_DESCRIPTION;
 
     const PAGE_META: Record<string, { title: string; description: string }> = {
-      "/":        { title: `${SITE_NAME}'s`, description: siteDesc },
-      "/about":   { title: `About | ${SITE_NAME}`, description: `Learn about ${SITE_NAME} — Entrepreneur & Software Developer from Indonesia, crafting digital experiences with precision and purpose.` },
-      "/blog":    { title: `Blog | ${SITE_NAME}`, description: `Thoughts, stories, and ideas from ${SITE_NAME} on entrepreneurship, software development, and creativity.` },
-      "/brand":   { title: `Brand | ${SITE_NAME}`, description: `Brand projects and creative work by ${SITE_NAME} — a showcase of design, identity, and visual storytelling.` },
-      "/music":   { title: `Sound | ${SITE_NAME}`, description: `Music and audio collection by ${SITE_NAME} — a personal selection of sounds and compositions.` },
-      "/resume":  { title: `Resume | ${SITE_NAME}`, description: `Professional resume of ${SITE_NAME} — experience, education, and skills as an Entrepreneur & Software Developer.` },
-      "/contact": { title: `Contact | ${SITE_NAME}`, description: `Get in touch with ${SITE_NAME} — send a message for collaborations, projects, or just to say hello.` },
-      "/links":   { title: `Links | ${SITE_NAME}`, description: `All of ${SITE_NAME}'s important links in one place — social media, portfolio, contact, and more.` },
-      "/pesan":   { title: `Anonymous Message | ${SITE_NAME}`, description: `Have something to say? Send an anonymous message to ${SITE_NAME} — your identity is 100% protected.` },
-      "/novel":   { title: `Novel & Comic | ${SITE_NAME}`, description: "A collection of novels and comics, stories with a rich world and lively characters." },
+      "/": { title: `${SITE_NAME}'s`, description: siteDesc },
+      "/about": {
+        title: `About | ${SITE_NAME}`,
+        description: `Learn about ${SITE_NAME} — Entrepreneur & Software Developer from Indonesia, crafting digital experiences with precision and purpose.`,
+      },
+      "/blog": {
+        title: `Blog | ${SITE_NAME}`,
+        description: `Thoughts, stories, and ideas from ${SITE_NAME} on entrepreneurship, software development, and creativity.`,
+      },
+      "/brand": {
+        title: `Brand | ${SITE_NAME}`,
+        description: `Brand projects and creative work by ${SITE_NAME} — a showcase of design, identity, and visual storytelling.`,
+      },
+      "/music": {
+        title: `Sound | ${SITE_NAME}`,
+        description: `Music and audio collection by ${SITE_NAME} — a personal selection of sounds and compositions.`,
+      },
+      "/resume": {
+        title: `Resume | ${SITE_NAME}`,
+        description: `Professional resume of ${SITE_NAME} — experience, education, and skills as an Entrepreneur & Software Developer.`,
+      },
+      "/contact": {
+        title: `Contact | ${SITE_NAME}`,
+        description: `Get in touch with ${SITE_NAME} — send a message for collaborations, projects, or just to say hello.`,
+      },
+      "/links": {
+        title: `Links | ${SITE_NAME}`,
+        description: `All of ${SITE_NAME}'s important links in one place — social media, portfolio, contact, and more.`,
+      },
+      "/pesan": {
+        title: `Anonymous Message | ${SITE_NAME}`,
+        description: `Have something to say? Send an anonymous message to ${SITE_NAME} — your identity is 100% protected.`,
+      },
+      "/novel": {
+        title: `Novel & Comic | ${SITE_NAME}`,
+        description:
+          "A collection of novels and comics, stories with a rich world and lively characters.",
+      },
     };
 
     const meta = PAGE_META[req.path] || PAGE_META["/"];
@@ -1149,7 +1302,7 @@ ${novelEntries}
   // ─────────────────────────────────────────────────────────────────────────
 
   // ── Short URL Admin API ──────────────────────────────────────────────────
-  app.get('/api/short-urls', requireAuth, async (_req, res) => {
+  app.get("/api/short-urls", requireAuth, async (_req, res) => {
     try {
       const urls = await storage.getShortUrls();
       res.json(urls);
@@ -1159,18 +1312,27 @@ ${novelEntries}
     }
   });
 
-  app.post('/api/short-urls', requireAuth, async (req, res) => {
+  app.post("/api/short-urls", requireAuth, async (req, res) => {
     try {
       const { targetUrl, title, slug, expiryDays } = req.body;
-      if (!targetUrl) return res.status(400).json({ message: "targetUrl required" });
+      if (!targetUrl)
+        return res.status(400).json({ message: "targetUrl required" });
       const finalSlug = slug || Math.random().toString(36).slice(2, 9);
       const existing = await storage.getShortUrlBySlug(finalSlug);
-      if (existing) return res.status(409).json({ message: "Slug already taken" });
+      if (existing)
+        return res.status(409).json({ message: "Slug already taken" });
       let expiresAt: Date | null = null;
       if (expiryDays && expiryDays !== "permanent") {
-        expiresAt = new Date(Date.now() + Number(expiryDays) * 24 * 60 * 60 * 1000);
+        expiresAt = new Date(
+          Date.now() + Number(expiryDays) * 24 * 60 * 60 * 1000,
+        );
       }
-      const url = await storage.createShortUrl({ targetUrl, title: title || undefined, slug: finalSlug, expiresAt });
+      const url = await storage.createShortUrl({
+        targetUrl,
+        title: title || undefined,
+        slug: finalSlug,
+        expiresAt,
+      });
       res.status(201).json(url);
     } catch (err) {
       console.error("Short URL create error:", err);
@@ -1178,7 +1340,7 @@ ${novelEntries}
     }
   });
 
-  app.delete('/api/short-urls/:id', requireAuth, async (req, res) => {
+  app.delete("/api/short-urls/:id", requireAuth, async (req, res) => {
     try {
       await storage.deleteShortUrl(req.params.id);
       res.status(204).end();
@@ -1189,20 +1351,34 @@ ${novelEntries}
   });
 
   // ── Short URL Public Redirect ───────────────────────────────────────────
-  app.get('/:slug', async (req, res, next) => {
+  app.get("/:slug", async (req, res, next) => {
     try {
       const { slug } = req.params;
       if (!/^[a-z0-9]{4,12}$/.test(slug)) return next();
       const shortUrl = await storage.getShortUrlBySlug(slug);
       if (!shortUrl) return next();
       if (shortUrl.expiresAt && new Date(shortUrl.expiresAt) < new Date()) {
-        const acceptLang = req.headers['accept-language'] || '';
+        const acceptLang = req.headers["accept-language"] || "";
         const isID = /^id\b/i.test(acceptLang);
         const text = isID
-          ? { title: "Tautan Kedaluwarsa", badge: "Kedaluwarsa", heading: "Tautan Ini Sudah Tidak Aktif", desc: "Tautan pendek ini telah melewati masa berlakunya dan tidak dapat lagi digunakan.", btn: "Kembali ke Beranda", footer: "Tautan pendek oleh" }
-          : { title: "Link Expired", badge: "Expired", heading: "This Link Has Expired", desc: "This short URL has passed its expiry date and is no longer available.", btn: "Back to Home", footer: "Short URL by" };
+          ? {
+              title: "Tautan Kedaluwarsa",
+              badge: "Kedaluwarsa",
+              heading: "Tautan Ini Sudah Tidak Aktif",
+              desc: "Tautan pendek ini telah melewati masa berlakunya dan tidak dapat lagi digunakan.",
+              btn: "Kembali ke Beranda",
+              footer: "Tautan pendek oleh",
+            }
+          : {
+              title: "Link Expired",
+              badge: "Expired",
+              heading: "This Link Has Expired",
+              desc: "This short URL has passed its expiry date and is no longer available.",
+              btn: "Back to Home",
+              footer: "Short URL by",
+            };
         const expiredHtml = `<!DOCTYPE html>
-<html lang="${isID ? 'id' : 'en'}">
+<html lang="${isID ? "id" : "en"}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
