@@ -32,12 +32,6 @@ const STATUS_COLORS: Record<string, string> = {
   offline: "bg-gray-400",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  online: "Online",
-  idle: "Away",
-  dnd: "Do Not Disturb",
-  offline: "Offline",
-};
 
 const skillCategories = [
   {
@@ -177,13 +171,13 @@ export default function About() {
               {/* Stats row */}
               <div className="grid grid-cols-3 gap-3 mt-4">
                 {[
-                  { value: "3+", label: "Tahun Belajar" },
-                  { value: "20+", label: "Proyek" },
-                  { value: "5+", label: "Brand" },
+                  { value: "3+", key: "about.stats.years" },
+                  { value: "20+", key: "about.stats.projects" },
+                  { value: "5+", key: "about.stats.brands" },
                 ].map((s) => (
-                  <div key={s.label} className="bg-card border border-border/60 rounded-2xl py-4 text-center soft-shadow hover:-translate-y-0.5 transition-transform">
+                  <div key={s.key} className="bg-card border border-border/60 rounded-2xl py-4 text-center soft-shadow hover:-translate-y-0.5 transition-transform">
                     <div className="text-2xl font-bold text-primary leading-none">{s.value}</div>
-                    <div className="text-[10px] text-muted-foreground font-medium mt-1">{s.label}</div>
+                    <div className="text-[10px] text-muted-foreground font-medium mt-1">{t(s.key)}</div>
                   </div>
                 ))}
               </div>
@@ -272,7 +266,7 @@ export default function About() {
                   {lanyard && (
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <span className={`w-1.5 h-1.5 rounded-full ${STATUS_COLORS[lanyard.discord_status] ?? "bg-gray-400"}`} />
-                      <span className="text-[11px] text-muted-foreground">{STATUS_LABELS[lanyard.discord_status] ?? "Offline"} di Discord</span>
+                      <span className="text-[11px] text-muted-foreground">{t(`about.discord.${lanyard.discord_status}`) || t("about.discord.offline")} {t("about.discord.label")}</span>
                     </div>
                   )}
                 </div>
