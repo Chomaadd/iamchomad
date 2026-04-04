@@ -932,6 +932,14 @@ ${novelEntries}
     } catch { res.status(500).json({ message: "Internal server error" }); }
   });
 
+  // Increment novel view count (public)
+  app.patch("/api/novel/stories/:slug/view", async (req, res) => {
+    try {
+      const story = await storage.incrementNovelViewCount(req.params.slug);
+      res.json({ viewCount: story.viewCount });
+    } catch { res.status(500).json({ message: "Internal server error" }); }
+  });
+
   // Admin: create story
   app.post("/api/novel/stories", async (req, res) => {
     if (!req.session?.adminId) return res.status(401).json({ message: "Unauthorized" });

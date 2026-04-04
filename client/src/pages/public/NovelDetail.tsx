@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useRoute } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -6,7 +6,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SeoHead } from "@/components/seometa/SeoHead";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, ChevronDown, ChevronRight, ArrowLeft, Clock } from "lucide-react";
+import { BookOpen, ChevronDown, ChevronRight, ArrowLeft, Clock, Eye } from "lucide-react";
 import type { NovelStory, NovelSeason, NovelChapter } from "@shared/schema";
 import { useLanguage } from "@/hooks/use-language";
 
@@ -115,12 +115,21 @@ export default function NovelDetail() {
   const [, params] = useRoute("/novel/:slug");
   const { t } = useLanguage();
   const slug = params?.slug ?? "";
+  const [viewCount, setViewCount] = useState<number | null>(null);
 
   const { data: story, isLoading: storyLoading } = useQuery<NovelStory>({
     queryKey: ["/api/novel/stories", slug],
     queryFn: () => fetch(`/api/novel/stories/${slug}`).then(r => r.json()),
     enabled: !!slug,
   });
+
+  useEffect(() => {
+    if (!slug) return;
+    fetch(`/api/novel/stories/${slug}/view`, { method: "PATCH" })
+      .then(r => r.json())
+      .then(data => setViewCount(data.viewCount))
+      .catch(() => {});
+  }, [slug]);
 
   const { data: seasons, isLoading: seasonsLoading } = useQuery<NovelSeason[]>({
     queryKey: ["/api/novel/stories", story?.id, "seasons"],
@@ -217,10 +226,19 @@ export default function NovelDetail() {
             {story.description && (
               <p className="text-muted-foreground leading-relaxed mb-4">{story.description}</p>
             )}
-            <div className="text-sm text-muted-foreground">
+            <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
               <span>{stats?.totalSeasons ?? seasons?.length ?? 0} Season</span>
-              <span className="mx-2">·</span>
+              <span>·</span>
               <span>{stats?.totalChapters ?? 0} {t("novel.detail.chapters")}</span>
+              {viewCount !== null && (
+                <>
+                  <span>·</span>
+                  <span className="flex items-center gap-1">
+                    <Eye size={13} />
+                    {viewCount.toLocaleString()}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </motion.div>

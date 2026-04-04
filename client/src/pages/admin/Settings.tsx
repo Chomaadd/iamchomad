@@ -4,7 +4,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { ImageCropModal } from "@/components/ui/ImageCropModal";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Loader2, Upload, Trash2, Globe, User, ImageIcon, Search, Settings as SettingsIcon } from "lucide-react";
+import { Save, Loader2, Upload, Trash2, Globe, User, ImageIcon, Search, Settings as SettingsIcon, Radio } from "lucide-react";
 import type { SiteSettings } from "@shared/schema";
 
 export default function Settings() {
@@ -20,6 +20,13 @@ export default function Settings() {
   const [ogImageUrl, setOgImageUrl] = useState("");
   const [adminAvatarUrl, setAdminAvatarUrl] = useState<string | null>(null);
   const [aboutImageUrl, setAboutImageUrl] = useState<string | null>(null);
+
+  // "Now" fields
+  const [lanyardDiscordId, setLanyardDiscordId] = useState("");
+  const [nowListening, setNowListening] = useState("");
+  const [nowReading, setNowReading] = useState("");
+  const [nowWorking, setNowWorking] = useState("");
+  const [nowLocation, setNowLocation] = useState("");
 
   // Upload states
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -45,6 +52,11 @@ export default function Settings() {
       setOgImageUrl(currentSettings.ogImageUrl ?? "");
       setAdminAvatarUrl(currentSettings.adminAvatarUrl ?? null);
       setAboutImageUrl(currentSettings.aboutImageUrl ?? null);
+      setLanyardDiscordId(currentSettings.lanyardDiscordId ?? "");
+      setNowListening(currentSettings.nowListening ?? "");
+      setNowReading(currentSettings.nowReading ?? "");
+      setNowWorking(currentSettings.nowWorking ?? "");
+      setNowLocation(currentSettings.nowLocation ?? "");
       setInitialized(true);
     }
   }, [currentSettings, initialized]);
@@ -74,6 +86,11 @@ export default function Settings() {
       ogImageUrl: ogImageUrl || null,
       adminAvatarUrl,
       aboutImageUrl,
+      lanyardDiscordId: lanyardDiscordId || null,
+      nowListening: nowListening || null,
+      nowReading: nowReading || null,
+      nowWorking: nowWorking || null,
+      nowLocation: nowLocation || null,
     });
   };
 
@@ -420,6 +437,88 @@ export default function Settings() {
               <p className="text-xs text-muted-foreground/70 leading-relaxed">
                 Upload a portrait photo for the About page. If it's blank, the default image will be used.
               </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Now Section */}
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Radio size={18} className="text-primary" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-sm">Section "Now" di About</h2>
+              <p className="text-xs text-muted-foreground">Status real-time yang tampil di halaman About — terintegrasi dengan Discord Lanyard</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Discord User ID (untuk Lanyard)
+              </label>
+              <input
+                type="text"
+                value={lanyardDiscordId}
+                onChange={e => setLanyardDiscordId(e.target.value)}
+                placeholder="123456789012345678"
+                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all font-mono"
+                data-testid="input-lanyard-discord-id"
+              />
+              <p className="text-xs text-muted-foreground/70">
+                Jika diisi, status Spotify & Discord kamu akan tampil live. Dapatkan ID dari Discord → Pengaturan → Mode Pengembang → klik kanan nama kamu → Copy User ID.
+              </p>
+            </div>
+
+            <div className="border-t border-border/50 pt-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Manual Fallback (jika tidak ada Lanyard)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground">🎵 Sedang Didengar</label>
+                  <input
+                    type="text"
+                    value={nowListening}
+                    onChange={e => setNowListening(e.target.value)}
+                    placeholder="Bernadya – Kata Mereka Ini Berlebihan"
+                    className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    data-testid="input-now-listening"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground">📖 Sedang Dibaca</label>
+                  <input
+                    type="text"
+                    value={nowReading}
+                    onChange={e => setNowReading(e.target.value)}
+                    placeholder="Atomic Habits – James Clear"
+                    className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    data-testid="input-now-reading"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground">💻 Sedang Dikerjakan</label>
+                  <input
+                    type="text"
+                    value={nowWorking}
+                    onChange={e => setNowWorking(e.target.value)}
+                    placeholder="Freelance Branding Project"
+                    className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    data-testid="input-now-working"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground">📍 Lokasi</label>
+                  <input
+                    type="text"
+                    value={nowLocation}
+                    onChange={e => setNowLocation(e.target.value)}
+                    placeholder="Jawa Timur, Indonesia"
+                    className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    data-testid="input-now-location"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>

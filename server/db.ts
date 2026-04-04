@@ -104,6 +104,11 @@ import mongoose from 'mongoose';
     linksBio: { type: String },
     linksBackgroundUrl: { type: String },
     linksBorderStyle: { type: String, default: 'default' },
+    lanyardDiscordId: { type: String },
+    nowListening: { type: String },
+    nowReading: { type: String },
+    nowWorking: { type: String },
+    nowLocation: { type: String },
     resumeFullName: { type: String },
     resumeTitle: { type: String },
     resumeAbout: { type: String },
@@ -135,6 +140,7 @@ import mongoose from 'mongoose';
     tags: { type: [String], default: [] },
     published: { type: Boolean, default: false },
     featured: { type: Boolean, default: false },
+    viewCount: { type: Number, default: 0 },
   }, { timestamps: true });
 
   const novelSeasonSchema = new mongoose.Schema({

@@ -1,12 +1,43 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Palette, Code, PenTool, Mail, ExternalLink, Sparkles, Zap, Globe, ArrowRight } from "lucide-react";
+import { Palette, Code, PenTool, Mail, ExternalLink, Sparkles, Zap, Globe, ArrowRight, Music, BookOpen, Briefcase, MapPin } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { SeoHead } from "@/components/seometa/SeoHead";
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/hooks/use-settings";
+
+interface LanyardData {
+  discord_status: "online" | "idle" | "dnd" | "offline";
+  spotify?: {
+    song: string;
+    artist: string;
+    album: string;
+    album_art_url: string;
+  } | null;
+  activities?: Array<{
+    type: number;
+    name: string;
+    state?: string;
+    details?: string;
+  }>;
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  online: "bg-green-500",
+  idle: "bg-yellow-500",
+  dnd: "bg-red-500",
+  offline: "bg-gray-400",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  online: "Online",
+  idle: "Away",
+  dnd: "Do Not Disturb",
+  offline: "Offline",
+};
 
 const skillCategories = [
   {
@@ -65,6 +96,31 @@ const skillCategories = [
 export default function About() {
   const { t } = useLanguage();
   const { data: settings } = useSiteSettings();
+  const [lanyard, setLanyard] = useState<LanyardData | null>(null);
+
+  useEffect(() => {
+    const discordId = settings?.lanyardDiscordId;
+    if (!discordId) return;
+    let cancelled = false;
+    const fetchLanyard = () => {
+      fetch(`https://api.lanyard.rest/v1/users/${discordId}`)
+        .then(r => r.json())
+        .then(data => { if (!cancelled && data.success) setLanyard(data.data); })
+        .catch(() => {});
+    };
+    fetchLanyard();
+    const interval = setInterval(fetchLanyard, 30000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [settings?.lanyardDiscordId]);
+
+  const hasNow = settings && (
+    settings.lanyardDiscordId || settings.nowListening || settings.nowReading ||
+    settings.nowWorking || settings.nowLocation
+  );
+
+  const listeningText = lanyard?.spotify
+    ? `${lanyard.spotify.song} — ${lanyard.spotify.artist}`
+    : settings?.nowListening ?? null;
 
   const highlights = [
     { icon: Palette, title: t("about.highlight.creative"), desc: t("about.highlight.creative.desc") },
@@ -192,6 +248,87 @@ export default function About() {
             </Link>
           </motion.div>
         </div>
+
+        {/* ── NOW SECTION ── */}
+        {hasNow && (
+          <motion.section
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mb-16"
+          >
+            <div className="bg-card border border-border/60 rounded-2xl p-6 soft-shadow">
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-primary/10">
+                  <span className="text-base">📡</span>
+                </div>
+                <div>
+                  <h2 className="font-semibold text-sm text-foreground">Now</h2>
+                  {lanyard && (
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className={`w-1.5 h-1.5 rounded-full ${STATUS_COLORS[lanyard.discord_status] ?? "bg-gray-400"}`} />
+                      <span className="text-[11px] text-muted-foreground">{STATUS_LABELS[lanyard.discord_status] ?? "Offline"} di Discord</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {listeningText && (
+                  <div className="flex items-start gap-3 p-3 bg-primary/5 rounded-xl border border-primary/10">
+                    {lanyard?.spotify?.album_art_url ? (
+                      <img src={lanyard.spotify.album_art_url} alt="album" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                        <Music size={16} className="text-primary" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-semibold text-primary uppercase tracking-wider mb-0.5">
+                        {lanyard?.spotify ? "🎵 Sedang Diputar" : "🎵 Sedang Didengar"}
+                      </p>
+                      <p className="text-xs text-foreground font-medium truncate">{listeningText}</p>
+                    </div>
+                  </div>
+                )}
+                {settings?.nowReading && (
+                  <div className="flex items-start gap-3 p-3 bg-amber-500/5 rounded-xl border border-amber-500/10">
+                    <div className="w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+                      <BookOpen size={16} className="text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-0.5">📖 Sedang Dibaca</p>
+                      <p className="text-xs text-foreground font-medium truncate">{settings.nowReading}</p>
+                    </div>
+                  </div>
+                )}
+                {settings?.nowWorking && (
+                  <div className="flex items-start gap-3 p-3 bg-blue-500/5 rounded-xl border border-blue-500/10">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0">
+                      <Briefcase size={16} className="text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-0.5">💻 Sedang Dikerjakan</p>
+                      <p className="text-xs text-foreground font-medium truncate">{settings.nowWorking}</p>
+                    </div>
+                  </div>
+                )}
+                {settings?.nowLocation && (
+                  <div className="flex items-start gap-3 p-3 bg-green-500/5 rounded-xl border border-green-500/10">
+                    <div className="w-10 h-10 rounded-lg bg-green-500/15 flex items-center justify-center shrink-0">
+                      <MapPin size={16} className="text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-semibold text-green-600 dark:text-green-400 uppercase tracking-wider mb-0.5">📍 Lokasi</p>
+                      <p className="text-xs text-foreground font-medium truncate">{settings.nowLocation}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.section>
+        )}
 
         {/* ── SKILLS SECTION ── */}
         <motion.section

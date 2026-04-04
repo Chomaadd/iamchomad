@@ -14,7 +14,7 @@ A personal portfolio website with blog, brand showcase, music collection, and co
 
 ### Public Pages
 - **Home** (`/`) - Landing page with hero avatar, status badge, animated heading, and 3-col blog grid (simple, no complex asymmetric layout)
-- **About** (`/about`) - Redesigned: photo panel left (lg:sticky lg:top-24), stats row, text content right with badge/heading/quote card/3 highlight cards; Skills section 4 categories; dark CTA section at bottom
+- **About** (`/about`) - Redesigned: photo panel left (lg:sticky lg:top-24), stats row, text content right with badge/heading/quote card/3 highlight cards; **"Now" section** (Discord Lanyard live status + manual fallback for listening/reading/working/location); Skills section 4 categories; dark CTA section at bottom
 - **Blog** (`/blog`) - Full-bleed cinematic featured post with overlay; grid cards with read time badge, tags, date/views footer; search bar; tag filter. Article count NOT shown in header.
 - **BlogPost** (`/blog/:slug`) - Cover image contained in max-w-5xl (aspect-video, rounded-2xl); tags before title; excerpt with left accent border; TOC card sidebar (desktop only); large reaction buttons; share buttons
 - **Brand** (`/brand`) - Full-bleed cinematic featured card; grid cards below; project count NOT shown in header
@@ -27,7 +27,7 @@ A personal portfolio website with blog, brand showcase, music collection, and co
   - 5 border styles: `default` (rounded-2xl), `pill` (rounded-full), `sharp` (rounded-md), `dashed` (border-2 dashed), `glow` (shadow, no border)
   - Colors adapt automatically based on whether background image is present
 - **Novel & Komik** (`/novel`) - Reading platform for stories with grid cover display, search & category filter
-  - Story detail (`/novel/:slug`) - Synopsis, season & chapter accordion list with publish date
+  - Story detail (`/novel/:slug`) - Synopsis, season & chapter accordion list; **view count** (👁) auto-incremented on page load via PATCH endpoint, displayed next to chapter count
   - Reading page (`/novel/:slug/season-:n/bab-:n`) - Clean reading view with prev/next chapter navigation
   - Supports categories: novel, komik, cerpen, puisi, lainnya; statuses: ongoing, completed, hiatus
 
@@ -47,7 +47,7 @@ A personal portfolio website with blog, brand showcase, music collection, and co
   - **Border Style picker**: 5 options (Rounded/Pill/Sharp/Dashed/Glow) with visual previews, auto-saves on click
   - Grid: 3 cols on mobile, 5 cols on sm+
 - **Messages** (`/admin/messages`) - View and manage contact form messages
-- **Settings** (`/admin/settings`) - Site Identity (title, name, owner name), SEO (meta description, keywords, OG image), Photos (profile/about photos), Availability status
+- **Settings** (`/admin/settings`) - Site Identity (title, name, owner name), SEO (meta description, keywords, OG image with preview), Photos (profile/about photos), **"Now" section** (Discord User ID for Lanyard, manual fields: nowListening/nowReading/nowWorking/nowLocation)
 
 ## Admin Access
 
@@ -117,6 +117,11 @@ Credentials via environment secrets:
 - `DELETE /api/blog/:id` - Delete post (auth)
 - `POST /api/blog/:slug/view` - Increment view count (public)
 - `POST /api/blog/:slug/react` - Add reaction `{ type: 'thumbsUp' | 'heart' }` (public, localStorage dedup)
+
+### Novel
+- `GET /api/novel/stories` - List published stories
+- `GET /api/novel/stories/:slug` - Get story by slug
+- `PATCH /api/novel/stories/:slug/view` - Increment view count (public, returns `{ viewCount: number }`)
 
 ### Settings
 - `GET /api/settings` - Get site settings

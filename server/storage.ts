@@ -108,6 +108,7 @@ import mongoose from 'mongoose';
     createNovelStory(data: CreateNovelStoryRequest): Promise<NovelStory>;
     updateNovelStory(id: string, updates: UpdateNovelStoryRequest): Promise<NovelStory>;
     deleteNovelStory(id: string): Promise<void>;
+    incrementNovelViewCount(slug: string): Promise<NovelStory>;
 
     getNovelSeasons(storyId: string): Promise<NovelSeason[]>;
     getNovelSeason(id: string): Promise<NovelSeason | undefined>;
@@ -474,6 +475,16 @@ import mongoose from 'mongoose';
 
     async updateNovelStory(id: string, updates: UpdateNovelStoryRequest): Promise<NovelStory> {
       const doc = await NovelStoryModel.findByIdAndUpdate(id, { ...updates, updatedAt: new Date() }, { new: true });
+      if (!doc) throw new Error('Story not found');
+      return mapId<NovelStory>(doc);
+    }
+
+    async incrementNovelViewCount(slug: string): Promise<NovelStory> {
+      const doc = await NovelStoryModel.findOneAndUpdate(
+        { slug },
+        { $inc: { viewCount: 1 } },
+        { new: true }
+      );
       if (!doc) throw new Error('Story not found');
       return mapId<NovelStory>(doc);
     }
