@@ -1161,12 +1161,16 @@ ${novelEntries}
 
   app.post('/api/short-urls', requireAuth, async (req, res) => {
     try {
-      const { targetUrl, title, slug } = req.body;
+      const { targetUrl, title, slug, expiryDays } = req.body;
       if (!targetUrl) return res.status(400).json({ message: "targetUrl required" });
       const finalSlug = slug || Math.random().toString(36).slice(2, 9);
       const existing = await storage.getShortUrlBySlug(finalSlug);
       if (existing) return res.status(409).json({ message: "Slug already taken" });
-      const url = await storage.createShortUrl({ targetUrl, title: title || undefined, slug: finalSlug });
+      let expiresAt: Date | null = null;
+      if (expiryDays && expiryDays !== "permanent") {
+        expiresAt = new Date(Date.now() + Number(expiryDays) * 24 * 60 * 60 * 1000);
+      }
+      const url = await storage.createShortUrl({ targetUrl, title: title || undefined, slug: finalSlug, expiresAt });
       res.status(201).json(url);
     } catch (err) {
       console.error("Short URL create error:", err);
@@ -1191,6 +1195,9 @@ ${novelEntries}
       if (!/^[a-z0-9]{4,12}$/.test(slug)) return next();
       const shortUrl = await storage.getShortUrlBySlug(slug);
       if (!shortUrl) return next();
+      if (shortUrl.expiresAt && new Date(shortUrl.expiresAt) < new Date()) {
+        return res.status(410).send("<h1>Link has expired</h1><p>This short URL is no longer active.</p>");
+      }
       await storage.incrementShortUrlClicks(shortUrl.id);
       return res.redirect(302, shortUrl.targetUrl);
     } catch {

@@ -262,6 +262,7 @@ export const shortUrlSchema = z.object({
   targetUrl: z.string().url(),
   title: z.string().optional(),
   clicks: z.number().default(0),
+  expiresAt: z.date().nullable().optional(),
   createdAt: z.date().optional(),
 });
 export const insertShortUrlSchema = shortUrlSchema.omit({ id: true, clicks: true, createdAt: true });

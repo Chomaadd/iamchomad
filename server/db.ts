@@ -177,6 +177,7 @@ import mongoose from 'mongoose';
     targetUrl: { type: String, required: true },
     title: { type: String },
     clicks: { type: Number, default: 0 },
+    expiresAt: { type: Date, default: null },
   }, { timestamps: { createdAt: true, updatedAt: false } });
 
   export const ShortUrlModel = mongoose.models.ShortUrl || mongoose.model('ShortUrl', shortUrlSchema);
