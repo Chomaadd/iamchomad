@@ -1196,7 +1196,133 @@ ${novelEntries}
       const shortUrl = await storage.getShortUrlBySlug(slug);
       if (!shortUrl) return next();
       if (shortUrl.expiresAt && new Date(shortUrl.expiresAt) < new Date()) {
-        return res.status(410).send("<h1>Link has expired</h1><p>This short URL is no longer active.</p>");
+        const expiredHtml = `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Expired — iamchomad.my.id</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0a;
+      --card: #111111;
+      --border: #222222;
+      --text: #fafafa;
+      --muted: #888888;
+      --primary: #a78bfa;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px 40px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+    }
+    .icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 28px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ef4444;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .slug {
+      font-family: monospace;
+      font-size: 13px;
+      color: var(--primary);
+      background: rgba(167,139,250,0.08);
+      border: 1px solid rgba(167,139,250,0.15);
+      padding: 8px 16px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-bottom: 32px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: #0a0a0a;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 28px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .footer {
+      margin-top: 40px;
+      font-size: 12px;
+      color: #444;
+    }
+    .footer a { color: #666; text-decoration: none; }
+    .footer a:hover { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">⏰</div>
+    <div class="badge">Expired</div>
+    <h1>Link Sudah Tidak Aktif</h1>
+    <p>Tautan pendek ini sudah melewati masa berlakunya dan tidak bisa lagi digunakan untuk mengakses halaman tujuan.</p>
+    <div class="slug">iamchomad.my.id/${shortUrl.slug}</div>
+    <br>
+    <a href="https://iamchomad.my.id" class="btn">
+      ← Kembali ke Beranda
+    </a>
+  </div>
+  <div class="footer">
+    Short URL by <a href="https://iamchomad.my.id">iamchomad.my.id</a>
+  </div>
+</body>
+</html>`;
+        return res.status(410).send(expiredHtml);
       }
       await storage.incrementShortUrlClicks(shortUrl.id);
       return res.redirect(302, shortUrl.targetUrl);
