@@ -274,58 +274,67 @@ export default function About() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                {listeningText && (
-                  <div className="flex items-start gap-3 p-3 bg-primary/5 rounded-xl border border-primary/10">
-                    {lanyard?.spotify?.album_art_url ? (
-                      <img src={lanyard.spotify.album_art_url} alt="album" className="w-10 h-10 rounded-lg object-cover shrink-0" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-                        <Music size={16} className="text-primary" />
+              {/* Cards grid — only renders if there's actual content */}
+              {(listeningText || settings?.nowReading || settings?.nowWorking || settings?.nowLocation) ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {listeningText && (
+                    <div className="flex items-start gap-3 p-3 bg-primary/5 rounded-xl border border-primary/10">
+                      {lanyard?.spotify?.album_art_url ? (
+                        <img src={lanyard.spotify.album_art_url} alt="album" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                          <Music size={16} className="text-primary" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-semibold text-primary uppercase tracking-wider mb-0.5">
+                          {lanyard?.spotify ? "🎵 Sedang Diputar" : "🎵 Sedang Didengar"}
+                        </p>
+                        <p className="text-xs text-foreground font-medium truncate">{listeningText}</p>
                       </div>
-                    )}
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-semibold text-primary uppercase tracking-wider mb-0.5">
-                        {lanyard?.spotify ? "🎵 Sedang Diputar" : "🎵 Sedang Didengar"}
-                      </p>
-                      <p className="text-xs text-foreground font-medium truncate">{listeningText}</p>
                     </div>
-                  </div>
-                )}
-                {settings?.nowReading && (
-                  <div className="flex items-start gap-3 p-3 bg-amber-500/5 rounded-xl border border-amber-500/10">
-                    <div className="w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
-                      <BookOpen size={16} className="text-amber-600 dark:text-amber-400" />
+                  )}
+                  {settings?.nowReading && (
+                    <div className="flex items-start gap-3 p-3 bg-amber-500/5 rounded-xl border border-amber-500/10">
+                      <div className="w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+                        <BookOpen size={16} className="text-amber-600 dark:text-amber-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-0.5">📖 Sedang Dibaca</p>
+                        <p className="text-xs text-foreground font-medium truncate">{settings.nowReading}</p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-0.5">📖 Sedang Dibaca</p>
-                      <p className="text-xs text-foreground font-medium truncate">{settings.nowReading}</p>
+                  )}
+                  {settings?.nowWorking && (
+                    <div className="flex items-start gap-3 p-3 bg-blue-500/5 rounded-xl border border-blue-500/10">
+                      <div className="w-10 h-10 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0">
+                        <Briefcase size={16} className="text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-0.5">💻 Sedang Dikerjakan</p>
+                        <p className="text-xs text-foreground font-medium truncate">{settings.nowWorking}</p>
+                      </div>
                     </div>
-                  </div>
-                )}
-                {settings?.nowWorking && (
-                  <div className="flex items-start gap-3 p-3 bg-blue-500/5 rounded-xl border border-blue-500/10">
-                    <div className="w-10 h-10 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0">
-                      <Briefcase size={16} className="text-blue-600 dark:text-blue-400" />
+                  )}
+                  {settings?.nowLocation && (
+                    <div className="flex items-start gap-3 p-3 bg-green-500/5 rounded-xl border border-green-500/10">
+                      <div className="w-10 h-10 rounded-lg bg-green-500/15 flex items-center justify-center shrink-0">
+                        <MapPin size={16} className="text-green-600 dark:text-green-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-semibold text-green-600 dark:text-green-400 uppercase tracking-wider mb-0.5">📍 Lokasi</p>
+                        <p className="text-xs text-foreground font-medium truncate">{settings.nowLocation}</p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-0.5">💻 Sedang Dikerjakan</p>
-                      <p className="text-xs text-foreground font-medium truncate">{settings.nowWorking}</p>
-                    </div>
-                  </div>
-                )}
-                {settings?.nowLocation && (
-                  <div className="flex items-start gap-3 p-3 bg-green-500/5 rounded-xl border border-green-500/10">
-                    <div className="w-10 h-10 rounded-lg bg-green-500/15 flex items-center justify-center shrink-0">
-                      <MapPin size={16} className="text-green-600 dark:text-green-400" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-semibold text-green-600 dark:text-green-400 uppercase tracking-wider mb-0.5">📍 Lokasi</p>
-                      <p className="text-xs text-foreground font-medium truncate">{settings.nowLocation}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground/60 italic">
+                  {settings?.lanyardDiscordId
+                    ? "Menunggu data dari Discord..."
+                    : "Belum ada aktivitas yang ditampilkan."}
+                </p>
+              )}
             </div>
           </motion.section>
         )}
@@ -393,8 +402,8 @@ export default function About() {
           className="mt-20 mb-8"
         >
           <div className="relative rounded-3xl overflow-hidden">
-            {/* Dark gradient background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-foreground via-foreground/95 to-foreground/80" />
+            {/* Dark gradient background — fixed dark color, works in both light & dark mode */}
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950" />
             <div className="absolute -top-32 -right-32 w-72 h-72 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
             <div className="absolute -bottom-32 -left-32 w-72 h-72 rounded-full bg-violet-500/15 blur-3xl pointer-events-none" />
 

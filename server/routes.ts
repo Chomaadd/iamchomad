@@ -792,6 +792,7 @@ ${novelEntries}
         resumeBirthDate, resumeBirthPlace, resumeReligion, resumeGender, resumeMarriagestatus,
         resumeNationality, resumePhone, resumeAddress,
         resumeEmail, resumeWebsite,
+        lanyardDiscordId, nowListening, nowReading, nowWorking, nowLocation,
       } = req.body;
       const settings = await storage.updateSiteSettings({
         siteTitle,
@@ -821,6 +822,11 @@ ${novelEntries}
         resumeAddress,
         resumeEmail,
         resumeWebsite,
+        lanyardDiscordId,
+        nowListening,
+        nowReading,
+        nowWorking,
+        nowLocation,
       });
       res.json(settings);
     } catch (err) {
