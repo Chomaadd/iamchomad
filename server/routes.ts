@@ -1196,129 +1196,173 @@ ${novelEntries}
       const shortUrl = await storage.getShortUrlBySlug(slug);
       if (!shortUrl) return next();
       if (shortUrl.expiresAt && new Date(shortUrl.expiresAt) < new Date()) {
+        const acceptLang = req.headers['accept-language'] || '';
+        const isID = /^id\b/i.test(acceptLang);
+        const text = isID
+          ? { title: "Tautan Kedaluwarsa", badge: "Kedaluwarsa", heading: "Tautan Ini Sudah Tidak Aktif", desc: "Tautan pendek ini telah melewati masa berlakunya dan tidak dapat lagi digunakan.", btn: "Kembali ke Beranda", footer: "Tautan pendek oleh" }
+          : { title: "Link Expired", badge: "Expired", heading: "This Link Has Expired", desc: "This short URL has passed its expiry date and is no longer available.", btn: "Back to Home", footer: "Short URL by" };
         const expiredHtml = `<!DOCTYPE html>
-<html lang="id">
+<html lang="${isID ? 'id' : 'en'}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Link Expired — iamchomad.my.id</title>
+  <title>${text.title} — iamchomad.my.id</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #0a0a0a;
-      --card: #111111;
-      --border: #222222;
-      --text: #fafafa;
-      --muted: #888888;
-      --primary: #a78bfa;
-    }
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: #f8f8f7;
+      color: #0f0f0f;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+    .logo {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: #888;
+      text-transform: uppercase;
     }
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 48px 40px;
-      max-width: 440px;
+      background: #ffffff;
+      border: 1px solid #e8e8e6;
+      border-radius: 20px;
+      padding: 40px 36px;
       width: 100%;
       text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
     }
-    .icon {
-      width: 64px;
-      height: 64px;
-      background: rgba(239,68,68,0.08);
-      border: 1px solid rgba(239,68,68,0.2);
-      border-radius: 50%;
-      display: flex;
+    .icon-wrap {
+      width: 56px;
+      height: 56px;
+      background: #fff5f5;
+      border: 1.5px solid #fecaca;
+      border-radius: 16px;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 24px;
-      font-size: 28px;
+      font-size: 24px;
+      margin-bottom: 20px;
     }
     .badge {
       display: inline-block;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #ef4444;
-      background: rgba(239,68,68,0.08);
-      border: 1px solid rgba(239,68,68,0.2);
-      padding: 4px 12px;
+      color: #dc2626;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      padding: 3px 10px;
       border-radius: 999px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
     h1 {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 700;
-      margin-bottom: 12px;
-      letter-spacing: -0.02em;
+      color: #0f0f0f;
+      letter-spacing: -0.03em;
+      line-height: 1.3;
+      margin-bottom: 10px;
     }
     p {
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 32px;
+      font-size: 13.5px;
+      color: #888;
+      line-height: 1.65;
+      margin-bottom: 28px;
+    }
+    .divider {
+      height: 1px;
+      background: #f0f0ee;
+      margin: 0 -36px 28px;
+    }
+    .slug-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .slug-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #d1d5db;
+      flex-shrink: 0;
     }
     .slug {
-      font-family: monospace;
-      font-size: 13px;
-      color: var(--primary);
-      background: rgba(167,139,250,0.08);
-      border: 1px solid rgba(167,139,250,0.15);
-      padding: 8px 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 12.5px;
+      color: #6b7280;
+      background: #f9f9f8;
+      border: 1px solid #e8e8e6;
+      padding: 6px 14px;
       border-radius: 8px;
-      display: inline-block;
-      margin-bottom: 32px;
     }
     .btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      background: var(--primary);
-      color: #0a0a0a;
+      justify-content: center;
+      gap: 6px;
+      background: #0f0f0f;
+      color: #ffffff;
       font-weight: 600;
-      font-size: 14px;
-      padding: 12px 28px;
-      border-radius: 12px;
+      font-size: 13.5px;
+      padding: 11px 28px;
+      border-radius: 10px;
       text-decoration: none;
-      transition: opacity 0.15s;
+      transition: background 0.15s, transform 0.1s;
+      width: 100%;
+      letter-spacing: -0.01em;
     }
-    .btn:hover { opacity: 0.85; }
+    .btn:hover { background: #1a1a1a; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
     .footer {
-      margin-top: 40px;
       font-size: 12px;
-      color: #444;
+      color: #bbb;
     }
-    .footer a { color: #666; text-decoration: none; }
-    .footer a:hover { color: var(--muted); }
+    .footer a {
+      color: #999;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .footer a:hover { color: #555; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="icon">⏰</div>
-    <div class="badge">Expired</div>
-    <h1>Link Sudah Tidak Aktif</h1>
-    <p>Tautan pendek ini sudah melewati masa berlakunya dan tidak bisa lagi digunakan untuk mengakses halaman tujuan.</p>
-    <div class="slug">iamchomad.my.id/${shortUrl.slug}</div>
-    <br>
-    <a href="https://iamchomad.my.id" class="btn">
-      ← Kembali ke Beranda
-    </a>
-  </div>
-  <div class="footer">
-    Short URL by <a href="https://iamchomad.my.id">iamchomad.my.id</a>
+  <div class="wrap">
+    <div class="logo">iamchomad.my.id</div>
+    <div class="card">
+      <div class="icon-wrap">⏳</div>
+      <div class="badge">${text.badge}</div>
+      <h1>${text.heading}</h1>
+      <p>${text.desc}</p>
+      <div class="divider"></div>
+      <div class="slug-row">
+        <div class="slug-dot"></div>
+        <div class="slug">iamchomad.my.id/${shortUrl.slug}</div>
+        <div class="slug-dot"></div>
+      </div>
+      <a href="https://iamchomad.my.id" class="btn">
+        ← ${text.btn}
+      </a>
+    </div>
+    <div class="footer">${text.footer} <a href="https://iamchomad.my.id">iamchomad.my.id</a></div>
   </div>
 </body>
 </html>`;
