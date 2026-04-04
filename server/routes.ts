@@ -1233,9 +1233,9 @@ ${novelEntries}
     }
     .logo {
       font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      color: #888;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: #c0bfbb;
       text-transform: uppercase;
     }
     .card {
