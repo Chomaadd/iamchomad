@@ -14,11 +14,10 @@ const BASE_URL = window.location.origin;
 
 const EXPIRY_OPTIONS = [
   { value: "permanent", label: "Permanent ♾️", days: null },
-  { value: "3",  label: "3 Hari",   days: 3 },
-  { value: "7",  label: "7 Hari",   days: 7 },
-  { value: "14", label: "14 Hari",  days: 14 },
-  { value: "24", label: "24 Hari",  days: 24 },
-  { value: "30", label: "1 Bulan",  days: 30 },
+  { value: "3",  label: "3 Hari",  days: 3 },
+  { value: "7",  label: "7 Hari",  days: 7 },
+  { value: "14", label: "14 Hari", days: 14 },
+  { value: "30", label: "1 Bulan", days: 30 },
 ];
 
 function generateSlug() {
