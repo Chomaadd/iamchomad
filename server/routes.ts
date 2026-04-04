@@ -1148,6 +1148,57 @@ ${novelEntries}
   });
   // ─────────────────────────────────────────────────────────────────────────
 
+  // ── Short URL Admin API ──────────────────────────────────────────────────
+  app.get('/api/short-urls', requireAuth, async (_req, res) => {
+    try {
+      const urls = await storage.getShortUrls();
+      res.json(urls);
+    } catch (err) {
+      console.error("Short URL list error:", err);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.post('/api/short-urls', requireAuth, async (req, res) => {
+    try {
+      const { targetUrl, title, slug } = req.body;
+      if (!targetUrl) return res.status(400).json({ message: "targetUrl required" });
+      const finalSlug = slug || Math.random().toString(36).slice(2, 9);
+      const existing = await storage.getShortUrlBySlug(finalSlug);
+      if (existing) return res.status(409).json({ message: "Slug already taken" });
+      const url = await storage.createShortUrl({ targetUrl, title: title || undefined, slug: finalSlug });
+      res.status(201).json(url);
+    } catch (err) {
+      console.error("Short URL create error:", err);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.delete('/api/short-urls/:id', requireAuth, async (req, res) => {
+    try {
+      await storage.deleteShortUrl(req.params.id);
+      res.status(204).end();
+    } catch (err) {
+      console.error("Short URL delete error:", err);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // ── Short URL Public Redirect ───────────────────────────────────────────
+  app.get('/:slug', async (req, res, next) => {
+    try {
+      const { slug } = req.params;
+      if (!/^[a-z0-9]{4,12}$/.test(slug)) return next();
+      const shortUrl = await storage.getShortUrlBySlug(slug);
+      if (!shortUrl) return next();
+      await storage.incrementShortUrlClicks(shortUrl.id);
+      return res.redirect(302, shortUrl.targetUrl);
+    } catch {
+      next();
+    }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
   return httpServer;
 }
 

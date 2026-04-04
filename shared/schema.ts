@@ -253,6 +253,24 @@ export type CreateNovelChapterRequest = InsertNovelChapter;
 export type UpdateNovelChapterRequest = Partial<Omit<InsertNovelChapter, "storyId" | "seasonId">>;
 // ─────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────
+// Short URLs
+// ─────────────────────────────────────────────────────────────────────────
+export const shortUrlSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  targetUrl: z.string().url(),
+  title: z.string().optional(),
+  clicks: z.number().default(0),
+  createdAt: z.date().optional(),
+});
+export const insertShortUrlSchema = shortUrlSchema.omit({ id: true, clicks: true, createdAt: true });
+export type ShortUrl = z.infer<typeof shortUrlSchema>;
+export type InsertShortUrl = z.infer<typeof insertShortUrlSchema>;
+export type CreateShortUrlRequest = InsertShortUrl;
+
+// ─────────────────────────────────────────────────────────────────────────
+
 export interface LoginRequest {
   username: string;
   password: string;

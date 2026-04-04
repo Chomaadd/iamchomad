@@ -171,4 +171,13 @@ import mongoose from 'mongoose';
   export const NovelStoryModel = mongoose.models.NovelStory || mongoose.model('NovelStory', novelStorySchema);
   export const NovelSeasonModel = mongoose.models.NovelSeason || mongoose.model('NovelSeason', novelSeasonSchema);
   export const NovelChapterModel = mongoose.models.NovelChapter || mongoose.model('NovelChapter', novelChapterSchema);
+
+  const shortUrlSchema = new mongoose.Schema({
+    slug: { type: String, required: true, unique: true },
+    targetUrl: { type: String, required: true },
+    title: { type: String },
+    clicks: { type: Number, default: 0 },
+  }, { timestamps: { createdAt: true, updatedAt: false } });
+
+  export const ShortUrlModel = mongoose.models.ShortUrl || mongoose.model('ShortUrl', shortUrlSchema);
   

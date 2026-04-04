@@ -32,6 +32,8 @@ import mongoose from 'mongoose';
     type NovelChapter,
     type CreateNovelChapterRequest,
     type UpdateNovelChapterRequest,
+    type ShortUrl,
+    type CreateShortUrlRequest,
   } from "@shared/schema";
   import { 
     AdminModel, 
@@ -47,6 +49,7 @@ import mongoose from 'mongoose';
     NovelStoryModel,
     NovelSeasonModel,
     NovelChapterModel,
+    ShortUrlModel,
   } from "./db";
 
   export interface IStorage {
@@ -122,6 +125,12 @@ import mongoose from 'mongoose';
     createNovelChapter(data: CreateNovelChapterRequest): Promise<NovelChapter>;
     updateNovelChapter(id: string, updates: UpdateNovelChapterRequest): Promise<NovelChapter>;
     deleteNovelChapter(id: string): Promise<void>;
+
+    getShortUrls(): Promise<ShortUrl[]>;
+    getShortUrlBySlug(slug: string): Promise<ShortUrl | undefined>;
+    createShortUrl(data: CreateShortUrlRequest): Promise<ShortUrl>;
+    deleteShortUrl(id: string): Promise<void>;
+    incrementShortUrlClicks(id: string): Promise<void>;
   }
 
   function mapId<T>(doc: any): T {
@@ -564,6 +573,30 @@ import mongoose from 'mongoose';
 
     async deleteNovelChapter(id: string): Promise<void> {
       await NovelChapterModel.findByIdAndDelete(id);
+    }
+
+    // ── Short URLs ────────────────────────────────────────────────────────
+    async getShortUrls(): Promise<ShortUrl[]> {
+      const docs = await ShortUrlModel.find().sort({ createdAt: -1 });
+      return docs.map((d: any) => mapId<ShortUrl>(d));
+    }
+
+    async getShortUrlBySlug(slug: string): Promise<ShortUrl | undefined> {
+      const doc = await ShortUrlModel.findOne({ slug });
+      return doc ? mapId<ShortUrl>(doc) : undefined;
+    }
+
+    async createShortUrl(data: CreateShortUrlRequest): Promise<ShortUrl> {
+      const doc = await ShortUrlModel.create(data);
+      return mapId<ShortUrl>(doc);
+    }
+
+    async deleteShortUrl(id: string): Promise<void> {
+      await ShortUrlModel.findByIdAndDelete(id);
+    }
+
+    async incrementShortUrlClicks(id: string): Promise<void> {
+      await ShortUrlModel.findByIdAndUpdate(id, { $inc: { clicks: 1 } });
     }
     // ─────────────────────────────────────────────────────────────────────
   }

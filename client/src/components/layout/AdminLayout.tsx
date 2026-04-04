@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, ScrollText, BarChart2, Link2, MessageSquare, BookOpen, Settings } from "lucide-react";
+import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, ScrollText, BarChart2, Link2, MessageSquare, BookOpen, Settings, Scissors } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-settings";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -37,6 +37,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { href: "/admin/messages", label: "Messages", icon: Mail },
     { href: "/admin/anon", label: "Pesan Anonim", icon: MessageSquare, badge: unreadCount > 0 ? unreadCount : undefined },
     { href: "/admin/novel", label: "Novel & Cerita", icon: BookOpen },
+    { href: "/admin/short-urls", label: "Short URLs", icon: Scissors },
     { href: "/admin/settings", label: "Settings", icon: Settings },
   ];
 

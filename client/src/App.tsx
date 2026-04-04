@@ -34,6 +34,7 @@ import NovelDetail from "./pages/public/NovelDetail";
 import NovelRead from "./pages/public/NovelRead";
 import ManageNovel from "./pages/admin/ManageNovel";
 import AdminSettings from "./pages/admin/Settings";
+import ManageShortUrls from "./pages/admin/ManageShortUrls";
 
 // Base Fallback
 import NotFound from "@/pages/public/Not-Found";
@@ -75,6 +76,7 @@ function Router() {
       <Route path="/admin/anon" component={ManageAnonMessages} />
       <Route path="/admin/novel" component={ManageNovel} />
       <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/admin/short-urls" component={ManageShortUrls} />
 
       {/* Fallback */}
       <Route component={NotFound} />
