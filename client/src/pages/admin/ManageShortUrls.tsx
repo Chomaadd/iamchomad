@@ -14,6 +14,7 @@ const BASE_URL = window.location.origin;
 
 const EXPIRY_OPTIONS = [
   { value: "permanent", label: "Permanent ♾️", days: null },
+  { value: "1",  label: "1 Hari",  days: 1 },
   { value: "3",  label: "3 Hari",  days: 3 },
   { value: "7",  label: "7 Hari",  days: 7 },
   { value: "14", label: "14 Hari", days: 14 },
