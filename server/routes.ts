@@ -1232,11 +1232,9 @@ ${novelEntries}
       gap: 32px;
     }
     .logo {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      color: #c0bfbb;
-      text-transform: uppercase;
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
     }
     .card {
       background: #ffffff;
@@ -1248,14 +1246,7 @@ ${novelEntries}
       box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
     }
     .icon-wrap {
-      width: 56px;
-      height: 56px;
-      background: #fff5f5;
-      border: 1.5px solid #fecaca;
-      border-radius: 16px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display: none;
       font-size: 24px;
       margin-bottom: 20px;
     }
@@ -1346,9 +1337,8 @@ ${novelEntries}
 </head>
 <body>
   <div class="wrap">
-    <div class="logo">iamchomad.my.id</div>
+    <img class="logo" src="/favicon-black.ico" alt="Logo">
     <div class="card">
-      <div class="icon-wrap">⏳</div>
       <div class="badge">${text.badge}</div>
       <h1>${text.heading}</h1>
       <p>${text.desc}</p>
