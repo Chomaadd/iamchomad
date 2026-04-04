@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useResumeItems } from "@/hooks/use-resume";
 import { useSiteSettings } from "@/hooks/use-settings";
+import { useLanguage } from "@/hooks/use-language";
 import { QRCodeSVG } from "qrcode.react";
 import type { ResumeItem } from "@shared/schema";
 
@@ -10,6 +11,7 @@ const DARK = "#212121";
 export default function ResumePrint() {
   const { data: items, isLoading: loadingItems } = useResumeItems();
   const { data: settings, isLoading: loadingSettings } = useSiteSettings();
+  const { t } = useLanguage();
 
   const isLoading = loadingItems || loadingSettings;
 
@@ -42,7 +44,7 @@ export default function ResumePrint() {
   if (isLoading) {
     return (
       <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"100vh", fontFamily:"sans-serif", color:"#888" }}>
-        Memuat data CV…
+        {t("resumeprint.loading")}
       </div>
     );
   }
@@ -436,13 +438,13 @@ export default function ResumePrint() {
 
       {/* ── Print toolbar (screen only) ── */}
       <div className="cv-print-bar">
-        <span>Preview CV {fullName} — klik Print untuk simpan sebagai PDF</span>
-        <button onClick={() => window.print()}>🖨️ Print / Save PDF</button>
+        <span>CV {fullName} — {t("resumeprint.toolbar")}</span>
+        <button onClick={() => window.print()}>{t("resumeprint.print")}</button>
         <button
           onClick={() => window.close()}
           style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#aaa", marginLeft: 4 }}
         >
-          Tutup
+          {t("resumeprint.close")}
         </button>
       </div>
 
@@ -466,7 +468,7 @@ export default function ResumePrint() {
             {/* About Me */}
             {about && (
               <div>
-                <div className="cv-side-label">About Me</div>
+                <div className="cv-side-label">{t("resumeprint.about")}</div>
                 <div className="cv-side-text">{about}</div>
               </div>
             )}
@@ -474,40 +476,40 @@ export default function ResumePrint() {
             {/* Personal Info */}
             {(birthDate || birthPlace || religion || gender || marriageStatus || nationality) && (
               <div>
-                <div className="cv-side-label">Personal Info</div>
+                <div className="cv-side-label">{t("resumeprint.personalInfo")}</div>
                 {birthDate && (
                   <>
-                    <div className="cv-side-field-label">Tanggal Lahir</div>
+                    <div className="cv-side-field-label">{t("resumeprint.birthDate")}</div>
                     <div className="cv-side-field-value">{birthDate}</div>
                   </>
                 )}
                 {birthPlace && (
                   <>
-                    <div className="cv-side-field-label">Tempat Lahir</div>
+                    <div className="cv-side-field-label">{t("resumeprint.birthPlace")}</div>
                     <div className="cv-side-field-value">{birthPlace}</div>
                   </>
                 )}
                 {gender && (
                   <>
-                    <div className="cv-side-field-label">Jenis Kelamin</div>
+                    <div className="cv-side-field-label">{t("resumeprint.gender")}</div>
                     <div className="cv-side-field-value">{gender}</div>
                   </>
                 )}
                 {religion && (
                   <>
-                    <div className="cv-side-field-label">Agama</div>
+                    <div className="cv-side-field-label">{t("resumeprint.religion")}</div>
                     <div className="cv-side-field-value">{religion}</div>
                   </>
                 )}
                 {marriageStatus && (
                   <>
-                    <div className="cv-side-field-label">Status Perkawinan</div>
+                    <div className="cv-side-field-label">{t("resumeprint.marriage")}</div>
                     <div className="cv-side-field-value">{marriageStatus}</div>
                   </>
                 )}
                 {nationality && (
                   <>
-                    <div className="cv-side-field-label">Kewarganegaraan</div>
+                    <div className="cv-side-field-label">{t("resumeprint.nationality")}</div>
                     <div className="cv-side-field-value">{nationality}</div>
                   </>
                 )}
@@ -517,7 +519,7 @@ export default function ResumePrint() {
             {/* Skills */}
             {skills.length > 0 && (
               <div>
-                <div className="cv-side-label">Skills</div>
+                <div className="cv-side-label">{t("resumeprint.skills")}</div>
                 {skills.map(s => (
                   <div key={s.id} style={{ marginBottom: "3mm" }}>
                     <div className="cv-skill-name">{s.title}</div>
@@ -535,7 +537,7 @@ export default function ResumePrint() {
             {/* Contact */}
             {(address || phone || email || website) && (
               <div style={{ marginTop: "auto" }}>
-                <div className="cv-side-label">Contact</div>
+                <div className="cv-side-label">{t("resumeprint.contact")}</div>
                 {[address, phone, email, website].filter(Boolean).map((v, i) => (
                   <div key={i} className="cv-contact-row">
                     <div className="cv-contact-dot" />
@@ -582,7 +584,7 @@ export default function ResumePrint() {
               <div>
                 <div className="cv-section-head">
                   <div className="cv-section-bar" />
-                  <div className="cv-section-title">Experience</div>
+                  <div className="cv-section-title">{t("resumeprint.experience")}</div>
                   <div className="cv-section-line" />
                 </div>
                 {experience.map((item, i) => (
@@ -596,7 +598,7 @@ export default function ResumePrint() {
               <div>
                 <div className="cv-section-head">
                   <div className="cv-section-bar" />
-                  <div className="cv-section-title">Education</div>
+                  <div className="cv-section-title">{t("resumeprint.education")}</div>
                   <div className="cv-section-line" />
                 </div>
                 {education.map((item, i) => (
@@ -608,7 +610,7 @@ export default function ResumePrint() {
             {/* Footer */}
             {email && (
               <div className="cv-footer">
-                References available upon request · {email}
+                {t("resumeprint.references")} · {email}
               </div>
             )}
           </div>

@@ -268,7 +268,7 @@ export default function About() {
                   <span className="text-base">📡</span>
                 </div>
                 <div>
-                  <h2 className="font-semibold text-sm text-foreground">Now</h2>
+                  <h2 className="font-semibold text-sm text-foreground">{t("about.now.title")}</h2>
                   {lanyard && (
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <span className={`w-1.5 h-1.5 rounded-full ${STATUS_COLORS[lanyard.discord_status] ?? "bg-gray-400"}`} />
@@ -287,7 +287,7 @@ export default function About() {
                         <Gamepad2 size={16} className="text-rose-600 dark:text-rose-400" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-0.5">🎮 Sedang Dimainkan</p>
+                        <p className="text-[10px] font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-0.5">{t("about.now.playing")}</p>
                         <p className="text-xs text-foreground font-medium truncate">{playingGame.name}</p>
                         {playingGame.details && (
                           <p className="text-[10px] text-muted-foreground truncate mt-0.5">{playingGame.details}</p>
@@ -306,7 +306,7 @@ export default function About() {
                       )}
                       <div className="min-w-0">
                         <p className="text-[10px] font-semibold text-primary uppercase tracking-wider mb-0.5">
-                          {lanyard?.spotify ? "🎵 Sedang Diputar" : "🎵 Sedang Didengar"}
+                          {lanyard?.spotify ? t("about.now.listening.spotify") : t("about.now.listening.manual")}
                         </p>
                         <p className="text-xs text-foreground font-medium truncate">{listeningText}</p>
                       </div>
@@ -318,7 +318,7 @@ export default function About() {
                         <BookOpen size={16} className="text-amber-600 dark:text-amber-400" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-0.5">📖 Sedang Dibaca</p>
+                        <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-0.5">{t("about.now.reading")}</p>
                         <p className="text-xs text-foreground font-medium truncate">{settings.nowReading}</p>
                       </div>
                     </div>
@@ -329,7 +329,7 @@ export default function About() {
                         <Briefcase size={16} className="text-blue-600 dark:text-blue-400" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-0.5">💻 Sedang Dikerjakan</p>
+                        <p className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-0.5">{t("about.now.working")}</p>
                         <p className="text-xs text-foreground font-medium truncate">{settings.nowWorking}</p>
                       </div>
                     </div>
@@ -340,7 +340,7 @@ export default function About() {
                         <MapPin size={16} className="text-green-600 dark:text-green-400" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-semibold text-green-600 dark:text-green-400 uppercase tracking-wider mb-0.5">📍 Lokasi</p>
+                        <p className="text-[10px] font-semibold text-green-600 dark:text-green-400 uppercase tracking-wider mb-0.5">{t("about.now.location")}</p>
                         <p className="text-xs text-foreground font-medium truncate">{settings.nowLocation}</p>
                       </div>
                     </div>
@@ -349,8 +349,8 @@ export default function About() {
               ) : (
                 <p className="text-xs text-muted-foreground/60 italic">
                   {settings?.lanyardDiscordId
-                    ? "Menunggu data dari Discord..."
-                    : "Belum ada aktivitas yang ditampilkan."}
+                    ? t("about.now.waiting")
+                    : t("about.now.empty")}
                 </p>
               )}
             </div>

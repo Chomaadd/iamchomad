@@ -1,31 +1,17 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, AlertCircle, Share2, Copy, Check } from "lucide-react";
+import { Send, AlertCircle, Check } from "lucide-react";
 import { SiWhatsapp, SiInstagram } from "react-icons/si";
 import { SeoHead } from "@/components/seometa/SeoHead";
 import { useSiteSettings } from "@/hooks/use-settings";
+import { useLanguage } from "@/hooks/use-language";
 
 const MAX_CHARS = 1000;
 const PAGE_URL = "https://iamchomad.my.id/pesan";
-const SHARE_TEXT = `Kirim pesan anonim ke aku — identitasmu dijamin rahasia! 🤫\n${PAGE_URL}`;
-
-function shareToWhatsApp() {
-  window.open(`https://wa.me/?text=${encodeURIComponent(SHARE_TEXT)}`, "_blank");
-}
-
-async function shareToInstagram(onCopied: () => void) {
-  if (navigator.share) {
-    try {
-      await navigator.share({ title: "Pesan Anonim", text: SHARE_TEXT, url: PAGE_URL });
-      return;
-    } catch {}
-  }
-  await navigator.clipboard.writeText(PAGE_URL);
-  onCopied();
-}
 
 export default function AnonMessage() {
   const { data: settings } = useSiteSettings();
+  const { t } = useLanguage();
   const ownerName = settings?.resumeFullName || "Choiril Ahmad";
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
@@ -33,6 +19,23 @@ export default function AnonMessage() {
 
   const remaining = MAX_CHARS - message.length;
   const pct = (message.length / MAX_CHARS) * 100;
+
+  const shareText = `${t("pesan.sharetext")}\n${PAGE_URL}`;
+
+  function shareToWhatsApp() {
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
+  }
+
+  async function shareToInstagram(onCopied: () => void) {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: t("pesan.heading"), text: shareText, url: PAGE_URL });
+        return;
+      } catch {}
+    }
+    await navigator.clipboard.writeText(PAGE_URL);
+    onCopied();
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,8 +64,8 @@ export default function AnonMessage() {
   return (
     <>
       <SeoHead
-        title="Anonymous Message"
-        description={`Have something to say? Send an anonymous message to ${ownerName} — no name, no trace, your identity is 100% protected.`}
+        title={t("pesan.heading")}
+        description={`${t("pesan.subtitle")} — ${ownerName}`}
         url="/pesan"
       />
 
@@ -87,12 +90,13 @@ export default function AnonMessage() {
               🤫
             </motion.div>
             <h1 className="text-3xl font-serif font-bold tracking-tight text-foreground">
-              Pesan <span className="text-primary">Anonim</span>
+              {t("pesan.heading").split(" ").slice(0, -1).join(" ")}{" "}
+              <span className="text-primary">{t("pesan.heading").split(" ").slice(-1)}</span>
             </h1>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-              Tulis apa saja untuk{" "}
+              {t("pesan.intro")}{" "}
               <span className="font-semibold text-foreground">{ownerName}</span> —<br />
-              identitasmu <span className="font-semibold text-foreground">100% rahasia</span>.
+              identitasmu <span className="font-semibold text-foreground">{t("pesan.intro.secret")}</span>.
             </p>
           </div>
 
@@ -114,14 +118,12 @@ export default function AnonMessage() {
                 >
                   🎉
                 </motion.div>
-                <h2 className="text-xl font-bold font-serif mb-1">Pesan Terkirim!</h2>
-                <p className="text-sm text-muted-foreground mb-7">
-                  Terima kasih! Pesanmu sudah diterima dengan aman.
-                </p>
+                <h2 className="text-xl font-bold font-serif mb-1">{t("pesan.success.title")}</h2>
+                <p className="text-sm text-muted-foreground mb-7">{t("pesan.success.desc")}</p>
 
                 <div className="space-y-3 mb-6">
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Ajak teman kirim pesan anonim juga?
+                    {t("pesan.success.invite")}
                   </p>
                   <div className="flex gap-3">
                     <button
@@ -138,7 +140,7 @@ export default function AnonMessage() {
                       data-testid="button-share-ig"
                     >
                       {copied ? <Check size={16} /> : <SiInstagram size={16} />}
-                      {copied ? "Link Disalin!" : "Instagram"}
+                      {copied ? t("pesan.copied") : "Instagram"}
                     </button>
                   </div>
                   {copied && (
@@ -147,7 +149,7 @@ export default function AnonMessage() {
                       animate={{ opacity: 1, y: 0 }}
                       className="text-xs text-muted-foreground"
                     >
-                      Link disalin! Paste di bio atau story Instagram kamu 📋
+                      {t("pesan.copied.desc")}
                     </motion.p>
                   )}
                 </div>
@@ -157,7 +159,7 @@ export default function AnonMessage() {
                   className="text-sm font-medium text-primary hover:underline underline-offset-4 transition-all"
                   data-testid="button-send-another"
                 >
-                  Kirim pesan lain →
+                  {t("pesan.success.sendAnother")}
                 </button>
               </motion.div>
             ) : (
@@ -174,7 +176,7 @@ export default function AnonMessage() {
                   <textarea
                     value={message}
                     onChange={e => setMessage(e.target.value)}
-                    placeholder="Tulis pesanmu di sini... 💬"
+                    placeholder={t("pesan.placeholder")}
                     maxLength={MAX_CHARS}
                     rows={6}
                     required
@@ -210,7 +212,7 @@ export default function AnonMessage() {
                     className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 px-3 py-2 rounded-xl"
                   >
                     <AlertCircle size={14} />
-                    <span>Gagal mengirim. Coba lagi.</span>
+                    <span>{t("pesan.error")}</span>
                   </motion.div>
                 )}
 
@@ -223,18 +225,18 @@ export default function AnonMessage() {
                   {status === "sending" ? (
                     <>
                       <span className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                      Mengirim...
+                      {t("pesan.submitting")}
                     </>
                   ) : (
                     <>
                       <Send size={15} />
-                      Kirim Anonim
+                      {t("pesan.submit")}
                     </>
                   )}
                 </button>
 
                 <p className="text-center text-xs text-muted-foreground">
-                  🔒 Identitasmu tidak akan diketahui siapapun
+                  {t("pesan.private")}
                 </p>
               </motion.form>
             )}
@@ -247,7 +249,7 @@ export default function AnonMessage() {
               data-testid="button-share-wa-bottom"
             >
               <SiWhatsapp size={13} />
-              Bagikan ke WA
+              {t("pesan.share.wa")}
             </button>
             <span className="text-border">·</span>
             <button
@@ -256,7 +258,7 @@ export default function AnonMessage() {
               data-testid="button-share-ig-bottom"
             >
               <SiInstagram size={13} />
-              {copied ? "Link disalin!" : "Bagikan ke IG"}
+              {copied ? t("pesan.copied") : t("pesan.share.ig")}
             </button>
             <span className="text-border">·</span>
             <a href="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
