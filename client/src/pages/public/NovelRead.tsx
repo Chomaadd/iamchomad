@@ -94,6 +94,7 @@ export default function NovelRead() {
         title={`${chapter.title} — ${story?.title ?? slug}`}
         description={`Baca Bab ${chapter.chapterNumber}: ${chapter.title} dari ${story?.title ?? slug}.`}
         url={`/novel/${slug}/season-${seasonNum}/bab-${chapterNum}`}
+        image={story?.coverUrl ?? undefined}
       />
       <Navbar />
 

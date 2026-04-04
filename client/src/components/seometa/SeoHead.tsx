@@ -25,7 +25,7 @@ export function SeoHead({
   image,
   url,
   type = "website",
-  cardType = "summary",
+  cardType,
   article,
 }: SeoHeadProps) {
   const { data: settings } = useSiteSettings();
@@ -35,7 +35,10 @@ export function SeoHead({
   const defaultImage = settings?.ogImageUrl || FALLBACK_IMAGE;
 
   const resolvedDescription = description ?? defaultDesc;
-  const resolvedImage = image ?? defaultImage;
+  const resolvedImage = image
+    ? (image.startsWith("http") ? image : `${SITE_URL}${image}`)
+    : defaultImage;
+  const resolvedCardType = cardType ?? (image ? "summary_large_image" : "summary");
   const fullTitle = title ? `${title} | ${siteName}` : `${siteName}'s`;
   const canonicalUrl = url ? `${SITE_URL}${url}` : SITE_URL;
 
@@ -60,7 +63,7 @@ export function SeoHead({
         <meta key={tag} property="article:tag" content={tag} />
       ))}
 
-      <meta name="twitter:card" content={cardType} />
+      <meta name="twitter:card" content={resolvedCardType} />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={resolvedDescription} />
       <meta name="twitter:image" content={resolvedImage} />

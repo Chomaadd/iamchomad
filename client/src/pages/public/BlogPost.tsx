@@ -145,6 +145,7 @@ export default function BlogPost() {
         description={post.excerpt || post.content.slice(0, 160).replace(/\n/g, " ")}
         url={`/blog/${slug}`}
         type="article"
+        image={post.imageUrl ?? undefined}
         article={{
           publishedTime: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
         }}
