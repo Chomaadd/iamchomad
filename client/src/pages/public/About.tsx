@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Palette, Code, PenTool, Mail, ExternalLink, Sparkles, Zap, Globe, ArrowRight, Music, BookOpen, Briefcase, MapPin } from "lucide-react";
+import { Palette, Code, PenTool, Mail, ExternalLink, Sparkles, Zap, Globe, ArrowRight, Music, BookOpen, Briefcase, MapPin, Gamepad2 } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { SeoHead } from "@/components/seometa/SeoHead";
 import { Button } from "@/components/ui/button";
@@ -113,14 +113,18 @@ export default function About() {
     return () => { cancelled = true; clearInterval(interval); };
   }, [settings?.lanyardDiscordId]);
 
-  const hasNow = settings && (
-    settings.lanyardDiscordId || settings.nowListening || settings.nowReading ||
-    settings.nowWorking || settings.nowLocation
-  );
-
   const listeningText = lanyard?.spotify
     ? `${lanyard.spotify.song} — ${lanyard.spotify.artist}`
     : settings?.nowListening ?? null;
+
+  const playingGame = lanyard?.activities
+    ? lanyard.activities.find((a) => a.type === 0) ?? null
+    : null;
+
+  const hasNow = !!(settings && (
+    settings.lanyardDiscordId || settings.nowListening || settings.nowReading ||
+    settings.nowWorking || settings.nowLocation || playingGame
+  ));
 
   const highlights = [
     { icon: Palette, title: t("about.highlight.creative"), desc: t("about.highlight.creative.desc") },
@@ -275,8 +279,22 @@ export default function About() {
               </div>
 
               {/* Cards grid — only renders if there's actual content */}
-              {(listeningText || settings?.nowReading || settings?.nowWorking || settings?.nowLocation) ? (
+              {(listeningText || playingGame || settings?.nowReading || settings?.nowWorking || settings?.nowLocation) ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {playingGame && (
+                    <div className="flex items-start gap-3 p-3 bg-rose-500/5 rounded-xl border border-rose-500/10">
+                      <div className="w-10 h-10 rounded-lg bg-rose-500/15 flex items-center justify-center shrink-0">
+                        <Gamepad2 size={16} className="text-rose-600 dark:text-rose-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-0.5">🎮 Sedang Dimainkan</p>
+                        <p className="text-xs text-foreground font-medium truncate">{playingGame.name}</p>
+                        {playingGame.details && (
+                          <p className="text-[10px] text-muted-foreground truncate mt-0.5">{playingGame.details}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                   {listeningText && (
                     <div className="flex items-start gap-3 p-3 bg-primary/5 rounded-xl border border-primary/10">
                       {lanyard?.spotify?.album_art_url ? (
@@ -419,7 +437,7 @@ export default function About() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link href="/contact">
-                  <Button size="lg" className="gap-2 px-8 rounded-full bg-white text-foreground hover:bg-white/90 shadow-lg" data-testid="button-cta-contact">
+                  <Button size="lg" className="gap-2 px-8 rounded-full bg-white text-zinc-950 hover:bg-white/90 shadow-lg" data-testid="button-cta-contact">
                     <Mail size={18} /> {t("about.cta.contact")}
                   </Button>
                 </Link>
