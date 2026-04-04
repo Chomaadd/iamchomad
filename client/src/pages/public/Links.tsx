@@ -10,19 +10,29 @@ const DEFAULT_NAME = "Choiril Ahmad";
 const DEFAULT_BIO = "Frontend Developer & Visual Designer";
 
 const BORDER_STYLES: Record<string, string> = {
-  default: "rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:border-white/40",
-  pill:    "rounded-full border border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:border-white/40",
-  sharp:   "rounded-md border border-white/25 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:border-white/40",
-  dashed:  "rounded-2xl border-2 border-dashed border-white/30 bg-white/8 backdrop-blur-sm hover:bg-white/15 hover:border-white/50",
-  glow:    "rounded-2xl border-0 bg-white/10 backdrop-blur-sm shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 hover:bg-white/20",
+  default:     "rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:border-white/40",
+  pill:        "rounded-full border border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:border-white/40",
+  sharp:       "rounded-md border border-white/25 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:border-white/40",
+  dashed:      "rounded-2xl border-2 border-dashed border-white/30 bg-white/8 backdrop-blur-sm hover:bg-white/15 hover:border-white/50",
+  glow:        "rounded-2xl border-0 bg-white/10 backdrop-blur-sm shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 hover:bg-white/20",
+  transparent: "rounded-2xl border-0 bg-transparent hover:bg-white/10",
+  outline:     "rounded-2xl border-2 border-white/60 bg-transparent hover:border-white hover:bg-white/5",
+  double:      "rounded-2xl border border-white/30 bg-white/5 outline outline-2 outline-offset-2 outline-white/10 backdrop-blur-sm hover:border-white/50 hover:outline-white/20",
+  dotted:      "rounded-2xl border-2 border-dotted border-white/35 bg-white/8 backdrop-blur-sm hover:border-white/55 hover:bg-white/15",
+  neon:        "rounded-2xl border border-white/30 bg-black/20 backdrop-blur-sm shadow-[0_0_12px_2px_rgba(255,255,255,0.15)] hover:shadow-[0_0_20px_4px_rgba(255,255,255,0.25)] hover:border-white/50",
 };
 
 const BORDER_STYLES_LIGHT: Record<string, string> = {
-  default: "rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-md hover:bg-accent/30",
-  pill:    "rounded-full border border-border bg-card hover:border-primary/40 hover:shadow-md hover:bg-accent/30",
-  sharp:   "rounded-md border border-border bg-card hover:border-primary/40 hover:shadow-md hover:bg-accent/30",
-  dashed:  "rounded-2xl border-2 border-dashed border-border bg-card hover:border-primary/50 hover:bg-accent/20",
-  glow:    "rounded-2xl border-0 bg-card shadow-md hover:shadow-xl hover:shadow-primary/10",
+  default:     "rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-md hover:bg-accent/30",
+  pill:        "rounded-full border border-border bg-card hover:border-primary/40 hover:shadow-md hover:bg-accent/30",
+  sharp:       "rounded-md border border-border bg-card hover:border-primary/40 hover:shadow-md hover:bg-accent/30",
+  dashed:      "rounded-2xl border-2 border-dashed border-border bg-card hover:border-primary/50 hover:bg-accent/20",
+  glow:        "rounded-2xl border-0 bg-card shadow-md hover:shadow-xl hover:shadow-primary/10",
+  transparent: "rounded-2xl border-0 bg-transparent hover:bg-accent/20",
+  outline:     "rounded-2xl border-2 border-foreground/40 bg-transparent hover:border-foreground/70 hover:bg-accent/10",
+  double:      "rounded-2xl border border-border bg-card outline outline-2 outline-offset-2 outline-border/30 hover:border-primary/40 hover:outline-primary/20 hover:shadow-sm",
+  dotted:      "rounded-2xl border-2 border-dotted border-border bg-card hover:border-primary/50 hover:bg-accent/15",
+  neon:        "rounded-2xl border border-primary/50 bg-card shadow-[0_0_12px_2px_hsl(var(--primary)/0.15)] hover:shadow-[0_0_20px_4px_hsl(var(--primary)/0.25)] hover:border-primary/80",
 };
 
 export default function Links() {
@@ -132,13 +142,17 @@ export default function Links() {
                 target={link.url.startsWith("mailto:") ? "_self" : "_blank"}
                 rel="noopener noreferrer"
                 className={`group flex items-center gap-4 w-full px-5 py-4 transition-all duration-200 ${cardClass}`}
+                style={link.borderColor ? { borderColor: link.borderColor } : undefined}
                 data-testid={`link-item-${link.id}`}
               >
                 <div className="w-9 h-9 flex items-center justify-center shrink-0">
                   <LinkIcon url={link.url} emoji={link.icon} size={22} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`font-semibold text-sm truncate ${hasBg ? "text-white" : "text-foreground"}`}>
+                  <p
+                    className={`font-semibold text-sm truncate ${hasBg ? "text-white" : "text-foreground"}`}
+                    style={link.textColor ? { color: link.textColor } : undefined}
+                  >
                     {link.title}
                   </p>
                   {link.description && (

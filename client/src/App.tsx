@@ -27,8 +27,6 @@ import ManageMessages from "./pages/admin/ManageMessages";
 import ManageMusic from "./pages/admin/ManageMusic";
 import ManageResume from "./pages/admin/ManageResume";
 import ManageLinks from "./pages/admin/ManageLinks";
-import ManageAnonMessages from "./pages/admin/ManageAnonMessages";
-import AnonMessage from "./pages/public/AnonMessage";
 import Novel from "./pages/public/Novel";
 import NovelDetail from "./pages/public/NovelDetail";
 import NovelRead from "./pages/public/NovelRead";
@@ -58,7 +56,6 @@ function Router() {
       <Route path="/resume" component={Resume} />
       <Route path="/resume/pdf" component={ResumePrint} />
       <Route path="/links" component={Links} />
-      <Route path="/pesan" component={AnonMessage} />
       <Route path="/novel" component={Novel} />
       <Route path="/novel/:slug/:seasonSlug/:chapterSlug" component={NovelRead} />
       <Route path="/novel/:slug" component={NovelDetail} />
@@ -73,7 +70,6 @@ function Router() {
       <Route path="/admin/music" component={ManageMusic} />
       <Route path="/admin/resume" component={ManageResume} />
       <Route path="/admin/links" component={ManageLinks} />
-      <Route path="/admin/anon" component={ManageAnonMessages} />
       <Route path="/admin/novel" component={ManageNovel} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/short-urls" component={ManageShortUrls} />

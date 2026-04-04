@@ -119,6 +119,8 @@ export const linkItemSchema = z.object({
   icon: z.string().nullable().optional(),
   order: z.number().default(0),
   isActive: z.boolean().default(true),
+  borderColor: z.string().nullable().optional(),
+  textColor: z.string().nullable().optional(),
 });
 export const insertLinkItemSchema = linkItemSchema.omit({ id: true });
 
@@ -189,16 +191,6 @@ export const updateSiteSettingsSchema = siteSettingsSchema.omit({ id: true }).pa
 export type SiteSettings = z.infer<typeof siteSettingsSchema>;
 export type UpdateSiteSettings = z.infer<typeof updateSiteSettingsSchema>;
 export type AvailabilityStatus = z.infer<typeof availabilityStatusSchema>;
-
-export const anonMessageSchema = z.object({
-  id: z.string(),
-  message: z.string().min(1).max(1000),
-  isRead: z.boolean().default(false),
-  createdAt: z.union([z.date(), z.string()]).optional(),
-});
-export const insertAnonMessageSchema = anonMessageSchema.omit({ id: true, isRead: true, createdAt: true });
-export type AnonMessage = z.infer<typeof anonMessageSchema>;
-export type InsertAnonMessage = z.infer<typeof insertAnonMessageSchema>;
 
 // ── Novel / Story System ──────────────────────────────────────────────────
 export const novelStorySchema = z.object({

@@ -1,21 +1,16 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, ScrollText, BarChart2, Link2, MessageSquare, BookOpen, Settings, Scissors } from "lucide-react";
+import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, ScrollText, BarChart2, Link2, BookOpen, Settings, Scissors } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-settings";
+import { useLanguage } from "@/hooks/use-language";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, isLoading, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { data: unreadData } = useQuery<{ count: number }>({
-    queryKey: ["/api/anon-messages/unread-count"],
-    refetchInterval: 30000,
-    enabled: !!user,
-  });
-  const unreadCount = unreadData?.count ?? 0;
   const { data: siteSettings } = useSiteSettings();
+  const { t } = useLanguage();
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -27,21 +22,20 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   }
 
   const links = [
-    { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/admin/analytics", label: "Analytics", icon: BarChart2 },
-    { href: "/admin/blog", label: "Blog", icon: FileText },
-    { href: "/admin/brand", label: "Brand", icon: Image },
-    { href: "/admin/music", label: "Music", icon: Music },
-    { href: "/admin/resume", label: "Resume", icon: ScrollText },
-    { href: "/admin/links", label: "Links", icon: Link2 },
-    { href: "/admin/messages", label: "Messages", icon: Mail },
-    { href: "/admin/anon", label: "Pesan Anonim", icon: MessageSquare, badge: unreadCount > 0 ? unreadCount : undefined },
-    { href: "/admin/novel", label: "Novel & Cerita", icon: BookOpen },
-    { href: "/admin/short-urls", label: "Short URLs", icon: Scissors },
-    { href: "/admin/settings", label: "Settings", icon: Settings },
+    { href: "/admin",            label: t("admin.nav.dashboard"),  icon: LayoutDashboard },
+    { href: "/admin/analytics",  label: t("admin.nav.analytics"),  icon: BarChart2 },
+    { href: "/admin/blog",       label: t("admin.nav.blog"),       icon: FileText },
+    { href: "/admin/brand",      label: t("admin.nav.brand"),      icon: Image },
+    { href: "/admin/music",      label: t("admin.nav.music"),      icon: Music },
+    { href: "/admin/resume",     label: t("admin.nav.resume"),     icon: ScrollText },
+    { href: "/admin/links",      label: t("admin.nav.links"),      icon: Link2 },
+    { href: "/admin/messages",   label: t("admin.nav.messages"),   icon: Mail },
+    { href: "/admin/novel",      label: t("admin.nav.novel"),      icon: BookOpen },
+    { href: "/admin/short-urls", label: t("admin.nav.short_urls"), icon: Scissors },
+    { href: "/admin/settings",   label: t("admin.nav.settings"),   icon: Settings },
   ];
 
-  const currentPage = links.find(l => l.href === location)?.label || "Overview";
+  const currentPage = links.find(l => l.href === location)?.label || t("admin.nav.dashboard");
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
@@ -61,13 +55,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </div>
             <div className="min-w-0">
               <h2 className="font-serif text-lg font-bold tracking-tight truncate">{user.name}</h2>
-              <p className="text-xs text-muted-foreground tracking-wide uppercase">Admin Panel</p>
+              <p className="text-xs text-muted-foreground tracking-wide uppercase">{t("admin.panel")}</p>
             </div>
           </div>
         </div>
 
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          <p className="px-4 pt-4 pb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Navigation</p>
+          <p className="px-4 pt-4 pb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("admin.navigation")}</p>
           {links.map((link) => {
             const Icon = link.icon;
             const active = location === link.href;
@@ -84,9 +78,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               >
                 <Icon size={18} className={active ? '' : 'group-hover:scale-110 transition-transform'} />
                 <span className="flex-1">{link.label}</span>
-                {'badge' in link && link.badge !== undefined && (
+                {'badge' in link && (link as { badge?: number }).badge !== undefined && (
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${active ? 'bg-primary-foreground text-primary' : 'bg-primary text-primary-foreground'}`}>
-                    {link.badge}
+                    {(link as { badge?: number }).badge}
                   </span>
                 )}
               </Link>
@@ -100,7 +94,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             className="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 rounded-md transition-all duration-200"
           >
             <LogOut size={18} />
-            <span>Sign Out</span>
+            <span>{t("admin.signout")}</span>
           </button>
         </div>
       </aside>
@@ -122,7 +116,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <Link href="/" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wider" data-testid="link-view-site">
-            View Site
+            {t("admin.view_site")}
           </Link>
         </header>
 

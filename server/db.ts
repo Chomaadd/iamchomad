@@ -82,6 +82,8 @@ import mongoose from 'mongoose';
     icon: { type: String },
     order: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
+    borderColor: { type: String },
+    textColor: { type: String },
   });
 
   const pageViewSchema = new mongoose.Schema({
@@ -125,11 +127,6 @@ import mongoose from 'mongoose';
     resumeWebsite: { type: String },
   });
 
-  const anonMessageSchema = new mongoose.Schema({
-    message: { type: String, required: true },
-    isRead: { type: Boolean, default: false },
-  }, { timestamps: { createdAt: true, updatedAt: false } });
-
   const novelStorySchema = new mongoose.Schema({
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
@@ -167,7 +164,6 @@ import mongoose from 'mongoose';
   export const LinkItemModel = mongoose.models.LinkItem || mongoose.model('LinkItem', linkItemSchema);
   export const SiteSettingsModel = mongoose.models.SiteSettings || mongoose.model('SiteSettings', siteSettingsSchema);
   export const PageViewModel = mongoose.models.PageView || mongoose.model('PageView', pageViewSchema);
-  export const AnonMessageModel = mongoose.models.AnonMessage || mongoose.model('AnonMessage', anonMessageSchema);
   export const NovelStoryModel = mongoose.models.NovelStory || mongoose.model('NovelStory', novelStorySchema);
   export const NovelSeasonModel = mongoose.models.NovelSeason || mongoose.model('NovelSeason', novelSeasonSchema);
   export const NovelChapterModel = mongoose.models.NovelChapter || mongoose.model('NovelChapter', novelChapterSchema);

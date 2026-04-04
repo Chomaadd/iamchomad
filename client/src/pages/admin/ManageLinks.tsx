@@ -17,14 +17,21 @@ const emptyForm = {
   icon: "",
   order: 0,
   isActive: true,
+  borderColor: "",
+  textColor: "",
 };
 
 const BORDER_OPTIONS = [
-  { value: "default", label: "Rounded",  preview: "rounded-2xl border border-gray-300 dark:border-gray-600" },
-  { value: "pill",    label: "Pill",     preview: "rounded-full border border-gray-300 dark:border-gray-600" },
-  { value: "sharp",   label: "Sharp",    preview: "rounded-md border border-gray-300 dark:border-gray-600" },
-  { value: "dashed",  label: "Dashed",   preview: "rounded-2xl border-2 border-dashed border-gray-400 dark:border-gray-500" },
-  { value: "glow",    label: "Glow",     preview: "rounded-2xl border-0 shadow-lg shadow-black/20" },
+  { value: "default",     label: "Rounded",     preview: "rounded-2xl border border-gray-300 dark:border-gray-600" },
+  { value: "pill",        label: "Pill",        preview: "rounded-full border border-gray-300 dark:border-gray-600" },
+  { value: "sharp",       label: "Sharp",       preview: "rounded-md border border-gray-300 dark:border-gray-600" },
+  { value: "dashed",      label: "Dashed",      preview: "rounded-2xl border-2 border-dashed border-gray-400 dark:border-gray-500" },
+  { value: "glow",        label: "Glow",        preview: "rounded-2xl border-0 shadow-lg shadow-black/20" },
+  { value: "transparent", label: "Transparent", preview: "rounded-2xl border-0 bg-transparent" },
+  { value: "outline",     label: "Outline",     preview: "rounded-2xl border-2 border-gray-500 dark:border-gray-300 bg-transparent" },
+  { value: "double",      label: "Double",      preview: "rounded-2xl border border-gray-300 dark:border-gray-600 outline outline-2 outline-offset-2 outline-gray-200 dark:outline-gray-700" },
+  { value: "dotted",      label: "Dotted",      preview: "rounded-2xl border-2 border-dotted border-gray-400 dark:border-gray-500" },
+  { value: "neon",        label: "Neon",        preview: "rounded-2xl border border-primary/50 shadow-[0_0_10px_2px_hsl(var(--primary)/0.3)]" },
 ];
 
 async function getCroppedBlob(
@@ -186,14 +193,14 @@ export default function ManageLinks() {
   const openCreate = () => { setEditingId(null); setForm(emptyForm); setModalOpen(true); };
   const openEdit = (link: LinkItem) => {
     setEditingId(link.id);
-    setForm({ title: link.title, url: link.url, description: link.description || "", icon: link.icon || "", order: link.order, isActive: link.isActive });
+    setForm({ title: link.title, url: link.url, description: link.description || "", icon: link.icon || "", order: link.order, isActive: link.isActive, borderColor: link.borderColor || "", textColor: link.textColor || "" });
     setModalOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = { ...form, description: form.description || null, icon: form.icon || null };
+      const payload = { ...form, description: form.description || null, icon: form.icon || null, borderColor: form.borderColor || null, textColor: form.textColor || null };
       if (editingId) {
         await updateLink({ id: editingId, data: payload });
         toast({ title: "Link updated." });
@@ -448,6 +455,52 @@ export default function ManageLinks() {
           <div>
             <Label>Custom Emoji <span className="text-xs text-muted-foreground">(leave empty for auto-detect)</span></Label>
             <Input placeholder="e.g. 📸 🎵 ✉️" value={form.icon} onChange={e => setForm({ ...form, icon: e.target.value })} data-testid="input-link-icon" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Border Color <span className="text-xs text-muted-foreground">(optional)</span></Label>
+              <div className="flex items-center gap-2 mt-1.5">
+                <input
+                  type="color"
+                  value={form.borderColor || "#cccccc"}
+                  onChange={e => setForm({ ...form, borderColor: e.target.value })}
+                  className="w-9 h-9 rounded-lg border border-border cursor-pointer p-0.5 bg-card"
+                  data-testid="input-link-border-color"
+                />
+                <Input
+                  placeholder="#hex or color name"
+                  value={form.borderColor}
+                  onChange={e => setForm({ ...form, borderColor: e.target.value })}
+                  className="text-xs"
+                  data-testid="input-link-border-color-text"
+                />
+                {form.borderColor && (
+                  <button type="button" onClick={() => setForm({ ...form, borderColor: "" })} className="text-muted-foreground hover:text-foreground text-xs shrink-0" title="Clear">✕</button>
+                )}
+              </div>
+            </div>
+            <div>
+              <Label>Text Color <span className="text-xs text-muted-foreground">(optional)</span></Label>
+              <div className="flex items-center gap-2 mt-1.5">
+                <input
+                  type="color"
+                  value={form.textColor || "#000000"}
+                  onChange={e => setForm({ ...form, textColor: e.target.value })}
+                  className="w-9 h-9 rounded-lg border border-border cursor-pointer p-0.5 bg-card"
+                  data-testid="input-link-text-color"
+                />
+                <Input
+                  placeholder="#hex or color name"
+                  value={form.textColor}
+                  onChange={e => setForm({ ...form, textColor: e.target.value })}
+                  className="text-xs"
+                  data-testid="input-link-text-color-text"
+                />
+                {form.textColor && (
+                  <button type="button" onClick={() => setForm({ ...form, textColor: "" })} className="text-muted-foreground hover:text-foreground text-xs shrink-0" title="Clear">✕</button>
+                )}
+              </div>
+            </div>
           </div>
           <div>
             <Label>Order</Label>

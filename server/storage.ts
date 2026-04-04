@@ -21,8 +21,6 @@ import mongoose from 'mongoose';
     type LinkItem,
     type CreateLinkItemRequest,
     type UpdateLinkItemRequest,
-    type AnonMessage,
-    type InsertAnonMessage,
     type NovelStory,
     type CreateNovelStoryRequest,
     type UpdateNovelStoryRequest,
@@ -45,7 +43,6 @@ import mongoose from 'mongoose';
     LinkItemModel,
     SiteSettingsModel,
     PageViewModel,
-    AnonMessageModel,
     NovelStoryModel,
     NovelSeasonModel,
     NovelChapterModel,
@@ -98,12 +95,6 @@ import mongoose from 'mongoose';
 
     recordPageView(page: string, userAgent?: string, referrer?: string): Promise<void>;
     getAnalytics(): Promise<Analytics>;
-
-    getAnonMessages(): Promise<AnonMessage[]>;
-    createAnonMessage(data: InsertAnonMessage): Promise<AnonMessage>;
-    markAnonMessageRead(id: string): Promise<AnonMessage>;
-    deleteAnonMessage(id: string): Promise<void>;
-    getUnreadAnonMessageCount(): Promise<number>;
 
     getNovelStories(published?: boolean): Promise<NovelStory[]>;
     getNovelStory(slug: string): Promise<NovelStory | undefined>;
@@ -430,34 +421,6 @@ import mongoose from 'mongoose';
       ];
 
       return { totalViews, todayViews, weekViews, monthViews, dailyViews, topPages, deviceBreakdown };
-    }
-
-    async getAnonMessages(): Promise<AnonMessage[]> {
-      const docs = await AnonMessageModel.find().sort({ createdAt: -1 });
-      return docs.map((d: any) => mapId<AnonMessage>(d));
-    }
-
-    async createAnonMessage(data: InsertAnonMessage): Promise<AnonMessage> {
-      const doc = await AnonMessageModel.create({ message: data.message });
-      return mapId<AnonMessage>(doc);
-    }
-
-    async markAnonMessageRead(id: string): Promise<AnonMessage> {
-      const doc = await AnonMessageModel.findByIdAndUpdate(
-        id,
-        { $set: { isRead: true } },
-        { new: true }
-      );
-      if (!doc) throw new Error("Message not found");
-      return mapId<AnonMessage>(doc);
-    }
-
-    async deleteAnonMessage(id: string): Promise<void> {
-      await AnonMessageModel.findByIdAndDelete(id);
-    }
-
-    async getUnreadAnonMessageCount(): Promise<number> {
-      return AnonMessageModel.countDocuments({ isRead: false });
     }
 
     // ── Novel Stories ─────────────────────────────────────────────────────

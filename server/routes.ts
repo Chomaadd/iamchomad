@@ -301,7 +301,6 @@ export async function registerRoutes(
       { url: "/resume", priority: "0.8", changefreq: "monthly" },
       { url: "/contact", priority: "0.6", changefreq: "yearly" },
       { url: "/links", priority: "0.6", changefreq: "monthly" },
-      { url: "/pesan", priority: "0.5", changefreq: "yearly" },
       { url: "/novel", priority: "0.8", changefreq: "weekly" },
     ];
 
@@ -739,68 +738,6 @@ ${novelEntries}
       res.json(settings);
     } catch (err) {
       console.error("Settings get error:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.post("/api/anon-messages", async (req, res) => {
-    try {
-      const { message } = req.body;
-      if (
-        !message ||
-        typeof message !== "string" ||
-        message.trim().length === 0
-      ) {
-        return res.status(400).json({ message: "Message is required" });
-      }
-      if (message.length > 1000) {
-        return res
-          .status(400)
-          .json({ message: "Message too long (max 1000 characters)" });
-      }
-      const msg = await storage.createAnonMessage({ message: message.trim() });
-      res.status(201).json(msg);
-    } catch (err) {
-      console.error("Anon message create error:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.get("/api/anon-messages", requireAuth, async (_req, res) => {
-    try {
-      const messages = await storage.getAnonMessages();
-      res.json(messages);
-    } catch (err) {
-      console.error("Anon messages get error:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.get("/api/anon-messages/unread-count", requireAuth, async (_req, res) => {
-    try {
-      const count = await storage.getUnreadAnonMessageCount();
-      res.json({ count });
-    } catch (err) {
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.patch("/api/anon-messages/:id/read", requireAuth, async (req, res) => {
-    try {
-      const msg = await storage.markAnonMessageRead(req.params.id);
-      res.json(msg);
-    } catch (err) {
-      console.error("Anon message read error:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.delete("/api/anon-messages/:id", requireAuth, async (req, res) => {
-    try {
-      await storage.deleteAnonMessage(req.params.id);
-      res.status(204).send();
-    } catch (err) {
-      console.error("Anon message delete error:", err);
       res.status(500).json({ message: "Internal server error" });
     }
   });
@@ -1263,10 +1200,6 @@ ${novelEntries}
       "/links": {
         title: `Links | ${SITE_NAME}`,
         description: `All of ${SITE_NAME}'s important links in one place — social media, portfolio, contact, and more.`,
-      },
-      "/pesan": {
-        title: `Anonymous Message | ${SITE_NAME}`,
-        description: `Have something to say? Send an anonymous message to ${SITE_NAME} — your identity is 100% protected.`,
       },
       "/novel": {
         title: `Novel & Comic | ${SITE_NAME}`,
