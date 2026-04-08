@@ -5,6 +5,7 @@ import { Button, Input, Textarea, Label, Modal } from "@/components/ui/core";
 import { Plus, Edit2, Trash2, ExternalLink, Image as ImageIcon, Star, Grid3X3, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function ManageBrand() {
   const { data: items } = useBrandItems();
@@ -13,6 +14,7 @@ export default function ManageBrand() {
   const { mutateAsync: deleteItem } = useDeleteBrandItem();
   const { toast } = useToast();
   const { confirm: showConfirm, ConfirmDialog } = useConfirm();
+  const { t } = useLanguage();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -40,9 +42,9 @@ export default function ManageBrand() {
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
       setForm(prev => ({ ...prev, imageUrl: data.url }));
-      toast({ title: "Image uploaded" });
+      toast({ title: t("admin.toast.imageUploaded") });
     } catch {
-      toast({ title: "Upload failed", variant: "destructive" });
+      toast({ title: t("admin.toast.uploadFailed"), variant: "destructive" });
     } finally {
       setUploading(false);
     }
@@ -77,7 +79,7 @@ export default function ManageBrand() {
   };
 
   const handleDelete = async (id: string) => {
-    const ok = await showConfirm({ title: "Delete asset?", description: "This action cannot be undone.", confirmLabel: "Delete" });
+    const ok = await showConfirm({ title: "Delete asset?", description: t("admin.confirm.undone"), confirmLabel: t("admin.confirm.delete") });
     if (ok) {
       try {
         await deleteItem(id);
@@ -96,11 +98,11 @@ export default function ManageBrand() {
       {/* Header */}
       <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">Portfolio</p>
-          <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-brand-title">Brand Assets</h1>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">{t("admin.brand.label")}</p>
+          <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-brand-title">{t("admin.brand.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {items?.length || 0} assets
-            {featured.length > 0 && <span className="text-amber-500 dark:text-amber-400 ml-2">· {featured.length} featured</span>}
+            {items?.length || 0} {t("admin.brand.assets")}
+            {featured.length > 0 && <span className="text-amber-500 dark:text-amber-400 ml-2">· {featured.length} {t("admin.brand.featured.count")}</span>}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -121,7 +123,7 @@ export default function ManageBrand() {
             </button>
           </div>
           <Button onClick={openCreate} className="gap-2" data-testid="button-new-brand">
-            <Plus size={16} /> New Asset
+            <Plus size={16} /> {t("admin.brand.newAsset")}
           </Button>
         </div>
       </div>
@@ -132,8 +134,8 @@ export default function ManageBrand() {
           <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
             <ImageIcon size={28} className="text-muted-foreground/40" />
           </div>
-          <p className="font-medium text-sm">No brand assets yet</p>
-          <p className="text-xs text-muted-foreground/60 mt-1">Click "New Asset" to add your first one</p>
+          <p className="font-medium text-sm">{t("admin.brand.empty.title")}</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">{t("admin.brand.empty.desc")}</p>
         </div>
       )}
 
@@ -142,7 +144,7 @@ export default function ManageBrand() {
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Star size={12} className="text-amber-500 fill-amber-500" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Featured</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{t("admin.brand.section.featured")}</span>
             <div className="flex-1 h-px bg-border" />
           </div>
           <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" : "space-y-3"}>
@@ -158,7 +160,7 @@ export default function ManageBrand() {
         <div>
           {featured.length > 0 && (
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">All Assets</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{t("admin.brand.section.all")}</span>
               <div className="flex-1 h-px bg-border" />
             </div>
           )}
@@ -171,28 +173,28 @@ export default function ManageBrand() {
       )}
 
       {/* Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? "Edit Asset" : "New Asset"}>
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? t("admin.brand.modal.edit") : t("admin.brand.modal.new")}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <Label>Title</Label>
+              <Label>{t("admin.brand.form.title")}</Label>
               <Input required value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Asset name" data-testid="input-brand-title" />
             </div>
             <div>
-              <Label>Category</Label>
+              <Label>{t("admin.brand.form.category")}</Label>
               <Input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} placeholder="e.g. Logo, UI" data-testid="input-brand-category" />
             </div>
             <div>
-              <Label>External Link</Label>
+              <Label>{t("admin.brand.form.link")}</Label>
               <Input value={form.link} onChange={e => setForm({ ...form, link: e.target.value })} placeholder="https://..." data-testid="input-brand-link" />
             </div>
           </div>
           <div>
-            <Label>Description</Label>
+            <Label>{t("admin.brand.form.description")}</Label>
             <Textarea className="min-h-[80px]" required value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Describe this asset..." data-testid="input-brand-description" />
           </div>
           <div>
-            <Label>Asset Image</Label>
+            <Label>{t("admin.brand.form.image")}</Label>
             <div className="space-y-2">
               {form.imageUrl && (
                 <div className="w-full aspect-video rounded-lg overflow-hidden border border-border bg-muted">
@@ -201,7 +203,7 @@ export default function ManageBrand() {
               )}
               <label className="flex items-center justify-center gap-2 border border-dashed border-border rounded-lg py-2.5 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors cursor-pointer">
                 <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} data-testid="input-brand-image" />
-                {uploading ? "Uploading…" : "Upload image from file"}
+                {uploading ? t("admin.uploading") : t("admin.brand.form.uploadBtn")}
               </label>
               <Input value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} placeholder="Or paste image URL..." className="text-xs" />
             </div>
@@ -216,12 +218,12 @@ export default function ManageBrand() {
               data-testid="input-brand-featured"
             />
             <div>
-              <label htmlFor="featured" className="text-sm font-medium cursor-pointer">Mark as Featured</label>
-              <p className="text-xs text-muted-foreground">Featured assets are highlighted in the gallery</p>
+              <label htmlFor="featured" className="text-sm font-medium cursor-pointer">{t("admin.brand.form.featured.label")}</label>
+              <p className="text-xs text-muted-foreground">{t("admin.brand.form.featured.desc")}</p>
             </div>
           </div>
           <Button type="submit" className="w-full" disabled={uploading} data-testid="button-save-brand">
-            {uploading ? "Uploading…" : editingId ? "Save Changes" : "Create Asset"}
+            {uploading ? t("admin.uploading") : editingId ? t("admin.brand.form.save") : t("admin.brand.form.create")}
           </Button>
         </form>
       </Modal>

@@ -9,17 +9,9 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Copy, Trash2, Link2, ExternalLink, Plus, MousePointerClick, RefreshCw, Clock, Infinity } from "lucide-react";
 import type { ShortUrl } from "@shared/schema";
+import { useLanguage } from "@/hooks/use-language";
 
 const BASE_URL = window.location.origin;
-
-const EXPIRY_OPTIONS = [
-  { value: "permanent", label: "Permanent ♾️", days: null },
-  { value: "1",  label: "1 Hari",  days: 1 },
-  { value: "3",  label: "3 Hari",  days: 3 },
-  { value: "7",  label: "7 Hari",  days: 7 },
-  { value: "14", label: "14 Hari", days: 14 },
-  { value: "30", label: "1 Bulan", days: 30 },
-];
 
 function generateSlug() {
   return Math.random().toString(36).slice(2, 9);
@@ -47,11 +39,21 @@ function formatExpiry(expiresAt: Date | string | null | undefined): {
 
 export default function ManageShortUrls() {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [targetUrl, setTargetUrl] = useState("");
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState(generateSlug());
   const [isCustomSlug, setIsCustomSlug] = useState(false);
   const [expiryDays, setExpiryDays] = useState("permanent");
+
+  const EXPIRY_OPTIONS = [
+    { value: "permanent", label: "Permanent ♾️", days: null },
+    { value: "1",  label: "1 " + t("admin.shorturls.form.expiry").slice(0,4),  days: 1 },
+    { value: "3",  label: "3 " + t("admin.shorturls.form.expiry").slice(0,4),  days: 3 },
+    { value: "7",  label: "7 " + t("admin.shorturls.form.expiry").slice(0,4),  days: 7 },
+    { value: "14", label: "14 " + t("admin.shorturls.form.expiry").slice(0,4), days: 14 },
+    { value: "30", label: "1 " + (t("admin.shorturls.form.expiry") === "Masa Berlaku" ? "Bulan" : "Month"), days: 30 },
+  ];
 
   const { data: urls = [], isLoading } = useQuery<ShortUrl[]>({
     queryKey: ["/api/short-urls"],
@@ -84,7 +86,7 @@ export default function ManageShortUrls() {
     mutationFn: (id: string) => apiRequest("DELETE", `/api/short-urls/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/short-urls"] });
-      toast({ title: "Dihapus" });
+      toast({ title: t("admin.confirm.delete") });
     },
   });
 
@@ -106,18 +108,18 @@ export default function ManageShortUrls() {
     <AdminLayout>
       <div className="max-w-3xl mx-auto space-y-8">
         <div>
-          <h1 className="text-2xl font-bold">Short URLs</h1>
+          <h1 className="text-2xl font-bold">{t("admin.shorturls.title")}</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Buat tautan pendek seperti <span className="font-mono text-primary">{BASE_URL}/xuwkajs</span> yang redirect ke URL manapun.
+            {t("admin.shorturls.form.preview")} <span className="font-mono text-primary">{BASE_URL}/xuwkajs</span> yang redirect ke URL manapun.
           </p>
         </div>
 
         {/* Create Form */}
         <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-6 space-y-4">
-          <h2 className="font-semibold text-base">Buat Short URL Baru</h2>
+          <h2 className="font-semibold text-base">{t("admin.shorturls.create.title")}</h2>
 
           <div className="space-y-2">
-            <Label htmlFor="targetUrl">URL Tujuan *</Label>
+            <Label htmlFor="targetUrl">{t("admin.shorturls.form.targetUrl")}</Label>
             <Input
               id="targetUrl"
               data-testid="input-target-url"
@@ -131,7 +133,7 @@ export default function ManageShortUrls() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Label / Nama (opsional)</Label>
+              <Label htmlFor="title">{t("admin.shorturls.form.label")}</Label>
               <Input
                 id="title"
                 data-testid="input-short-url-title"
@@ -142,7 +144,7 @@ export default function ManageShortUrls() {
             </div>
 
             <div className="space-y-2">
-              <Label>Masa Berlaku</Label>
+              <Label>{t("admin.shorturls.form.expiry")}</Label>
               <Select value={expiryDays} onValueChange={setExpiryDays}>
                 <SelectTrigger data-testid="select-expiry">
                   <SelectValue />
@@ -158,14 +160,14 @@ export default function ManageShortUrls() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="slug">Slug</Label>
+              <Label htmlFor="slug">{t("admin.shorturls.form.slug")}</Label>
               {!isCustomSlug && (
                 <button
                   type="button"
                   className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
                   onClick={() => setIsCustomSlug(true)}
                 >
-                  Edit manual
+                  {t("admin.shorturls.form.editManual")}
                 </button>
               )}
             </div>
@@ -195,21 +197,21 @@ export default function ManageShortUrls() {
                 </Button>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">Slug hanya huruf kecil & angka, 4–12 karakter.</p>
+            <p className="text-xs text-muted-foreground">{t("admin.shorturls.form.slugHint")}</p>
           </div>
 
           {targetUrl && (
             <div className="bg-muted/50 rounded-xl px-4 py-3 text-sm space-y-1">
               <div>
-                <span className="text-muted-foreground">Preview: </span>
+                <span className="text-muted-foreground">{t("admin.shorturls.form.preview")}: </span>
                 <span className="font-mono text-primary">{BASE_URL}/{slug}</span>
                 <span className="text-muted-foreground"> → </span>
                 <span className="truncate">{targetUrl}</span>
               </div>
               <div className="flex items-center gap-1 text-muted-foreground text-xs">
                 {expiryDays === "permanent"
-                  ? <><Infinity className="w-3 h-3" /> Permanent — tidak akan expired</>
-                  : <><Clock className="w-3 h-3" /> Aktif selama {EXPIRY_OPTIONS.find(o => o.value === expiryDays)?.label}</>
+                  ? <><Infinity className="w-3 h-3" /> {t("admin.shorturls.form.permanent")}</>
+                  : <><Clock className="w-3 h-3" /> {t("admin.shorturls.form.activeFor")} {EXPIRY_OPTIONS.find(o => o.value === expiryDays)?.label}</>
                 }
               </div>
             </div>
@@ -222,7 +224,7 @@ export default function ManageShortUrls() {
             className="w-full gap-2"
           >
             <Plus className="w-4 h-4" />
-            {createMutation.isPending ? "Membuat..." : "Buat Short URL"}
+            {createMutation.isPending ? t("admin.shorturls.form.creating") : t("admin.shorturls.form.submit")}
           </Button>
         </form>
 
@@ -236,7 +238,8 @@ export default function ManageShortUrls() {
         ) : (
           <div className="space-y-6">
             <UrlSection
-              title="Aktif"
+              title={t("admin.shorturls.section.active")}
+              emptyLabel={t("admin.shorturls.empty")}
               urls={activeUrls}
               onCopy={copyToClipboard}
               onDelete={id => deleteMutation.mutate(id)}
@@ -244,7 +247,8 @@ export default function ManageShortUrls() {
             />
             {expiredUrls.length > 0 && (
               <UrlSection
-                title="Sudah Expired"
+                title={t("admin.shorturls.section.expired")}
+                emptyLabel={t("admin.shorturls.empty")}
                 urls={expiredUrls}
                 onCopy={copyToClipboard}
                 onDelete={id => deleteMutation.mutate(id)}
@@ -260,9 +264,10 @@ export default function ManageShortUrls() {
 }
 
 function UrlSection({
-  title, urls, onCopy, onDelete, isDeleting, expired = false,
+  title, emptyLabel, urls, onCopy, onDelete, isDeleting, expired = false,
 }: {
   title: string;
+  emptyLabel: string;
   urls: ShortUrl[];
   onCopy: (text: string) => void;
   onDelete: (id: string) => void;
@@ -281,7 +286,7 @@ function UrlSection({
       {urls.length === 0 ? (
         <div className="bg-card border border-dashed border-border rounded-2xl py-10 text-center">
           <Link2 className="w-7 h-7 text-muted-foreground mx-auto mb-2" />
-          <p className="text-muted-foreground text-sm">Belum ada short URL. Buat yang pertama!</p>
+          <p className="text-muted-foreground text-sm">{emptyLabel}</p>
         </div>
       ) : (
         <div className="space-y-3">

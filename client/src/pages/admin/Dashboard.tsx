@@ -33,7 +33,7 @@ export default function Dashboard() {
   const unreadMessages = messages?.filter(m => !m.read).length || 0;
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
+  const greeting = hour < 12 ? t("admin.dashboard.greeting.morning") : hour < 18 ? t("admin.dashboard.greeting.afternoon") : t("admin.dashboard.greeting.evening");
 
   const handleStatusChange = async (value: AvailabilityStatus, label: string) => {
     try {
@@ -45,12 +45,12 @@ export default function Dashboard() {
   };
 
   const stats = [
-    { label: "Journal Entries", value: posts?.length || 0, icon: FileText, href: "/admin/blog", color: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
-    { label: "Inquiries", value: messages?.length || 0, icon: Mail, href: "/admin/messages", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400", badge: unreadMessages > 0 ? `${unreadMessages} new` : undefined },
-    { label: "Brand Assets", value: brands?.length || 0, icon: Image, href: "/admin/brand", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
-    { label: "Music Tracks", value: tracks?.length || 0, icon: Music, href: "/admin/music", color: "bg-purple-500/10 text-purple-600 dark:text-purple-400" },
-    { label: "Resume Items", value: resumeItems?.length || 0, icon: ScrollText, href: "/admin/resume", color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400" },
-    { label: "Novels & Stories", value: novelStories?.length || 0, icon: BookOpen, href: "/admin/novel", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
+    { label: t("admin.dashboard.stat.journal"), value: posts?.length || 0, icon: FileText, href: "/admin/blog", color: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
+    { label: t("admin.dashboard.stat.inquiries"), value: messages?.length || 0, icon: Mail, href: "/admin/messages", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400", badge: unreadMessages > 0 ? `${unreadMessages} ${t("admin.dashboard.stat.new")}` : undefined },
+    { label: t("admin.dashboard.stat.brand"), value: brands?.length || 0, icon: Image, href: "/admin/brand", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+    { label: t("admin.dashboard.stat.music"), value: tracks?.length || 0, icon: Music, href: "/admin/music", color: "bg-purple-500/10 text-purple-600 dark:text-purple-400" },
+    { label: t("admin.dashboard.stat.resume"), value: resumeItems?.length || 0, icon: ScrollText, href: "/admin/resume", color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400" },
+    { label: t("admin.dashboard.stat.novels"), value: novelStories?.length || 0, icon: BookOpen, href: "/admin/novel", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
   ];
 
   const recentMessages = messages?.slice(0, 3) || [];
@@ -60,7 +60,7 @@ export default function Dashboard() {
       <div className="space-y-8" data-testid="admin-dashboard">
         <div>
           <p className="text-sm text-muted-foreground mb-1">{greeting},</p>
-          <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">System Overview</h1>
+          <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">{t("admin.dashboard.title")}</h1>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -92,10 +92,10 @@ export default function Dashboard() {
         <div className="border border-border rounded-lg bg-card overflow-hidden">
           <div className="px-5 py-4 border-b border-border flex items-center gap-2">
             <Briefcase size={16} className="text-muted-foreground" />
-            <h2 className="font-semibold text-sm">Availability Status</h2>
+            <h2 className="font-semibold text-sm">{t("admin.dashboard.availability.title")}</h2>
             {settings && (
               <span className="ml-auto text-xs text-muted-foreground">
-                Currently: <span className="font-medium text-foreground">{settings.availabilityLabel}</span>
+                {t("admin.dashboard.availability.currently")}: <span className="font-medium text-foreground">{settings.availabilityLabel}</span>
               </span>
             )}
           </div>
@@ -114,7 +114,7 @@ export default function Dashboard() {
                 >
                   <span className={`w-2 h-2 rounded-full ${isActive ? opt.dot : "bg-muted-foreground/40"} ${isActive ? "animate-pulse" : ""}`} />
                   {opt.label}
-                  {isActive && <span className="text-[10px] font-bold uppercase tracking-wider ml-1">Active</span>}
+                  {isActive && <span className="text-[10px] font-bold uppercase tracking-wider ml-1">{t("admin.dashboard.availability.active")}</span>}
                 </button>
               );
             })}
@@ -126,10 +126,10 @@ export default function Dashboard() {
             <div className="px-5 py-4 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Mail size={16} className="text-muted-foreground" />
-                <h2 className="font-semibold text-sm">Recent Messages</h2>
+                <h2 className="font-semibold text-sm">{t("admin.dashboard.messages.title")}</h2>
               </div>
               <Link href="/admin/messages" className="text-xs text-muted-foreground hover:text-primary transition-colors font-medium">
-                View all
+                {t("admin.dashboard.messages.viewAll")}
               </Link>
             </div>
             <div className="divide-y divide-border">
@@ -149,7 +149,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               )) : (
-                <div className="px-5 py-8 text-center text-sm text-muted-foreground italic">No messages yet</div>
+                <div className="px-5 py-8 text-center text-sm text-muted-foreground italic">{t("admin.dashboard.messages.empty")}</div>
               )}
             </div>
           </div>
@@ -158,10 +158,10 @@ export default function Dashboard() {
             <div className="px-5 py-4 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Clock size={16} className="text-muted-foreground" />
-                <h2 className="font-semibold text-sm">Recent Posts</h2>
+                <h2 className="font-semibold text-sm">{t("admin.dashboard.posts.title")}</h2>
               </div>
               <Link href="/admin/blog" className="text-xs text-muted-foreground hover:text-primary transition-colors font-medium">
-                View all
+                {t("admin.dashboard.posts.viewAll")}
               </Link>
             </div>
             <div className="divide-y divide-border">
@@ -175,12 +175,12 @@ export default function Dashboard() {
                       </p>
                     </div>
                     <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full shrink-0 ${post.published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground'}`}>
-                      {post.published ? 'Live' : 'Draft'}
+                      {post.published ? t("admin.dashboard.posts.live") : t("admin.dashboard.posts.draft")}
                     </span>
                   </div>
                 </div>
               )) : (
-                <div className="px-5 py-8 text-center text-sm text-muted-foreground italic">No posts yet</div>
+                <div className="px-5 py-8 text-center text-sm text-muted-foreground italic">{t("admin.dashboard.posts.empty")}</div>
               )}
             </div>
           </div>

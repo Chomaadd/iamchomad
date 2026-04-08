@@ -6,13 +6,14 @@ import { ImageCropModal } from "@/components/ui/ImageCropModal";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Loader2, Upload, Trash2, Globe, User, ImageIcon, Search, Settings as SettingsIcon, Radio } from "lucide-react";
 import type { SiteSettings } from "@shared/schema";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function Settings() {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [saving, setSaving] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
-  // Form state
   const [ownerName, setOwnerName] = useState("");
   const [siteTitle, setSiteTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
@@ -21,18 +22,15 @@ export default function Settings() {
   const [adminAvatarUrl, setAdminAvatarUrl] = useState<string | null>(null);
   const [aboutImageUrl, setAboutImageUrl] = useState<string | null>(null);
 
-  // "Now" fields
   const [lanyardDiscordId, setLanyardDiscordId] = useState("");
   const [nowListening, setNowListening] = useState("");
   const [nowReading, setNowReading] = useState("");
   const [nowWorking, setNowWorking] = useState("");
   const [nowLocation, setNowLocation] = useState("");
 
-  // Upload states
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingAbout, setUploadingAbout] = useState(false);
 
-  // Crop state
   const [avatarCropSrc, setAvatarCropSrc] = useState<string | null>(null);
   const [aboutCropSrc, setAboutCropSrc] = useState<string | null>(null);
 
@@ -66,11 +64,11 @@ export default function Settings() {
       apiRequest("PUT", "/api/settings", payload).then(r => r.json()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
-      toast({ title: "Settings have been saved!" });
+      toast({ title: t("admin.settings.toast.saved") });
       setSaving(false);
     },
     onError: () => {
-      toast({ title: "Failed to save settings", variant: "destructive" });
+      toast({ title: t("admin.settings.toast.error"), variant: "destructive" });
       setSaving(false);
     },
   });
@@ -120,9 +118,9 @@ export default function Settings() {
       }
 
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
-      toast({ title: "Photo saved successfully!" });
+      toast({ title: t("admin.settings.toast.photoSaved") });
     } catch {
-      toast({ title: "Failed to upload photo", variant: "destructive" });
+      toast({ title: t("admin.settings.toast.photoFailed"), variant: "destructive" });
     } finally {
       setter(false);
     }
@@ -181,8 +179,8 @@ export default function Settings() {
       {/* Header */}
       <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">Admin</p>
-          <h1 className="text-2xl md:text-3xl font-serif font-bold">Settings</h1>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">{t("admin.settings.label")}</p>
+          <h1 className="text-2xl md:text-3xl font-serif font-bold">{t("admin.settings.title")}</h1>
         </div>
         <button
           onClick={handleSave}
@@ -191,7 +189,7 @@ export default function Settings() {
           data-testid="button-save-settings"
         >
           {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-          Save
+          {t("admin.settings.save")}
         </button>
       </div>
 
@@ -203,15 +201,15 @@ export default function Settings() {
               <Globe size={18} className="text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold text-sm">Website Identity</h2>
-              <p className="text-xs text-muted-foreground">Your name and site title shown across the website</p>
+              <h2 className="font-semibold text-sm">{t("admin.settings.identity.title")}</h2>
+              <p className="text-xs text-muted-foreground">{t("admin.settings.identity.desc")}</p>
             </div>
           </div>
 
           <div className="space-y-5">
             <div className="space-y-3">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Your Name
+                {t("admin.settings.identity.ownerName")}
               </label>
               <input
                 type="text"
@@ -222,13 +220,13 @@ export default function Settings() {
                 data-testid="input-owner-name"
               />
               <p className="text-xs text-muted-foreground/70">
-                Your real name — appears in the footer, resume, and other places across the site.
+                {t("admin.settings.identity.ownerName.hint")}
               </p>
             </div>
 
             <div className="space-y-3">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Website Name
+                {t("admin.settings.identity.siteName")}
               </label>
               <input
                 type="text"
@@ -239,7 +237,7 @@ export default function Settings() {
                 data-testid="input-site-title"
               />
               <p className="text-xs text-muted-foreground/70">
-                Appears in the browser tab. Example: "Choiril Ahmad — Portfolio" or "Mad — iamchomad.my.id"
+                {t("admin.settings.identity.siteName.hint")}
               </p>
             </div>
           </div>
@@ -252,15 +250,15 @@ export default function Settings() {
               <Search size={18} className="text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold text-sm">SEO & Social Sharing</h2>
-              <p className="text-xs text-muted-foreground">Controls how this website appears in search results and when shared</p>
+              <h2 className="font-semibold text-sm">{t("admin.settings.seo.title")}</h2>
+              <p className="text-xs text-muted-foreground">{t("admin.settings.seo.desc")}</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Meta Description
+                {t("admin.settings.seo.metaDesc")}
               </label>
               <textarea
                 value={metaDescription}
@@ -271,13 +269,13 @@ export default function Settings() {
                 data-testid="input-meta-description"
               />
               <p className="text-xs text-muted-foreground/70">
-                Shown in Google search results. Recommended: 120–160 characters. Currently: {metaDescription.length} chars.
+                {t("admin.settings.seo.metaDesc.hint")} {metaDescription.length} {t("admin.settings.seo.metaDesc.chars")}
               </p>
             </div>
 
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Keywords
+                {t("admin.settings.seo.keywords")}
               </label>
               <input
                 type="text"
@@ -288,13 +286,13 @@ export default function Settings() {
                 data-testid="input-meta-keywords"
               />
               <p className="text-xs text-muted-foreground/70">
-                Comma-separated keywords. Helps search engines understand your content.
+                {t("admin.settings.seo.keywords.hint")}
               </p>
             </div>
 
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Social Share Image URL (OG Image)
+                {t("admin.settings.seo.ogImage")}
               </label>
               <input
                 type="text"
@@ -305,7 +303,7 @@ export default function Settings() {
                 data-testid="input-og-image-url"
               />
               <p className="text-xs text-muted-foreground/70">
-                Image shown when website is shared on WhatsApp, Telegram, Twitter, etc. Recommended size: 1200×630px.
+                {t("admin.settings.seo.ogImage.hint")}
               </p>
               {ogImageUrl && (
                 <div className="mt-2 rounded-xl overflow-hidden border border-border max-w-xs">
@@ -323,15 +321,15 @@ export default function Settings() {
               <User size={18} className="text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold text-sm">Main Profile Photo</h2>
-              <p className="text-xs text-muted-foreground">Appears in admin sidebar & hero photo on Home page</p>
+              <h2 className="font-semibold text-sm">{t("admin.settings.avatar.title")}</h2>
+              <p className="text-xs text-muted-foreground">{t("admin.settings.avatar.desc")}</p>
             </div>
           </div>
 
           <div className="flex items-start gap-6 flex-wrap">
             {/* Preview */}
             <div className="shrink-0 space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">Preview</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("admin.settings.avatar.preview")}</p>
               <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-border bg-muted flex items-center justify-center">
                 {adminAvatarUrl ? (
                   <img src={adminAvatarUrl} alt="Admin avatar" className="w-full h-full object-cover" />
@@ -340,7 +338,7 @@ export default function Settings() {
                 )}
               </div>
               <p className="text-[10px] text-muted-foreground/60 text-center max-w-[96px]">
-                Sidebar & Home
+                {t("admin.settings.avatar.sidebar")}
               </p>
             </div>
 
@@ -354,7 +352,7 @@ export default function Settings() {
                 data-testid="button-upload-avatar"
               >
                 {uploadingAvatar ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
-                {uploadingAvatar ? "Uploading..." : "Upload & Crop Photos"}
+                {uploadingAvatar ? t("admin.uploading") : t("admin.settings.avatar.upload")}
               </button>
               {adminAvatarUrl && (
                 <button
@@ -362,16 +360,16 @@ export default function Settings() {
                     setAdminAvatarUrl(null);
                     await apiRequest("PUT", "/api/settings", { ...currentSettings, adminAvatarUrl: null });
                     queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
-                    toast({ title: "Profile photo deleted." });
+                    toast({ title: t("admin.settings.toast.profilePhotoDeleted") });
                   }}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-destructive/30 text-destructive text-sm font-medium hover:bg-destructive/10 transition-all"
                   data-testid="button-remove-avatar"
                 >
-                  <Trash2 size={15} /> Delete Photos
+                  <Trash2 size={15} /> {t("admin.settings.avatar.delete")}
                 </button>
               )}
               <p className="text-xs text-muted-foreground/70 leading-relaxed">
-                Upload a photo to replace the "C" in the sidebar. The same image will automatically appear on the main page.
+                {t("admin.settings.avatar.hint")}
               </p>
             </div>
           </div>
@@ -384,15 +382,15 @@ export default function Settings() {
               <ImageIcon size={18} className="text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold text-sm">About Page Photo</h2>
-              <p className="text-xs text-muted-foreground">The large image that appears on the /about page</p>
+              <h2 className="font-semibold text-sm">{t("admin.settings.about.title")}</h2>
+              <p className="text-xs text-muted-foreground">{t("admin.settings.about.desc")}</p>
             </div>
           </div>
 
           <div className="flex items-start gap-6 flex-wrap">
             {/* Preview */}
             <div className="shrink-0 space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">Preview</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("admin.settings.avatar.preview")}</p>
               <div className="w-24 h-32 rounded-xl overflow-hidden border-2 border-border bg-muted flex items-center justify-center">
                 {aboutImageUrl ? (
                   <img src={aboutImageUrl} alt="About page image" className="w-full h-full object-cover" />
@@ -404,7 +402,7 @@ export default function Settings() {
                 )}
               </div>
               <p className="text-[10px] text-muted-foreground/60 text-center max-w-[96px]">
-                About Pages
+                {t("admin.settings.about.pages")}
               </p>
             </div>
 
@@ -418,7 +416,7 @@ export default function Settings() {
                 data-testid="button-upload-about"
               >
                 {uploadingAbout ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
-                {uploadingAbout ? "Uploading..." : "Upload & Crop Photos"}
+                {uploadingAbout ? t("admin.uploading") : t("admin.settings.avatar.upload")}
               </button>
               {aboutImageUrl && (
                 <button
@@ -426,16 +424,16 @@ export default function Settings() {
                     setAboutImageUrl(null);
                     await apiRequest("PUT", "/api/settings", { ...currentSettings, aboutImageUrl: null });
                     queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
-                    toast({ title: "About photo deleted." });
+                    toast({ title: t("admin.settings.toast.aboutPhotoDeleted") });
                   }}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-destructive/30 text-destructive text-sm font-medium hover:bg-destructive/10 transition-all"
                   data-testid="button-remove-about"
                 >
-                  <Trash2 size={15} /> Delete Photos
+                  <Trash2 size={15} /> {t("admin.settings.avatar.delete")}
                 </button>
               )}
               <p className="text-xs text-muted-foreground/70 leading-relaxed">
-                Upload a portrait photo for the About page. If it's blank, the default image will be used.
+                {t("admin.settings.about.hint")}
               </p>
             </div>
           </div>
@@ -448,15 +446,15 @@ export default function Settings() {
               <Radio size={18} className="text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold text-sm">Section "Now" di About</h2>
-              <p className="text-xs text-muted-foreground">Status real-time yang tampil di halaman About — terintegrasi dengan Discord Lanyard</p>
+              <h2 className="font-semibold text-sm">{t("admin.settings.now.title")}</h2>
+              <p className="text-xs text-muted-foreground">{t("admin.settings.now.desc")}</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Discord User ID (untuk Lanyard)
+                {t("admin.settings.now.discordId")}
               </label>
               <input
                 type="text"
@@ -467,15 +465,15 @@ export default function Settings() {
                 data-testid="input-lanyard-discord-id"
               />
               <p className="text-xs text-muted-foreground/70">
-                Jika diisi, status Spotify & Discord kamu akan tampil live. Dapatkan ID dari Discord → Pengaturan → Mode Pengembang → klik kanan nama kamu → Copy User ID.
+                {t("admin.settings.now.discordId.hint")}
               </p>
             </div>
 
             <div className="border-t border-border/50 pt-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Manual Fallback (jika tidak ada Lanyard)</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">{t("admin.settings.now.fallback")}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground">🎵 Sedang Didengar</label>
+                  <label className="text-xs text-muted-foreground">{t("admin.settings.now.listening")}</label>
                   <input
                     type="text"
                     value={nowListening}
@@ -486,7 +484,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground">📖 Sedang Dibaca</label>
+                  <label className="text-xs text-muted-foreground">{t("admin.settings.now.reading")}</label>
                   <input
                     type="text"
                     value={nowReading}
@@ -497,7 +495,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground">💻 Sedang Dikerjakan</label>
+                  <label className="text-xs text-muted-foreground">{t("admin.settings.now.working")}</label>
                   <input
                     type="text"
                     value={nowWorking}
@@ -508,7 +506,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground">📍 Lokasi</label>
+                  <label className="text-xs text-muted-foreground">{t("admin.settings.now.location")}</label>
                   <input
                     type="text"
                     value={nowLocation}
@@ -527,11 +525,9 @@ export default function Settings() {
         <div className="rounded-2xl border border-border/60 bg-muted/30 p-5 flex items-start gap-3">
           <SettingsIcon size={16} className="text-muted-foreground shrink-0 mt-0.5" />
           <div>
-            <p className="text-xs font-semibold text-foreground/80 mb-1">Other settings are scattered on each page.</p>
+            <p className="text-xs font-semibold text-foreground/80 mb-1">{t("admin.settings.other.title")}</p>
             <p className="text-xs text-muted-foreground/70 leading-relaxed">
-              Resume Information → page <span className="font-medium text-foreground/60">Resume</span> · 
-              Avatar Link-in-Bio → page <span className="font-medium text-foreground/60">Links</span> · 
-              Availability Status → also on the Resume page.
+              {t("admin.settings.other.desc")}
             </p>
           </div>
         </div>

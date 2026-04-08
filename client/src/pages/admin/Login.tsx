@@ -3,10 +3,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { Redirect } from "wouter";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function Login() {
   const { login, isLoggingIn, user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -16,9 +18,9 @@ export default function Login() {
     e.preventDefault();
     try {
       await login(credentials);
-      toast({ title: "Login Successful" });
+      toast({ title: t("admin.login.toast.success") });
     } catch (error: any) {
-      toast({ title: "Access Denied", description: error.message, variant: "destructive" });
+      toast({ title: t("admin.login.toast.error"), description: error.message, variant: "destructive" });
     }
   };
 
@@ -56,13 +58,13 @@ export default function Login() {
               style={{ background: "rgba(99,102,241,0.15)", color: "hsl(234 89% 75%)", border: "1px solid rgba(99,102,241,0.25)" }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-              Secure Access
+              {t("admin.login.secure")}
             </div>
             <h1 className="font-serif text-4xl xl:text-5xl font-bold text-white leading-tight mb-4">
               Choiril<br />Ahmad
             </h1>
             <p className="text-white/40 text-sm leading-relaxed max-w-xs">
-              Personal portfolio management system. All content, projects, and creative works managed from here.
+              {t("admin.login.tagline")}
             </p>
           </div>
 
@@ -99,19 +101,19 @@ export default function Login() {
           <div className="mb-10">
             <div className="flex items-center gap-2.5 mb-3">
               <ShieldCheck size={18} className="text-primary" />
-              <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Authentication</span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{t("admin.login.auth")}</span>
             </div>
             <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground leading-tight" data-testid="text-login-title">
-              Welcome back,<br />
+              {t("admin.login.welcome")}<br />
               <span className="text-primary">Mad.</span>
             </h2>
-            <p className="text-muted-foreground text-sm mt-2">Sign in to manage your portfolio.</p>
+            <p className="text-muted-foreground text-sm mt-2">{t("admin.login.subtitle")}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label htmlFor="username" className="text-xs font-semibold uppercase tracking-widest text-muted-foreground block">
-                Username
+                {t("admin.login.username")}
               </label>
               <input
                 id="username"
@@ -127,7 +129,7 @@ export default function Login() {
 
             <div className="space-y-1.5">
               <label htmlFor="password" className="text-xs font-semibold uppercase tracking-widest text-muted-foreground block">
-                Password
+                {t("admin.login.password")}
               </label>
               <div className="relative">
                 <input
@@ -161,9 +163,9 @@ export default function Login() {
               data-testid="button-login"
             >
               {isLoggingIn ? (
-                <><Loader2 size={16} className="animate-spin" /> Authenticating…</>
+                <><Loader2 size={16} className="animate-spin" /> {t("admin.login.authenticating")}</>
               ) : (
-                "Sign In"
+                t("admin.login.submit")
               )}
             </button>
           </form>

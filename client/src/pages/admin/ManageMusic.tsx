@@ -5,6 +5,7 @@ import { Button, Input, Label, Modal } from "@/components/ui/core";
 import { Plus, Edit2, Trash2, Loader2, Play } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function ManageMusic() {
   const { data: tracks } = useMusicTracks();
@@ -13,6 +14,7 @@ export default function ManageMusic() {
   const { mutateAsync: deleteTrack } = useDeleteMusicTrack();
   const { toast } = useToast();
   const { confirm: showConfirm, ConfirmDialog } = useConfirm();
+  const { t } = useLanguage();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -53,10 +55,10 @@ export default function ManageMusic() {
         return next;
       });
       
-      toast({ title: "File uploaded successfully" });
+      toast({ title: t("admin.toast.fileuploaded") });
     } catch (error) {
         console.error("Upload error:", error);
-        toast({ title: "Upload failed", variant: "destructive" });
+        toast({ title: t("admin.toast.uploadFailed"), variant: "destructive" });
       } finally {
       setUploading(false);
     }
@@ -98,7 +100,7 @@ export default function ManageMusic() {
   };
 
   const handleDelete = async (id: string) => {
-    const ok = await showConfirm({ title: "Delete track?", description: "This action cannot be undone.", confirmLabel: "Delete" });
+    const ok = await showConfirm({ title: "Delete track?", description: t("admin.confirm.undone"), confirmLabel: t("admin.confirm.delete") });
     if (ok) {
       try {
         await deleteTrack(id);
@@ -113,11 +115,11 @@ export default function ManageMusic() {
     <AdminLayout>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-music-title">Sound Library</h1>
-          <p className="text-sm text-muted-foreground mt-1">{tracks?.length || 0} tracks</p>
+          <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-music-title">{t("admin.music.title")}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{tracks?.length || 0} {t("admin.music.tracks")}</p>
         </div>
         <Button onClick={openCreate} className="gap-2" data-testid="button-add-track">
-          <Plus size={16} /> Add Track
+          <Plus size={16} /> {t("admin.music.addTrack")}
         </Button>
       </div>
 
@@ -165,41 +167,41 @@ export default function ManageMusic() {
         ))}
         {tracks?.length === 0 && (
           <div className="text-center py-16 border border-dashed border-border rounded-lg text-muted-foreground text-sm italic">
-            No tracks uploaded yet.
+            {t("admin.music.empty")}
           </div>
         )}
       </div>
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? "Edit Track" : "Add Track"}>
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? t("admin.music.modal.edit") : t("admin.music.modal.add")}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label>Track Title</Label>
+            <Label>{t("admin.music.form.trackTitle")}</Label>
             <Input required value={form.title} onChange={e => setForm({...form, title: e.target.value})} data-testid="input-track-title" />
           </div>
           <div>
-            <Label>Artist</Label>
+            <Label>{t("admin.music.form.artist")}</Label>
             <Input required value={form.artist} onChange={e => setForm({...form, artist: e.target.value})} data-testid="input-track-artist" />
           </div>
           <div>
-            <Label>Audio File</Label>
+            <Label>{t("admin.music.form.audioFile")}</Label>
             <Input type="file" accept="audio/*" onChange={e => handleFileUpload(e, "audioUrl")} data-testid="input-track-audio" />
-            <Input required value={form.audioUrl} onChange={e => setForm({...form, audioUrl: e.target.value})} placeholder="Or enter URL" className="mt-1" />
+            <Input required value={form.audioUrl} onChange={e => setForm({...form, audioUrl: e.target.value})} placeholder={t("admin.orUrl")} className="mt-1" />
           </div>
           <div>
-            <Label>Album Art</Label>
+            <Label>{t("admin.music.form.albumArt")}</Label>
             <Input type="file" accept="image/*" onChange={e => handleFileUpload(e, "albumArt")} data-testid="input-track-art" />
-            <Input value={form.albumArt} onChange={e => setForm({...form, albumArt: e.target.value})} placeholder="Or enter URL" className="mt-1" />
+            <Input value={form.albumArt} onChange={e => setForm({...form, albumArt: e.target.value})} placeholder={t("admin.orUrl")} className="mt-1" />
           </div>
           <div>
-            <Label>Duration</Label>
+            <Label>{t("admin.music.form.duration")}</Label>
             <Input value={form.duration} onChange={e => setForm({...form, duration: e.target.value})} placeholder="Auto-detected or enter manually (e.g. 3:45)" data-testid="input-track-duration" />
           </div>
           <div className="flex items-center space-x-2">
             <input type="checkbox" id="autoplay" checked={form.isAutoPlay} onChange={e => setForm({...form, isAutoPlay: e.target.checked})} className="w-4 h-4 accent-primary rounded" data-testid="input-track-autoplay" />
-            <Label htmlFor="autoplay">Set as Autoplay Song</Label>
+            <Label htmlFor="autoplay">{t("admin.music.form.autoplay")}</Label>
           </div>
           <Button type="submit" className="w-full" disabled={uploading} data-testid="button-save-track">
-            {uploading ? <Loader2 className="animate-spin" /> : "Save Track"} 
+            {uploading ? <Loader2 className="animate-spin" /> : t("admin.music.form.save")} 
           </Button>
         </form>
       </Modal>

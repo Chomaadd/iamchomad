@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import Cropper from "react-easy-crop";
 import type { NovelStory, NovelSeason, NovelChapter } from "@shared/schema";
+import { useLanguage } from "@/hooks/use-language";
 
 type View = "stories" | "seasons" | "chapters" | "write";
 
@@ -28,7 +29,6 @@ function slugify(text: string) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-// ── Canvas Crop Helper ─────────────────────────────────────────────────────
 async function getCroppedBlob(imageSrc: string, croppedAreaPixels: { x: number; y: number; width: number; height: number }): Promise<Blob> {
   const image = await new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
@@ -55,7 +55,6 @@ async function getCroppedBlob(imageSrc: string, croppedAreaPixels: { x: number; 
   });
 }
 
-// ── Cover Upload + Crop ────────────────────────────────────────────────────
 function CoverUploadCrop({
   value, onChange,
 }: {
@@ -63,6 +62,7 @@ function CoverUploadCrop({
   onChange: (url: string) => void;
 }) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [rawSrc, setRawSrc] = useState<string | null>(null);
   const [cropOpen, setCropOpen] = useState(false);
@@ -102,9 +102,9 @@ function CoverUploadCrop({
       onChange(url);
       setCropOpen(false);
       setRawSrc(null);
-      toast({ title: "Cover successfully uploaded!" });
+      toast({ title: t("admin.novel.toast.coverUploaded") });
     } catch {
-      toast({ title: "Failed to upload cover", variant: "destructive" });
+      toast({ title: t("admin.novel.toast.coverFailed"), variant: "destructive" });
     } finally {
       setUploading(false);
     }
@@ -120,7 +120,7 @@ function CoverUploadCrop({
           onClick={() => fileInputRef.current?.click()}
           data-testid="button-upload-cover"
         >
-          <Upload size={14} className="mr-1.5" /> Upload Cover
+          <Upload size={14} className="mr-1.5" /> {t("admin.novel.form.uploadCover")}
         </Button>
         {value && (
           <Button
@@ -131,7 +131,7 @@ function CoverUploadCrop({
             onClick={() => onChange("")}
             data-testid="button-remove-cover"
           >
-            <RotateCcw size={14} className="mr-1.5" /> Delete Cover
+            <RotateCcw size={14} className="mr-1.5" /> {t("admin.novel.form.deleteCover")}
           </Button>
         )}
         <input
@@ -163,22 +163,20 @@ function CoverUploadCrop({
         </div>
       )}
 
-      {/* Fallback: manual URL input */}
       <div className="mt-2">
         <Input
           value={value}
           onChange={e => onChange(e.target.value)}
-          placeholder="or paste the image URL..."
+          placeholder={t("admin.orUrl")}
           className="text-xs h-8"
           data-testid="input-story-cover-url"
         />
       </div>
 
-      {/* Crop Dialog */}
       <Dialog open={cropOpen} onOpenChange={open => { if (!open) { setCropOpen(false); setRawSrc(null); } }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Crop Cover</DialogTitle>
+            <DialogTitle>{t("admin.novel.form.cropCover")}</DialogTitle>
           </DialogHeader>
           <div className="relative w-full h-72 bg-black rounded-lg overflow-hidden">
             {rawSrc && (
@@ -210,9 +208,9 @@ function CoverUploadCrop({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setCropOpen(false); setRawSrc(null); }}>Cancel</Button>
+            <Button variant="outline" onClick={() => { setCropOpen(false); setRawSrc(null); }}>{t("admin.novel.form.cancel")}</Button>
             <Button onClick={handleConfirmCrop} disabled={uploading} data-testid="button-confirm-crop">
-              {uploading ? "Uploading..." : "Use This Image"}
+              {uploading ? t("admin.uploading") : t("admin.novel.form.useThisImage")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -221,7 +219,6 @@ function CoverUploadCrop({
   );
 }
 
-// ── Story Form ────────────────────────────────────────────────────────────
 function StoryForm({
   initial, onSave, onCancel,
 }: {
@@ -229,6 +226,7 @@ function StoryForm({
   onSave: (data: any) => void;
   onCancel: () => void;
 }) {
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     title: initial?.title ?? "",
     slug: initial?.slug ?? "",
@@ -247,7 +245,7 @@ function StoryForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-sm font-medium mb-1 block">Tittle *</label>
+        <label className="text-sm font-medium mb-1 block">{t("admin.novel.form.storyTitle")} *</label>
         <Input
           value={form.title}
           onChange={e => { set("title", e.target.value); if (!initial?.slug) set("slug", slugify(e.target.value)); }}
@@ -256,19 +254,19 @@ function StoryForm({
         />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Slug *</label>
+        <label className="text-sm font-medium mb-1 block">{t("admin.novel.form.slug")} *</label>
         <Input value={form.slug} onChange={e => set("slug", e.target.value)} placeholder="url-cerita" data-testid="input-story-slug" />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Description</label>
+        <label className="text-sm font-medium mb-1 block">{t("admin.novel.form.description")}</label>
         <Textarea value={form.description} onChange={e => set("description", e.target.value)} rows={3} placeholder="Story synopsis..." data-testid="input-story-description" />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Cover</label>
+        <label className="text-sm font-medium mb-1 block">{t("admin.novel.form.cover")}</label>
         <CoverUploadCrop value={form.coverUrl} onChange={v => set("coverUrl", v)} />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Tags</label>
+        <label className="text-sm font-medium mb-1 block">{t("admin.novel.form.tags")}</label>
         <Input
           value={form.tags}
           onChange={e => set("tags", e.target.value)}
@@ -285,7 +283,7 @@ function StoryForm({
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-sm font-medium mb-1 block">Category</label>
+          <label className="text-sm font-medium mb-1 block">{t("admin.novel.form.category")}</label>
           <Select value={form.category} onValueChange={v => set("category", v)}>
             <SelectTrigger data-testid="select-story-category"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -298,7 +296,7 @@ function StoryForm({
           </Select>
         </div>
         <div>
-          <label className="text-sm font-medium mb-1 block">Status</label>
+          <label className="text-sm font-medium mb-1 block">{t("admin.novel.form.status")}</label>
           <Select value={form.status} onValueChange={v => set("status", v)}>
             <SelectTrigger data-testid="select-story-status"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -312,28 +310,28 @@ function StoryForm({
       <div className="flex gap-4">
         <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input type="checkbox" checked={form.published} onChange={e => set("published", e.target.checked)} className="rounded" data-testid="checkbox-story-published" />
-          Publish
+          {t("admin.novel.form.publish")}
         </label>
         <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input type="checkbox" checked={form.featured} onChange={e => set("featured", e.target.checked)} className="rounded" data-testid="checkbox-story-featured" />
-          Featured
+          {t("admin.novel.form.featured")}
         </label>
       </div>
       <DialogFooter>
-        <Button variant="outline" onClick={onCancel} data-testid="button-cancel-story">Cancel</Button>
-        <Button onClick={() => onSave({ ...form, tags: parsedTags })} disabled={!form.title || !form.slug} data-testid="button-save-story">Save</Button>
+        <Button variant="outline" onClick={onCancel} data-testid="button-cancel-story">{t("admin.novel.form.cancel")}</Button>
+        <Button onClick={() => onSave({ ...form, tags: parsedTags })} disabled={!form.title || !form.slug} data-testid="button-save-story">{t("admin.novel.form.save")}</Button>
       </DialogFooter>
     </div>
   );
 }
 
-// ── Season Form ───────────────────────────────────────────────────────────
 function SeasonForm({ storyId, initial, onSave, onCancel }: {
   storyId: string;
   initial?: Partial<NovelSeason>;
   onSave: (data: any) => void;
   onCancel: () => void;
 }) {
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     title: initial?.title ?? "",
     seasonNumber: initial?.seasonNumber ?? 1,
@@ -341,22 +339,21 @@ function SeasonForm({ storyId, initial, onSave, onCancel }: {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-sm font-medium mb-1 block">Season Number *</label>
+        <label className="text-sm font-medium mb-1 block">{t("admin.novel.form.seasonNumber")} *</label>
         <Input type="number" min={1} value={form.seasonNumber} onChange={e => setForm(f => ({ ...f, seasonNumber: Number(e.target.value) }))} data-testid="input-season-number" />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Season Title *</label>
+        <label className="text-sm font-medium mb-1 block">{t("admin.novel.form.seasonTitle")} *</label>
         <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g: The Beginning" data-testid="input-season-title" />
       </div>
       <DialogFooter>
-        <Button variant="outline" onClick={onCancel} data-testid="button-cancel-season">Cancel</Button>
-        <Button onClick={() => onSave({ ...form, storyId })} disabled={!form.title} data-testid="button-save-season">Save</Button>
+        <Button variant="outline" onClick={onCancel} data-testid="button-cancel-season">{t("admin.novel.form.cancel")}</Button>
+        <Button onClick={() => onSave({ ...form, storyId })} disabled={!form.title} data-testid="button-save-season">{t("admin.novel.form.save")}</Button>
       </DialogFooter>
     </div>
   );
 }
 
-// ── Chapter Write ─────────────────────────────────────────────────────────
 function ChapterWrite({ chapter, storyId, seasonId, onBack }: {
   chapter?: NovelChapter;
   storyId: string;
@@ -364,6 +361,7 @@ function ChapterWrite({ chapter, storyId, seasonId, onBack }: {
   onBack: () => void;
 }) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     title: chapter?.title ?? "",
     chapterNumber: chapter?.chapterNumber ?? 1,
@@ -386,26 +384,26 @@ function ChapterWrite({ chapter, storyId, seasonId, onBack }: {
   return (
     <div className="space-y-4">
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2" data-testid="button-back-from-write">
-        <ArrowLeft size={16} /> Return to chapter list
+        <ArrowLeft size={16} /> {t("admin.novel.form.returnToChapters")}
       </button>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-sm font-medium mb-1 block">No. Chapter *</label>
+          <label className="text-sm font-medium mb-1 block">{t("admin.novel.form.chapterNumber")} *</label>
           <Input type="number" min={1} value={form.chapterNumber} onChange={e => setForm(f => ({ ...f, chapterNumber: Number(e.target.value) }))} data-testid="input-chapter-number" />
         </div>
         <div className="flex items-end pb-0.5">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input type="checkbox" checked={form.published} onChange={e => setForm(f => ({ ...f, published: e.target.checked }))} className="rounded" data-testid="checkbox-chapter-published" />
-            Publish
+            {t("admin.novel.form.publish")}
           </label>
         </div>
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Chapter Title *</label>
+        <label className="text-sm font-medium mb-1 block">{t("admin.novel.form.chapterTitle")} *</label>
         <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Chapter title" data-testid="input-chapter-title" />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Story Content *</label>
+        <label className="text-sm font-medium mb-1 block">{t("admin.novel.form.storyContent")} *</label>
         <RichTextEditor
           value={form.content}
           onChange={html => setForm(f => ({ ...f, content: html }))}
@@ -415,22 +413,22 @@ function ChapterWrite({ chapter, storyId, seasonId, onBack }: {
         {(() => {
           const text = form.content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
           const words = text ? text.split(" ").filter(Boolean).length : 0;
-          return <p className="text-xs text-muted-foreground mt-1">{words} words · ~{Math.max(1, Math.ceil(words / 200))} minutes read</p>;
+          return <p className="text-xs text-muted-foreground mt-1">{words} {t("admin.novel.form.words")} · ~{Math.max(1, Math.ceil(words / 200))} {t("admin.novel.form.minRead")}</p>;
         })()}
       </div>
       <div className="flex gap-2 pt-2">
-        <Button variant="outline" onClick={onBack} data-testid="button-discard-chapter">Cancel</Button>
+        <Button variant="outline" onClick={onBack} data-testid="button-discard-chapter">{t("admin.novel.form.cancel")}</Button>
         <Button onClick={() => save.mutate(form)} disabled={!form.title || !form.content || save.isPending} data-testid="button-save-chapter">
-          {save.isPending ? "Keep..." : "Save Chapter"}
+          {save.isPending ? t("admin.uploading") : t("admin.novel.form.saveChapter")}
         </Button>
       </div>
     </div>
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────
 export default function ManageNovel() {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [view, setView] = useState<View>("stories");
   const [selectedStory, setSelectedStory] = useState<NovelStory | null>(null);
   const [selectedSeason, setSelectedSeason] = useState<NovelSeason | null>(null);
@@ -488,7 +486,7 @@ export default function ManageNovel() {
 
   const deleteSeason = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/novel/seasons/${id}`),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories", selectedStory?.id, "seasons"] }); setDeleteDialog(null); toast({ title: "Season deleted!!" }); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/novel/stories", selectedStory?.id, "seasons"] }); setDeleteDialog(null); toast({ title: "Season deleted!" }); },
     onError: () => toast({ title: "Failed to delete season", variant: "destructive" }),
   });
 
@@ -531,10 +529,10 @@ export default function ManageNovel() {
 
         {/* Breadcrumb Nav */}
         <div className="flex items-center gap-2 text-sm mb-6 flex-wrap">
-          <Link href="/admin"><span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">Dashboard</span></Link>
+          <Link href="/admin"><span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">{t("admin.novel.breadcrumb.dashboard")}</span></Link>
           <ChevronRight size={14} className="text-muted-foreground" />
           <button onClick={() => { setView("stories"); setSelectedStory(null); setSelectedSeason(null); }} className={view === "stories" ? "font-semibold text-foreground" : "text-muted-foreground hover:text-foreground"} data-testid="breadcrumb-stories">
-            Novels & Stories
+            {t("admin.novel.title")}
           </button>
           {selectedStory && (
             <>
@@ -558,12 +556,12 @@ export default function ManageNovel() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                  <BookOpen size={22} /> Novels & Stories
+                  <BookOpen size={22} /> {t("admin.novel.title")}
                 </h1>
-                <p className="text-sm text-muted-foreground mt-1">Manage all your stories</p>
+                <p className="text-sm text-muted-foreground mt-1">{t("admin.novel.subtitle")}</p>
               </div>
               <Button onClick={() => setStoryDialog({ open: true })} data-testid="button-add-story">
-                <Plus size={16} className="mr-1.5" /> Add Story
+                <Plus size={16} className="mr-1.5" /> {t("admin.novel.addStory")}
               </Button>
             </div>
 
@@ -574,7 +572,7 @@ export default function ManageNovel() {
             ) : !stories?.length ? (
               <div className="text-center py-16 border border-dashed border-border rounded-xl">
                 <BookOpen size={36} className="mx-auto mb-3 text-muted-foreground opacity-40" />
-                <p className="text-muted-foreground">There are no stories yet. Create your first story!</p>
+                <p className="text-muted-foreground">{t("admin.novel.empty.stories")}</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -598,12 +596,12 @@ export default function ManageNovel() {
                           {story.status}
                         </span>
                         <span>·</span>
-                        <span className={story.published ? "text-green-600" : "text-muted-foreground"}>{story.published ? "Published" : "Draft"}</span>
+                        <span className={story.published ? "text-green-600" : "text-muted-foreground"}>{story.published ? t("admin.novel.published") : t("admin.novel.draft")}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       <Button size="sm" variant="outline" onClick={() => { setSelectedStory(story); setView("seasons"); }} data-testid={`button-manage-seasons-${story.id}`}>
-                        <Layers size={14} className="mr-1" /> Season
+                        <Layers size={14} className="mr-1" /> {t("admin.novel.season")}
                       </Button>
                       <Button size="icon" variant="ghost" onClick={() => setStoryDialog({ open: true, story })} data-testid={`button-edit-story-${story.id}`}>
                         <Pencil size={14} />
@@ -625,10 +623,10 @@ export default function ManageNovel() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold text-foreground">{selectedStory.title}</h2>
-                <p className="text-sm text-muted-foreground mt-1">Manage seasons of this story</p>
+                <p className="text-sm text-muted-foreground mt-1">{t("admin.novel.manageSeasonsSubtitle")}</p>
               </div>
               <Button onClick={() => setSeasonDialog({ open: true })} data-testid="button-add-season">
-                <Plus size={16} className="mr-1.5" /> Add Seasons
+                <Plus size={16} className="mr-1.5" /> {t("admin.novel.addSeason")}
               </Button>
             </div>
 
@@ -637,7 +635,7 @@ export default function ManageNovel() {
             ) : !seasons?.length ? (
               <div className="text-center py-16 border border-dashed border-border rounded-xl">
                 <Layers size={36} className="mx-auto mb-3 text-muted-foreground opacity-40" />
-                <p className="text-muted-foreground">There are no seasons yet. Add the first season!</p>
+                <p className="text-muted-foreground">{t("admin.novel.empty.seasons")}</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -652,7 +650,7 @@ export default function ManageNovel() {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Button size="sm" variant="outline" onClick={() => { setSelectedSeason(season); setView("chapters"); }} data-testid={`button-manage-chapters-${season.id}`}>
-                        <FileText size={14} className="mr-1" /> Bab
+                        <FileText size={14} className="mr-1" /> {t("admin.novel.chapters")}
                       </Button>
                       <Button size="icon" variant="ghost" onClick={() => setSeasonDialog({ open: true, season })} data-testid={`button-edit-season-${season.id}`}>
                         <Pencil size={14} />
@@ -674,10 +672,10 @@ export default function ManageNovel() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold text-foreground">Season {selectedSeason.seasonNumber} — {selectedSeason.title}</h2>
-                <p className="text-sm text-muted-foreground mt-1">Manage chapters for this season</p>
+                <p className="text-sm text-muted-foreground mt-1">{t("admin.novel.manageChaptersSubtitle")}</p>
               </div>
               <Button onClick={() => { setEditingChapter(undefined); setView("write"); }} data-testid="button-add-chapter">
-                <Plus size={16} className="mr-1.5" /> New Chapter
+                <Plus size={16} className="mr-1.5" /> {t("admin.novel.newChapter")}
               </Button>
             </div>
 
@@ -686,7 +684,7 @@ export default function ManageNovel() {
             ) : !chapters?.length ? (
               <div className="text-center py-16 border border-dashed border-border rounded-xl">
                 <FileText size={36} className="mx-auto mb-3 text-muted-foreground opacity-40" />
-                <p className="text-muted-foreground">No chapters yet. Start writing!</p>
+                <p className="text-muted-foreground">{t("admin.novel.empty.chapters")}</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -697,7 +695,7 @@ export default function ManageNovel() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-foreground text-sm truncate">{ch.title}</p>
-                      <p className="text-xs text-muted-foreground">{(ch.content ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().split(" ").filter(Boolean).length} kata</p>
+                      <p className="text-xs text-muted-foreground">{(ch.content ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().split(" ").filter(Boolean).length} {t("admin.novel.form.words")}</p>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       <button
@@ -725,7 +723,7 @@ export default function ManageNovel() {
         <Dialog open={storyDialog.open} onOpenChange={open => setStoryDialog({ open })}>
           <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{storyDialog.story ? "Edit Story" : "Add New Story"}</DialogTitle>
+              <DialogTitle>{storyDialog.story ? t("admin.novel.dialog.editStory") : t("admin.novel.dialog.addStory")}</DialogTitle>
             </DialogHeader>
             <StoryForm
               initial={storyDialog.story}
@@ -742,7 +740,7 @@ export default function ManageNovel() {
         <Dialog open={seasonDialog.open} onOpenChange={open => setSeasonDialog({ open })}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{seasonDialog.season ? "Edit Seasons" : "Add New Season"}</DialogTitle>
+              <DialogTitle>{seasonDialog.season ? t("admin.novel.dialog.editSeason") : t("admin.novel.dialog.addSeason")}</DialogTitle>
             </DialogHeader>
             {selectedStory && (
               <SeasonForm
@@ -762,14 +760,14 @@ export default function ManageNovel() {
         <Dialog open={!!deleteDialog?.open} onOpenChange={() => setDeleteDialog(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Confirm Delete</DialogTitle>
+              <DialogTitle>{t("admin.novel.dialog.confirmDelete")}</DialogTitle>
             </DialogHeader>
             <p className="text-muted-foreground text-sm">
-              Are you sure you want to delete <strong className="text-foreground">"{deleteDialog?.name}"</strong>? This action cannot be undone.
+              {t("admin.novel.dialog.deleteConfirmMsg")} <strong className="text-foreground">"{deleteDialog?.name}"</strong>? {t("admin.confirm.undone")}
             </p>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDeleteDialog(null)} data-testid="button-cancel-delete">Cancel</Button>
-              <Button variant="destructive" onClick={handleDelete} data-testid="button-confirm-delete">Delete</Button>
+              <Button variant="outline" onClick={() => setDeleteDialog(null)} data-testid="button-cancel-delete">{t("admin.novel.form.cancel")}</Button>
+              <Button variant="destructive" onClick={handleDelete} data-testid="button-confirm-delete">{t("admin.confirm.delete")}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

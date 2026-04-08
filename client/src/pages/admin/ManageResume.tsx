@@ -8,12 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import ImageCropModal from "@/components/ui/ImageCropModal";
 import { useConfirm } from "@/hooks/use-confirm";
 import type { ResumeItem } from "@shared/schema";
-
-const typeConfig = {
-  experience: { label: "Experience", icon: Briefcase, color: "text-blue-600 bg-blue-500/10" },
-  education: { label: "Education", icon: GraduationCap, color: "text-emerald-600 bg-emerald-500/10" },
-  skill: { label: "Skill", icon: Lightbulb, color: "text-purple-600 bg-purple-500/10" },
-};
+import { useLanguage } from "@/hooks/use-language";
 
 export default function ManageResume() {
   const { data: items } = useResumeItems();
@@ -24,6 +19,7 @@ export default function ManageResume() {
   const { mutateAsync: updateSettings, isPending: savingProfile } = useUpdateSiteSettings();
   const { toast } = useToast();
   const { confirm: showConfirm, ConfirmDialog } = useConfirm();
+  const { t } = useLanguage();
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
@@ -31,6 +27,12 @@ export default function ManageResume() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"profile" | "experience" | "education" | "skill">("profile");
+
+  const typeConfig = {
+    experience: { label: t("admin.resume.type.experience"), icon: Briefcase, color: "text-blue-600 bg-blue-500/10" },
+    education: { label: t("admin.resume.type.education"), icon: GraduationCap, color: "text-emerald-600 bg-emerald-500/10" },
+    skill: { label: t("admin.resume.type.skill"), icon: Lightbulb, color: "text-purple-600 bg-purple-500/10" },
+  };
 
   const [form, setForm] = useState({
     type: "experience" as "experience" | "education" | "skill",
@@ -125,9 +127,9 @@ export default function ManageResume() {
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
       setProfile(p => ({ ...p, resumePhotoUrl: data.url }));
-      toast({ title: "Photo uploaded successfully!" });
+      toast({ title: t("admin.settings.toast.photoSaved") });
     } catch {
-      toast({ title: "Failed to upload photo", variant: "destructive" });
+      toast({ title: t("admin.settings.toast.photoFailed"), variant: "destructive" });
     } finally {
       setUploadingPhoto(false);
     }
@@ -181,7 +183,7 @@ export default function ManageResume() {
   };
 
   const handleDelete = async (id: string) => {
-    const ok = await showConfirm({ title: "Delete resume item?", description: "This action cannot be undone.", confirmLabel: "Delete" });
+    const ok = await showConfirm({ title: t("admin.resume.confirm.delete"), description: t("admin.confirm.undone"), confirmLabel: t("admin.confirm.delete") });
     if (ok) {
       try {
         await deleteItem(id);
@@ -208,9 +210,9 @@ export default function ManageResume() {
       {/* Header */}
       <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">Career</p>
-          <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-resume-admin-title">Resume / CV</h1>
-          <p className="text-sm text-muted-foreground mt-1">{items?.length || 0} items total</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">{t("admin.resume.label")}</p>
+          <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-resume-admin-title">{t("admin.resume.title")}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{items?.length || 0} {t("admin.resume.items")}</p>
         </div>
         <div className="flex items-center gap-2">
           <a
@@ -218,11 +220,11 @@ export default function ManageResume() {
             target="_blank"
             className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
           >
-            <FileText size={15} /> Preview CV
+            <FileText size={15} /> {t("admin.resume.previewCv")}
           </a>
           {activeTab !== "profile" && (
             <Button onClick={() => openCreate(activeTab as any)} className="gap-2" data-testid="button-add-resume-item">
-              <Plus size={16} /> Add {typeConfig[activeTab as keyof typeof typeConfig].label}
+              <Plus size={16} /> {t("admin.confirm.delete").startsWith("H") ? "Tambah" : "Add"} {typeConfig[activeTab as keyof typeof typeConfig].label}
             </Button>
           )}
         </div>
@@ -238,7 +240,7 @@ export default function ManageResume() {
           data-testid="tab-profile"
         >
           <User size={15} />
-          <span className="hidden sm:inline">Profile Info</span>
+          <span className="hidden sm:inline">{t("admin.resume.tab.profile")}</span>
         </button>
         {(["experience", "education", "skill"] as const).map((type) => {
           const config = typeConfig[type];
@@ -291,8 +293,8 @@ export default function ManageResume() {
                   )}
                 </div>
                 <div className="pb-1 flex-1 min-w-0">
-                  <p className="font-serif font-bold text-lg leading-tight truncate">{profile.resumeFullName || "Full name"}</p>
-                  <p className="text-sm text-muted-foreground truncate">{profile.resumeTitle || "Position / Profession"}</p>
+                  <p className="font-serif font-bold text-lg leading-tight truncate">{profile.resumeFullName || t("admin.resume.profile.fullname.placeholder")}</p>
+                  <p className="text-sm text-muted-foreground truncate">{profile.resumeTitle || t("admin.resume.profile.position.placeholder")}</p>
                 </div>
               </div>
 
@@ -313,12 +315,12 @@ export default function ManageResume() {
                   data-testid="button-upload-photo"
                 >
                   <Upload size={14} />
-                  {uploadingPhoto ? "Uploading..." : "Upload & Crop Profile Photo"}
+                  {uploadingPhoto ? t("admin.uploading") : t("admin.resume.profile.upload")}
                 </button>
                 <Input
                   value={profile.resumePhotoUrl}
                   onChange={e => setProfile({ ...profile, resumePhotoUrl: e.target.value })}
-                  placeholder="or paste the photo URL..."
+                  placeholder={t("admin.resume.profile.orUrl")}
                   data-testid="input-resume-photo"
                   className="text-xs"
                 />
@@ -330,45 +332,45 @@ export default function ManageResume() {
           <div className="bg-card border border-border rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 rounded-full bg-primary" />
-              <h2 className="font-semibold text-sm text-foreground">Personal identity</h2>
+              <h2 className="font-semibold text-sm text-foreground">{t("admin.resume.profile.identity")}</h2>
             </div>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Full name</Label>
+                  <Label>{t("admin.resume.profile.fullname")}</Label>
                   <Input value={profile.resumeFullName} onChange={e => setProfile({ ...profile, resumeFullName: e.target.value })} placeholder="e.g. Choiril Ahmad" data-testid="input-resume-fullname" />
                 </div>
                 <div>
-                  <Label>Position / Profession</Label>
+                  <Label>{t("admin.resume.profile.position")}</Label>
                   <Input value={profile.resumeTitle} onChange={e => setProfile({ ...profile, resumeTitle: e.target.value })} placeholder="e.g. Frontend Developer" data-testid="input-resume-jobtitle" />
                 </div>
                 <div>
-                  <Label>Date of birth</Label>
+                  <Label>{t("admin.resume.profile.birthdate")}</Label>
                   <Input value={profile.resumeBirthDate} onChange={e => setProfile({ ...profile, resumeBirthDate: e.target.value })} placeholder="e.g. 15 Maret 1995" data-testid="input-resume-birthdate" />
                 </div>
                 <div>
-                  <Label>Place of birth</Label>
+                  <Label>{t("admin.resume.profile.birthplace")}</Label>
                   <Input value={profile.resumeBirthPlace} onChange={e => setProfile({ ...profile, resumeBirthPlace: e.target.value })} placeholder="e.g. Batam" data-testid="input-resume-birthplace" />
                 </div>
                 <div>
-                  <Label>Gender</Label>
+                  <Label>{t("admin.resume.profile.gender")}</Label>
                   <Input value={profile.resumeGender} onChange={e => setProfile({ ...profile, resumeGender: e.target.value })} placeholder="e.g. Laki-laki" data-testid="input-resume-gender" />
                 </div>
                 <div>
-                  <Label>Religion</Label>
+                  <Label>{t("admin.resume.profile.religion")}</Label>
                   <Input value={profile.resumeReligion} onChange={e => setProfile({ ...profile, resumeReligion: e.target.value })} placeholder="e.g. Islam" data-testid="input-resume-religion" />
                 </div>
                 <div>
-                  <Label>Marriage Status</Label>
+                  <Label>{t("admin.resume.profile.marriage")}</Label>
                   <Input value={profile.resumeMarriagestatus} onChange={e => setProfile({ ...profile, resumeMarriagestatus: e.target.value })} placeholder="e.g. Belum Menikah" data-testid="input-resume-marriagestatus" />
                 </div>
                 <div>
-                  <Label>Nationality</Label>
+                  <Label>{t("admin.resume.profile.nationality")}</Label>
                   <Input value={profile.resumeNationality} onChange={e => setProfile({ ...profile, resumeNationality: e.target.value })} placeholder="e.g. Indonesia" data-testid="input-resume-nationality" />
                 </div>
               </div>
               <div>
-                <Label>About me</Label>
+                <Label>{t("admin.resume.profile.about")}</Label>
                 <Textarea className="min-h-[90px]" value={profile.resumeAbout} onChange={e => setProfile({ ...profile, resumeAbout: e.target.value })} placeholder="Tell us a little about yourself to feature on your CV..." data-testid="input-resume-about" />
               </div>
             </div>
@@ -378,7 +380,7 @@ export default function ManageResume() {
           <div className="bg-card border border-border rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 rounded-full bg-primary" />
-              <h2 className="font-semibold text-sm text-foreground">Contact</h2>
+              <h2 className="font-semibold text-sm text-foreground">{t("admin.resume.profile.contact")}</h2>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -386,22 +388,22 @@ export default function ManageResume() {
                 <Input type="email" value={profile.resumeEmail} onChange={e => setProfile({ ...profile, resumeEmail: e.target.value })} placeholder="kamu@gmail.com" data-testid="input-resume-email" />
               </div>
               <div>
-                <Label>Phone Number / WhatsApp</Label>
+                <Label>{t("admin.resume.profile.phone")}</Label>
                 <Input value={profile.resumePhone} onChange={e => setProfile({ ...profile, resumePhone: e.target.value })} placeholder="+62 812-xxxx-xxxx" data-testid="input-resume-phone" />
               </div>
               <div>
-                <Label>Address</Label>
+                <Label>{t("admin.resume.profile.address")}</Label>
                 <Input value={profile.resumeAddress} onChange={e => setProfile({ ...profile, resumeAddress: e.target.value })} placeholder="Jakarta, Indonesia" data-testid="input-resume-address" />
               </div>
               <div>
-                <Label>Website</Label>
+                <Label>{t("admin.resume.profile.website")}</Label>
                 <Input value={profile.resumeWebsite} onChange={e => setProfile({ ...profile, resumeWebsite: e.target.value })} placeholder="iamchomad.my.id" data-testid="input-resume-website" />
               </div>
             </div>
           </div>
 
           <Button type="submit" className="w-full py-3 rounded-xl" disabled={savingProfile} data-testid="button-save-profile">
-            {savingProfile ? "Keep..." : "Save Profile Info"}
+            {savingProfile ? t("admin.resume.profile.saving") : t("admin.resume.profile.save")}
           </Button>
         </form>
       )}
@@ -460,8 +462,8 @@ export default function ManageResume() {
               <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3 ${typeConfig[activeTab as keyof typeof typeConfig].color}`}>
                 {(() => { const Icon = typeConfig[activeTab as keyof typeof typeConfig].icon; return <Icon size={24} />; })()}
               </div>
-              <p className="font-medium text-sm">No {typeConfig[activeTab as keyof typeof typeConfig].label.toLowerCase()} entries yet</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">Click "Add {typeConfig[activeTab as keyof typeof typeConfig].label}" to get started</p>
+              <p className="font-medium text-sm">No {typeConfig[activeTab as keyof typeof typeConfig].label.toLowerCase()} {t("admin.resume.empty.noEntries")}</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">Click "Add {typeConfig[activeTab as keyof typeof typeConfig].label}" {t("admin.resume.empty.addToStart")}</p>
             </div>
           )}
         </div>
@@ -470,54 +472,54 @@ export default function ManageResume() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? `Edit ${typeConfig[form.type].label}` : `Add ${typeConfig[form.type].label}`}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label>Type</Label>
+            <Label>{t("admin.resume.form.type")}</Label>
             <select
               value={form.type}
               onChange={e => setForm({ ...form, type: e.target.value as any })}
               className="flex w-full border border-input bg-background px-4 py-2.5 text-sm rounded-xl focus:outline-none focus:border-primary transition-all"
               data-testid="select-resume-type"
             >
-              <option value="experience">Experience</option>
-              <option value="education">Education</option>
-              <option value="skill">Skill</option>
+              <option value="experience">{t("admin.resume.type.experience")}</option>
+              <option value="education">{t("admin.resume.type.education")}</option>
+              <option value="skill">{t("admin.resume.type.skill")}</option>
             </select>
           </div>
           <div>
-            <Label>Title</Label>
+            <Label>{t("admin.resume.form.title")}</Label>
             <Input required value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder={form.type === "experience" ? "e.g. Software Developer" : form.type === "education" ? "e.g. Computer Science" : "e.g. Frontend Development"} data-testid="input-resume-title" />
           </div>
           <div>
-            <Label>Subtitle</Label>
+            <Label>{t("admin.resume.form.subtitle")}</Label>
             <Input value={form.subtitle} onChange={e => setForm({ ...form, subtitle: e.target.value })} placeholder={form.type === "experience" ? "e.g. Company Name" : form.type === "education" ? "e.g. University Name" : "e.g. Category"} data-testid="input-resume-subtitle" />
           </div>
           {form.type !== "skill" && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Start Date</Label>
+                <Label>{t("admin.resume.form.startDate")}</Label>
                 <Input value={form.startDate} onChange={e => setForm({ ...form, startDate: e.target.value })} placeholder="e.g. Jan 2020" data-testid="input-resume-start" />
               </div>
               <div>
-                <Label>End Date</Label>
+                <Label>{t("admin.resume.form.endDate")}</Label>
                 <Input value={form.endDate} onChange={e => setForm({ ...form, endDate: e.target.value })} placeholder="e.g. Present" data-testid="input-resume-end" />
               </div>
             </div>
           )}
           <div>
-            <Label>Description</Label>
+            <Label>{t("admin.resume.form.description")}</Label>
             <Textarea className="min-h-[80px]" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} data-testid="input-resume-description" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Tags (comma-separated)</Label>
+              <Label>{t("admin.resume.form.tags")}</Label>
               <Input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="e.g. React, Node.js" data-testid="input-resume-tags" />
             </div>
             <div>
-              <Label>Sort Order</Label>
+              <Label>{t("admin.resume.form.order")}</Label>
               <Input type="number" value={form.order} onChange={e => setForm({ ...form, order: parseInt(e.target.value) || 0 })} data-testid="input-resume-order" />
             </div>
           </div>
           <Button type="submit" className="w-full rounded-xl" data-testid="button-save-resume">
-            {editingId ? `Save Changes` : `Add ${typeConfig[form.type].label}`}
+            {editingId ? t("admin.resume.form.save") : `Add ${typeConfig[form.type].label}`}
           </Button>
         </form>
       </Modal>

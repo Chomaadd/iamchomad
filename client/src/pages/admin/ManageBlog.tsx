@@ -6,6 +6,7 @@ import { Plus, Edit2, Trash2, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useConfirm } from "@/hooks/use-confirm";
 import { RichTextEditor, renderRichContent } from "@/components/ui/rich-text-editor";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function ManageBlog() {
   const { data: posts, isLoading } = usePosts();
@@ -14,6 +15,7 @@ export default function ManageBlog() {
   const { mutateAsync: deletePost } = useDeletePost();
   const { toast } = useToast();
   const { confirm: showConfirm, ConfirmDialog } = useConfirm();
+  const { t } = useLanguage();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -27,7 +29,6 @@ export default function ManageBlog() {
     tags: "",
     published: true
   });
-
 
   const [uploading, setUploading] = useState(false);
 
@@ -48,10 +49,10 @@ export default function ManageBlog() {
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
       setForm(prev => ({ ...prev, imageUrl: data.url }));
-      toast({ title: "Image uploaded" });
+      toast({ title: t("admin.toast.imageUploaded") });
     } catch (error) {
         console.error("Upload error:", error);
-        toast({ title: "Upload failed", variant: "destructive" });
+        toast({ title: t("admin.toast.uploadFailed"), variant: "destructive" });
       } finally {
       setUploading(false);
     }
@@ -100,26 +101,26 @@ export default function ManageBlog() {
           id: editingId, 
           title, slug, excerpt, content, imageUrl, published, tags
         });
-        toast({ title: "Entry updated successfully." });
+        toast({ title: t("admin.blog.toast.updated") });
       } else {
         await createPost({ ...form, slug: form.slug.trim(), published: Boolean(form.published), tags });
-        toast({ title: "Entry created successfully." });
+        toast({ title: t("admin.blog.toast.created") });
       }
       setModalOpen(false);
     } catch (error) {
       console.error("Save error:", error);
-      toast({ title: "Error saving entry", variant: "destructive" });
+      toast({ title: t("admin.blog.toast.error"), variant: "destructive" });
     }
   };
 
   const handleDelete = async (id: string) => {
-    const ok = await showConfirm({ title: "Delete entry?", description: "This action cannot be undone.", confirmLabel: "Delete" });
+    const ok = await showConfirm({ title: t("admin.blog.confirm.title"), description: t("admin.confirm.undone"), confirmLabel: t("admin.confirm.delete") });
     if (ok) {
       try {
         await deletePost(id);
-        toast({ title: "Entry deleted." });
+        toast({ title: t("admin.blog.toast.deleted") });
       } catch (error) {
-        toast({ title: "Error deleting entry", variant: "destructive" });
+        toast({ title: t("admin.blog.toast.deleteError"), variant: "destructive" });
       }
     }
   };
@@ -128,11 +129,11 @@ export default function ManageBlog() {
     <AdminLayout>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-blog-title">Blog Manager</h1>
-          <p className="text-sm text-muted-foreground mt-1">{posts?.length || 0} entries total</p>
+          <h1 className="text-2xl md:text-3xl font-serif font-bold" data-testid="text-blog-title">{t("admin.blog.title")}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{posts?.length || 0} {t("admin.blog.entries")}</p>
         </div>
         <Button onClick={openCreate} className="gap-2" data-testid="button-new-entry">
-          <Plus size={16} /> New Entry
+          <Plus size={16} /> {t("admin.blog.newEntry")}
         </Button>
       </div>
 
@@ -140,10 +141,10 @@ export default function ManageBlog() {
         <table className="w-full text-left text-sm">
           <thead className="bg-muted/50 text-muted-foreground text-xs font-semibold uppercase tracking-wider border-b border-border">
             <tr>
-              <th className="px-5 py-3">Title</th>
-              <th className="px-5 py-3">Status</th>
-              <th className="px-5 py-3 hidden md:table-cell">Date</th>
-              <th className="px-5 py-3 text-right">Actions</th>
+              <th className="px-5 py-3">{t("admin.blog.col.title")}</th>
+              <th className="px-5 py-3">{t("admin.blog.col.status")}</th>
+              <th className="px-5 py-3 hidden md:table-cell">{t("admin.blog.col.date")}</th>
+              <th className="px-5 py-3 text-right">{t("admin.blog.col.actions")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -172,7 +173,7 @@ export default function ManageBlog() {
                 </td>
                 <td className="px-5 py-4">
                   <span className={`inline-flex px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full ${post.published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground'}`}>
-                    {post.published ? 'Published' : 'Draft'}
+                    {post.published ? t("admin.blog.published") : t("admin.blog.draft")}
                   </span>
                 </td>
                 <td className="px-5 py-4 text-muted-foreground text-xs hidden md:table-cell">{new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
@@ -185,28 +186,28 @@ export default function ManageBlog() {
               </tr>
             ))}
             {posts?.length === 0 && (
-              <tr><td colSpan={4} className="px-5 py-12 text-center text-muted-foreground italic text-sm">No blog entries yet. Create your first one!</td></tr>
+              <tr><td colSpan={4} className="px-5 py-12 text-center text-muted-foreground italic text-sm">{t("admin.blog.empty")}</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? "Edit Entry" : "New Entry"}>
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? t("admin.blog.modal.edit") : t("admin.blog.modal.new")}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label>Title</Label>
+            <Label>{t("admin.blog.form.title")}</Label>
             <Input required value={form.title} onChange={e => setForm({...form, title: e.target.value})} data-testid="input-blog-title" />
           </div>
           <div>
-            <Label>Slug</Label>
+            <Label>{t("admin.blog.form.slug")}</Label>
             <Input required value={form.slug} onChange={e => setForm({...form, slug: e.target.value})} data-testid="input-blog-slug" />
           </div>
           <div>
-            <Label>Excerpt</Label>
+            <Label>{t("admin.blog.form.excerpt")}</Label>
             <Textarea className="min-h-[80px]" required value={form.excerpt} onChange={e => setForm({...form, excerpt: e.target.value})} data-testid="input-blog-excerpt" />
           </div>
           <div>
-            <Label>Content</Label>
+            <Label>{t("admin.blog.form.content")}</Label>
             <RichTextEditor
               value={form.content}
               onChange={html => setForm({...form, content: html})}
@@ -215,26 +216,26 @@ export default function ManageBlog() {
             />
           </div>
           <div>
-            <Label>Tags</Label>
+            <Label>{t("admin.blog.form.tags")}</Label>
             <Input
               value={form.tags}
               onChange={e => setForm({...form, tags: e.target.value})}
               placeholder="e.g. Technology, Design, Life (comma-separated)"
               data-testid="input-blog-tags"
             />
-            <p className="text-xs text-muted-foreground mt-1">Separate multiple tags with commas.</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("admin.blog.form.tags.hint")}</p>
           </div>
           <div>
-            <Label>Cover Image</Label>
+            <Label>{t("admin.blog.form.cover")}</Label>
             <Input type="file" accept="image/*" onChange={handleFileUpload} data-testid="input-blog-image" />
-            <Input value={form.imageUrl} onChange={e => setForm({...form, imageUrl: e.target.value})} placeholder="Or enter URL" className="mt-1" />
+            <Input value={form.imageUrl} onChange={e => setForm({...form, imageUrl: e.target.value})} placeholder={t("admin.orUrl")} className="mt-1" />
           </div>
           <div className="flex items-center space-x-2">
             <input type="checkbox" id="published" checked={form.published} onChange={e => setForm({...form, published: e.target.checked})} className="w-4 h-4 accent-primary rounded" data-testid="input-blog-published" />
-            <Label htmlFor="published">Published</Label>
+            <Label htmlFor="published">{t("admin.blog.form.published")}</Label>
           </div>
           <Button type="submit" className="w-full" disabled={uploading} data-testid="button-save-entry">
-            {uploading ? "Uploading..." : "Save Entry"}
+            {uploading ? t("admin.uploading") : t("admin.blog.form.save")}
           </Button>
         </form>
       </Modal>

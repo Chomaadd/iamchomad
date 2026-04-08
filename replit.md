@@ -8,6 +8,7 @@ A personal portfolio website with blog, brand showcase, music collection, and co
 - English (EN) and Indonesian (ID) with toggle in navbar
 - Language preference persisted in localStorage
 - All public page UI text translated via i18n; dynamic content from DB stays as-is
+- **ALL admin dashboard pages** now fully i18n'd: Dashboard, Analytics, Blog, Brand, Music, Messages, Resume, Settings, Login, ManageShortUrls, ManageNovel
 - Availability status label always translated through i18n (NOT from DB string directly)
 - Translation system: `client/src/lib/i18n.ts` + `client/src/hooks/use-language.tsx`
 - **i18n keys for availability:** `home.activity.openwork`, `home.activity.curentlybusy` (typo: one 'r'), `home.activity.notavailable`

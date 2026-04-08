@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, 
 import { Eye, TrendingUp, Calendar, Monitor, Smartphone, Globe } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SeoHead } from "@/components/seometa/SeoHead";
+import { useLanguage } from "@/hooks/use-language";
 
 const chartConfig = {
   views: { label: "Views", color: "hsl(var(--foreground))" },
@@ -60,6 +61,7 @@ function getPageLabel(page: string) {
 
 export default function Analytics() {
   const { data, isLoading } = useAnalytics();
+  const { t } = useLanguage();
 
   return (
     <AdminLayout>
@@ -70,8 +72,8 @@ export default function Analytics() {
       />
 
       <div className="mb-8">
-        <h1 className="text-2xl font-bold font-serif tracking-tight">Analytics</h1>
-        <p className="text-muted-foreground text-sm mt-1">Track page views and visitor statistics for your site.</p>
+        <h1 className="text-2xl font-bold font-serif tracking-tight">{t("admin.analytics.title")}</h1>
+        <p className="text-muted-foreground text-sm mt-1">{t("admin.analytics.description")}</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -79,10 +81,10 @@ export default function Analytics() {
           Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
         ) : (
           <>
-            <StatCard title="Total Views" value={data?.totalViews ?? 0} icon={Eye} />
-            <StatCard title="Today" value={data?.todayViews ?? 0} icon={Calendar} sub="page views today" />
-            <StatCard title="This Week" value={data?.weekViews ?? 0} icon={TrendingUp} sub="since Sunday" />
-            <StatCard title="This Month" value={data?.monthViews ?? 0} icon={Globe} sub="current month" />
+            <StatCard title={t("admin.analytics.totalViews")} value={data?.totalViews ?? 0} icon={Eye} />
+            <StatCard title={t("admin.analytics.today")} value={data?.todayViews ?? 0} icon={Calendar} sub={t("admin.analytics.today.sub")} />
+            <StatCard title={t("admin.analytics.week")} value={data?.weekViews ?? 0} icon={TrendingUp} sub={t("admin.analytics.week.sub")} />
+            <StatCard title={t("admin.analytics.month")} value={data?.monthViews ?? 0} icon={Globe} sub={t("admin.analytics.month.sub")} />
           </>
         )}
       </div>
@@ -90,7 +92,7 @@ export default function Analytics() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Page Views — Last 30 Days</CardTitle>
+            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t("admin.analytics.chart.title")}</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -123,7 +125,7 @@ export default function Analytics() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Device Breakdown</CardTitle>
+            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t("admin.analytics.device.title")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center gap-4">
             {isLoading ? (
@@ -171,7 +173,7 @@ export default function Analytics() {
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Top Pages</CardTitle>
+          <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t("admin.analytics.topPages.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -179,7 +181,7 @@ export default function Analytics() {
               {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-8 w-full" />)}
             </div>
           ) : !data?.topPages?.length ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No page views recorded yet.</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t("admin.analytics.topPages.empty")}</p>
           ) : (
             <div className="space-y-2" data-testid="list-top-pages">
               {data.topPages.map((p, i) => {
