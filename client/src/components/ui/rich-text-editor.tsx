@@ -8,12 +8,17 @@ import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Youtube from "@tiptap/extension-youtube";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
 import { useEffect, useRef, useState } from "react";
 import {
   Bold, Italic, UnderlineIcon, List, ListOrdered,
   Heading2, Heading3, Quote, AlignLeft, AlignCenter,
   AlignRight, Highlighter, Undo, Redo, Minus,
   Link2, ImageIcon, Youtube as YoutubeIcon, Upload, X, Check, Link2Off, Loader2, Film, Info,
+  Table2, Trash2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -135,10 +140,12 @@ export function RichTextEditor({
   const [imageUploading, setImageUploading] = useState(false);
   const [videoUploading, setVideoUploading] = useState(false);
   const [showCalloutMenu, setShowCalloutMenu] = useState(false);
+  const [showTableMenu, setShowTableMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const popupInputRef = useRef<HTMLInputElement>(null);
   const calloutRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -164,6 +171,10 @@ export function RichTextEditor({
       }),
       VideoExtension,
       CalloutExtension,
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -193,6 +204,9 @@ export function RichTextEditor({
     function handleOutside(e: MouseEvent) {
       if (calloutRef.current && !calloutRef.current.contains(e.target as Node)) {
         setShowCalloutMenu(false);
+      }
+      if (tableRef.current && !tableRef.current.contains(e.target as Node)) {
+        setShowTableMenu(false);
       }
     }
     document.addEventListener("mousedown", handleOutside);
@@ -390,6 +404,87 @@ export function RichTextEditor({
                     <span>{ct.label}</span>
                   </button>
                 ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Table group */}
+        <div className="flex items-center gap-0.5">
+          <div className="w-px h-5 bg-border mx-1" />
+          <div className="relative" ref={tableRef}>
+            <ToolbarButton
+              onClick={() => setShowTableMenu(v => !v)}
+              active={editor.isActive("table") || showTableMenu}
+              title="Tabel"
+            >
+              <Table2 size={15} />
+            </ToolbarButton>
+            {showTableMenu && (
+              <div className="absolute top-full left-0 mt-1.5 z-50 bg-card border border-border rounded-xl shadow-lg py-1.5 min-w-[185px]">
+                {!editor.isActive("table") ? (
+                  <>
+                    <p className="px-3 pt-1 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                      Sisipkan Tabel
+                    </p>
+                    {[
+                      { label: "2 kolom × 2 baris", rows: 2, cols: 2 },
+                      { label: "3 kolom × 3 baris", rows: 3, cols: 3 },
+                      { label: "4 kolom × 4 baris", rows: 4, cols: 4 },
+                      { label: "3 kolom × 5 baris", rows: 5, cols: 3 },
+                    ].map(opt => (
+                      <button
+                        key={opt.label}
+                        type="button"
+                        onClick={() => {
+                          editor.chain().focus().insertTable({ rows: opt.rows, cols: opt.cols, withHeaderRow: true }).run();
+                          setShowTableMenu(false);
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-xs hover:bg-accent transition-colors flex items-center gap-2.5 text-foreground"
+                      >
+                        <Table2 size={12} className="text-muted-foreground" />
+                        <span>{opt.label}</span>
+                      </button>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <p className="px-3 pt-1 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                      Edit Tabel
+                    </p>
+                    {[
+                      { label: "Tambah baris di bawah", action: () => editor.chain().focus().addRowAfter().run() },
+                      { label: "Tambah baris di atas", action: () => editor.chain().focus().addRowBefore().run() },
+                      { label: "Tambah kolom di kanan", action: () => editor.chain().focus().addColumnAfter().run() },
+                      { label: "Tambah kolom di kiri", action: () => editor.chain().focus().addColumnBefore().run() },
+                    ].map(opt => (
+                      <button
+                        key={opt.label}
+                        type="button"
+                        onClick={() => { opt.action(); setShowTableMenu(false); }}
+                        className="w-full text-left px-3 py-1.5 text-xs hover:bg-accent transition-colors text-foreground"
+                      >
+                        + {opt.label}
+                      </button>
+                    ))}
+                    <div className="my-1 border-t border-border" />
+                    {[
+                      { label: "Hapus baris ini", action: () => editor.chain().focus().deleteRow().run(), danger: false },
+                      { label: "Hapus kolom ini", action: () => editor.chain().focus().deleteColumn().run(), danger: false },
+                      { label: "Hapus seluruh tabel", action: () => editor.chain().focus().deleteTable().run(), danger: true },
+                    ].map(opt => (
+                      <button
+                        key={opt.label}
+                        type="button"
+                        onClick={() => { opt.action(); setShowTableMenu(false); }}
+                        className={`w-full text-left px-3 py-1.5 text-xs hover:bg-accent transition-colors flex items-center gap-2 ${opt.danger ? "text-destructive" : "text-foreground"}`}
+                      >
+                        {opt.danger && <Trash2 size={11} />}
+                        {opt.label}
+                      </button>
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </div>

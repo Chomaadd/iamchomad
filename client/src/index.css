@@ -258,6 +258,68 @@
 .dark [data-callout-type="danger"]  { background: hsl(0 84% 60% / 0.13); }
 .dark [data-callout-type="tip"]     { background: hsl(270 80% 60% / 0.13); }
 
+/* ── Tables ── */
+.ProseMirror table,
+.article-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.25rem 0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  font-size: 0.875rem;
+}
+.ProseMirror table th,
+.article-content table th {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  font-weight: 600;
+  text-align: left;
+  padding: 0.6rem 0.875rem;
+  border-bottom: 2px solid hsl(var(--border));
+  border-right: 1px solid hsl(var(--border));
+}
+.ProseMirror table th:last-child,
+.article-content table th:last-child {
+  border-right: none;
+}
+.ProseMirror table td,
+.article-content table td {
+  padding: 0.55rem 0.875rem;
+  border-bottom: 1px solid hsl(var(--border));
+  border-right: 1px solid hsl(var(--border));
+  vertical-align: top;
+}
+.ProseMirror table td:last-child,
+.article-content table td:last-child {
+  border-right: none;
+}
+.ProseMirror table tr:last-child td,
+.article-content table tr:last-child td {
+  border-bottom: none;
+}
+.ProseMirror table tr:nth-child(even) td,
+.article-content table tr:nth-child(even) td {
+  background: hsl(var(--muted) / 0.35);
+}
+.ProseMirror table p,
+.article-content table p {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+/* Selected cell highlight in editor */
+.ProseMirror .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: hsl(var(--primary) / 0.12);
+  pointer-events: none;
+}
+.ProseMirror td,
+.ProseMirror th {
+  position: relative;
+}
+
 @page {
   margin: 0;
   size: A4;
