@@ -77,6 +77,10 @@ const translations: Record<Language, Record<string, string>> = {
     "blogpost.more": "More articles",
     "blogpost.notFound": "Article not found",
     "blogpost.minRead": "min read",
+    "blogpost.translate": "Translate",
+    "blogpost.translateTo": "Translate to",
+    "blogpost.helpful": "Was this article helpful?",
+    "blogpost.share": "Share this article",
 
     "brand.badge": "Portfolio",
     "brand.heading": "Brand & Work",
@@ -578,6 +582,10 @@ const translations: Record<Language, Record<string, string>> = {
     "blogpost.more": "Artikel lainnya",
     "blogpost.notFound": "Artikel tidak ditemukan",
     "blogpost.minRead": "menit baca",
+    "blogpost.translate": "Terjemahkan",
+    "blogpost.translateTo": "Terjemahkan ke",
+    "blogpost.helpful": "Artikel ini membantu?",
+    "blogpost.share": "Bagikan artikel ini",
 
     "brand.badge": "Portofolio",
     "brand.heading": "Brand & Karya",

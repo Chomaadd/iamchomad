@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRoute } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { usePost } from "@/hooks/use-blog";
 import { useLanguage } from "@/hooks/use-language";
-import { Loader2, ArrowLeft, Clock, Calendar, Share2, Link2, Check, Eye, ThumbsUp, Heart, List } from "lucide-react";
+import { Loader2, ArrowLeft, Clock, Calendar, Share2, Link2, Check, Eye, ThumbsUp, Heart, List, Globe, ChevronDown } from "lucide-react";
 import { SiWhatsapp, SiX } from "react-icons/si";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
@@ -23,6 +23,18 @@ function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+const TRANSLATE_LANGS = [
+  { code: "en", label: "English" },
+  { code: "id", label: "Bahasa Indonesia" },
+  { code: "ja", label: "日本語" },
+  { code: "ko", label: "한국어" },
+  { code: "zh-CN", label: "中文（简体）" },
+  { code: "ar", label: "العربية" },
+  { code: "es", label: "Español" },
+  { code: "fr", label: "Français" },
+  { code: "de", label: "Deutsch" },
+];
+
 export default function BlogPost() {
   const [, params] = useRoute("/blog/:slug");
   const slug = params?.slug ?? "";
@@ -35,6 +47,8 @@ export default function BlogPost() {
   const [liveReactions, setLiveReactions] = useState<{ thumbsUp: number; heart: number } | null>(null);
   const [userReacted, setUserReacted] = useState<{ thumbsUp: boolean; heart: boolean }>({ thumbsUp: false, heart: false });
   const [activeHeading, setActiveHeading] = useState<string>("");
+  const [showTranslate, setShowTranslate] = useState(false);
+  const translateRef = useRef<HTMLDivElement>(null);
 
   const viewMutation = useMutation({
     mutationFn: () => apiRequest("POST", `/api/blog/${slug}/view`),
@@ -63,6 +77,16 @@ export default function BlogPost() {
       if (stored) setUserReacted(JSON.parse(stored));
     } catch {}
   }, [slug]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (translateRef.current && !translateRef.current.contains(e.target as Node)) {
+        setShowTranslate(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const headings = useMemo(() => {
     if (!post) return [];
@@ -111,6 +135,13 @@ export default function BlogPost() {
   const shareX = () => {
     window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(post?.title ?? "")}&url=${encodeURIComponent(pageUrl)}`, "_blank", "noopener");
   };
+
+  const translateTo = (langCode: string) => {
+    window.open(`https://translate.google.com/translate?sl=auto&tl=${langCode}&u=${encodeURIComponent(pageUrl)}`, "_blank", "noopener");
+    setShowTranslate(false);
+  };
+
+  const hasToc = headings.length > 1;
 
   if (isLoading) return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -163,21 +194,23 @@ export default function BlogPost() {
           <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" /> {t("blogpost.back")}
         </Link>
 
-        {/* ── Cover Image — contained, centered, rounded ── */}
+        {/* Cover Image */}
         {post.imageUrl && (
           <div className="mb-10 rounded-2xl overflow-hidden bg-muted soft-shadow-lg aspect-video">
-            <img
-              src={post.imageUrl}
-              alt={post.title}
-              className="w-full h-full object-cover"
-            />
+            <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
           </div>
         )}
 
-        <div className="lg:grid lg:grid-cols-[1fr_210px] lg:gap-14 lg:items-start">
+        {/* Main layout: conditionally 2-col with TOC or centered single col */}
+        <div className={hasToc ? "lg:grid lg:grid-cols-[1fr_210px] lg:gap-14 lg:items-start" : ""}>
 
           {/* ── Article ── */}
-          <motion.article initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <motion.article
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className={!hasToc ? "max-w-[720px] mx-auto" : ""}
+          >
 
             {/* Header */}
             <header className="mb-10">
@@ -218,6 +251,35 @@ export default function BlogPost() {
                   <Eye size={12} />
                   {viewCount.toLocaleString()} views
                 </span>
+
+                {/* Translate button */}
+                <div className="relative" ref={translateRef}>
+                  <button
+                    onClick={() => setShowTranslate(v => !v)}
+                    data-testid="button-translate"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+                  >
+                    <Globe size={12} />
+                    {t("blogpost.translate")}
+                    <ChevronDown size={10} className={`transition-transform ${showTranslate ? "rotate-180" : ""}`} />
+                  </button>
+                  {showTranslate && (
+                    <div className="absolute top-full left-0 mt-1.5 z-50 bg-card border border-border rounded-xl shadow-lg py-1.5 min-w-[180px]">
+                      <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                        {t("blogpost.translateTo")}
+                      </p>
+                      {TRANSLATE_LANGS.map(lang => (
+                        <button
+                          key={lang.code}
+                          onClick={() => translateTo(lang.code)}
+                          className="w-full text-left px-3 py-1.5 text-xs hover:bg-accent transition-colors text-foreground"
+                        >
+                          {lang.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Divider */}
@@ -226,14 +288,14 @@ export default function BlogPost() {
 
             {/* ── Article Body ── */}
             <div
-              className="prose prose-lg dark:prose-invert prose-p:leading-[1.85] prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-2xl prose-blockquote:border-primary/50 prose-blockquote:bg-primary/5 prose-blockquote:rounded-r-xl prose-blockquote:py-1 max-w-none"
+              className="prose prose-lg dark:prose-invert prose-p:leading-[1.85] prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-blockquote:border-primary/50 prose-blockquote:bg-primary/5 prose-blockquote:rounded-r-xl prose-blockquote:py-1 max-w-none article-content"
               dangerouslySetInnerHTML={{ __html: renderRichContent(post.content) }}
             />
 
             {/* ── Reactions ── */}
             <div className="mt-14 pt-8 border-t border-border/50">
               <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-5">
-                Was this article helpful?
+                {t("blogpost.helpful")}
               </p>
               <div className="flex items-center gap-3">
                 <button
@@ -268,7 +330,7 @@ export default function BlogPost() {
             {/* ── Share ── */}
             <div className="mt-8 pt-8 border-t border-border/50">
               <p className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-4">
-                <Share2 size={12} /> Share this article
+                <Share2 size={12} /> {t("blogpost.share")}
               </p>
               <div className="flex flex-wrap gap-2 mb-8">
                 <button
@@ -305,8 +367,8 @@ export default function BlogPost() {
             </div>
           </motion.article>
 
-          {/* ── Table of Contents ── */}
-          {headings.length > 1 && (
+          {/* ── Table of Contents (only when there are headings) ── */}
+          {hasToc && (
             <aside className="hidden lg:block" data-testid="toc-sidebar">
               <div className="sticky top-24">
                 <div className="bg-card border border-border/60 rounded-2xl p-5 soft-shadow">
