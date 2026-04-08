@@ -1,4 +1,5 @@
 import { useEditor, EditorContent } from "@tiptap/react";
+import { Node, mergeAttributes } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -12,9 +13,34 @@ import {
   Bold, Italic, UnderlineIcon, List, ListOrdered,
   Heading2, Heading3, Quote, AlignLeft, AlignCenter,
   AlignRight, Highlighter, Undo, Redo, Minus,
-  Link2, ImageIcon, Youtube as YoutubeIcon, Upload, X, Check, Link2Off, Loader2,
+  Link2, ImageIcon, Youtube as YoutubeIcon, Upload, X, Check, Link2Off, Loader2, Film,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+const VideoExtension = Node.create({
+  name: "video",
+  group: "block",
+  atom: true,
+  addAttributes() {
+    return {
+      src: { default: null },
+      controls: { default: true },
+    };
+  },
+  parseHTML() {
+    return [{ tag: "video[src]" }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["video", mergeAttributes({ controls: true, class: "rounded-lg max-w-full mx-auto my-4 w-full" }, HTMLAttributes)];
+  },
+  addCommands() {
+    return {
+      setVideo: (options: { src: string }) => ({ commands }: { commands: any }) => {
+        return commands.insertContent({ type: this.name, attrs: options });
+      },
+    } as any;
+  },
+});
 
 interface RichTextEditorProps {
   value: string;
@@ -62,7 +88,9 @@ export function RichTextEditor({
   const { toast } = useToast();
   const [popup, setPopup] = useState<{ type: PopupType; url: string }>({ type: null, url: "" });
   const [imageUploading, setImageUploading] = useState(false);
+  const [videoUploading, setVideoUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const popupInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
@@ -87,6 +115,7 @@ export function RichTextEditor({
         height: 360,
         HTMLAttributes: { class: "rounded-lg overflow-hidden my-4 mx-auto aspect-video w-full" },
       }),
+      VideoExtension,
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -135,6 +164,33 @@ export function RichTextEditor({
       editor.commands.setYoutubeVideo({ src: url });
     }
     closePopup();
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editor) return;
+    setVideoUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) {
+        (editor.commands as any).setVideo({ src: data.url });
+        toast({ title: "Video berhasil disisipkan!" });
+      } else {
+        toast({ title: "Gagal mengupload video", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Gagal mengupload video", variant: "destructive" });
+    } finally {
+      setVideoUploading(false);
+      if (videoInputRef.current) videoInputRef.current.value = "";
+    }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -280,6 +336,14 @@ export function RichTextEditor({
             {imageUploading ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
           </ToolbarButton>
           <ToolbarButton
+            onClick={() => videoInputRef.current?.click()}
+            active={false}
+            title="Upload Video dari Perangkat"
+            disabled={videoUploading}
+          >
+            {videoUploading ? <Loader2 size={15} className="animate-spin" /> : <Film size={15} />}
+          </ToolbarButton>
+          <ToolbarButton
             onClick={() => openPopup("youtube")}
             active={popup.type === "youtube"}
             title="Embed Video YouTube"
@@ -321,13 +385,20 @@ export function RichTextEditor({
         </div>
       )}
 
-      {/* Hidden file input */}
+      {/* Hidden file inputs */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
         className="hidden"
         onChange={handleImageUpload}
+      />
+      <input
+        ref={videoInputRef}
+        type="file"
+        accept="video/*"
+        className="hidden"
+        onChange={handleVideoUpload}
       />
 
       {/* Editor area */}
