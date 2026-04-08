@@ -209,6 +209,11 @@ export async function registerRoutes(
       const adminUsername = (process.env.ADMIN_USERNAME || "user").trim();
       const adminPassword = (process.env.ADMIN_PASSWORD || "Makanseblak123#").trim();
 
+      console.log("[LOGIN DEBUG] received username:", JSON.stringify(input.username));
+      console.log("[LOGIN DEBUG] expected username:", JSON.stringify(adminUsername));
+      console.log("[LOGIN DEBUG] username match:", input.username.trim() === adminUsername);
+      console.log("[LOGIN DEBUG] password match:", input.password.trim() === adminPassword);
+
       if (input.username.trim() !== adminUsername) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
