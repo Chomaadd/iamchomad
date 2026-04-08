@@ -206,14 +206,14 @@ export async function registerRoutes(
     try {
       const input = api.auth.login.input.parse(req.body);
 
-      const adminUsername = process.env.ADMIN_USERNAME || "user";
-      const adminPassword = process.env.ADMIN_PASSWORD || "Makanseblak123#";
+      const adminUsername = (process.env.ADMIN_USERNAME || "user").trim();
+      const adminPassword = (process.env.ADMIN_PASSWORD || "Makanseblak123#").trim();
 
-      if (input.username !== adminUsername) {
+      if (input.username.trim() !== adminUsername) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      if (input.password !== adminPassword) {
+      if (input.password.trim() !== adminPassword) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 

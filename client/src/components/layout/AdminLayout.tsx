@@ -10,7 +10,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { data: siteSettings } = useSiteSettings();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -115,9 +115,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               <span className="font-semibold">{currentPage}</span>
             </div>
           </div>
-          <Link href="/" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wider" data-testid="link-view-site">
-            {t("admin.view_site")}
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setLanguage(language === "en" ? "id" : "en")}
+              className="text-xs font-bold px-2.5 py-1 rounded-md border border-border bg-background hover:bg-accent transition-colors uppercase tracking-wider"
+              data-testid="button-toggle-language-admin"
+            >
+              {language === "en" ? "ID" : "EN"}
+            </button>
+            <Link href="/" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wider" data-testid="link-view-site">
+              {t("admin.view_site")}
+            </Link>
+          </div>
         </header>
 
         <div className="flex-1 overflow-auto">
