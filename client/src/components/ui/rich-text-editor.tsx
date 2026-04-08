@@ -13,9 +13,54 @@ import {
   Bold, Italic, UnderlineIcon, List, ListOrdered,
   Heading2, Heading3, Quote, AlignLeft, AlignCenter,
   AlignRight, Highlighter, Undo, Redo, Minus,
-  Link2, ImageIcon, Youtube as YoutubeIcon, Upload, X, Check, Link2Off, Loader2, Film,
+  Link2, ImageIcon, Youtube as YoutubeIcon, Upload, X, Check, Link2Off, Loader2, Film, Info,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+const CALLOUT_TYPES = [
+  { type: "info",    emoji: "ℹ️",  label: "Info" },
+  { type: "warning", emoji: "⚠️",  label: "Peringatan" },
+  { type: "success", emoji: "✅",  label: "Sukses" },
+  { type: "danger",  emoji: "❗",  label: "Bahaya" },
+  { type: "tip",     emoji: "💡",  label: "Tips" },
+];
+
+const CalloutExtension = Node.create({
+  name: "callout",
+  group: "block",
+  content: "block+",
+  defining: true,
+  addAttributes() {
+    return {
+      calloutType: {
+        default: "info",
+        parseHTML: el => el.getAttribute("data-callout-type") ?? "info",
+        renderHTML: attrs => ({ "data-callout-type": attrs.calloutType }),
+      },
+    };
+  },
+  parseHTML() {
+    return [{ tag: "div[data-callout]" }];
+  },
+  renderHTML({ node, HTMLAttributes }) {
+    return [
+      "div",
+      mergeAttributes({ "data-callout": "", "data-callout-type": node.attrs.calloutType }, HTMLAttributes),
+      0,
+    ];
+  },
+  addCommands() {
+    return {
+      insertCallout: (attrs: { calloutType: string }) => ({ commands }: any) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs,
+          content: [{ type: "paragraph" }],
+        });
+      },
+    } as any;
+  },
+});
 
 const VideoExtension = Node.create({
   name: "video",
@@ -89,9 +134,11 @@ export function RichTextEditor({
   const [popup, setPopup] = useState<{ type: PopupType; url: string }>({ type: null, url: "" });
   const [imageUploading, setImageUploading] = useState(false);
   const [videoUploading, setVideoUploading] = useState(false);
+  const [showCalloutMenu, setShowCalloutMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const popupInputRef = useRef<HTMLInputElement>(null);
+  const calloutRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -116,6 +163,7 @@ export function RichTextEditor({
         HTMLAttributes: { class: "rounded-lg overflow-hidden my-4 mx-auto aspect-video w-full" },
       }),
       VideoExtension,
+      CalloutExtension,
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -140,6 +188,16 @@ export function RichTextEditor({
       setTimeout(() => popupInputRef.current?.focus(), 50);
     }
   }, [popup.type]);
+
+  useEffect(() => {
+    function handleOutside(e: MouseEvent) {
+      if (calloutRef.current && !calloutRef.current.contains(e.target as Node)) {
+        setShowCalloutMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, []);
 
   const openPopup = (type: PopupType) => {
     if (type === "link") {
@@ -300,6 +358,42 @@ export function RichTextEditor({
             ))}
           </div>
         ))}
+
+        {/* Callout block group */}
+        <div className="flex items-center gap-0.5">
+          <div className="w-px h-5 bg-border mx-1" />
+          <div className="relative" ref={calloutRef}>
+            <ToolbarButton
+              onClick={() => setShowCalloutMenu(v => !v)}
+              active={editor.isActive("callout") || showCalloutMenu}
+              title="Sisipkan Callout Block"
+            >
+              <Info size={15} />
+            </ToolbarButton>
+            {showCalloutMenu && (
+              <div className="absolute top-full left-0 mt-1.5 z-50 bg-card border border-border rounded-xl shadow-lg py-1.5 min-w-[152px]">
+                <p className="px-3 pt-1 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Callout Block
+                </p>
+                {CALLOUT_TYPES.map(ct => (
+                  <button
+                    key={ct.type}
+                    type="button"
+                    onClick={() => {
+                      (editor.commands as any).insertCallout({ calloutType: ct.type });
+                      setShowCalloutMenu(false);
+                      editor.commands.focus();
+                    }}
+                    className="w-full text-left px-3 py-1.5 text-xs hover:bg-accent transition-colors flex items-center gap-2.5 text-foreground"
+                  >
+                    <span className="text-sm">{ct.emoji}</span>
+                    <span>{ct.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Media group */}
         <div className="flex items-center gap-0.5">
