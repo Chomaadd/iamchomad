@@ -154,7 +154,7 @@ export default function Home() {
                       </div>
                       <div className="p-5 space-y-3">
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          {new Date(post.createdAt).toLocaleDateString(language === "id" ? "id-ID" : "en-US", {
+                          {new Date(post.createdAt || Date.now()).toLocaleDateString(language === "id" ? "id-ID" : "en-US", {
                             month: "long",
                             day: "numeric",
                             year: "numeric",

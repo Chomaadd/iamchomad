@@ -1,5 +1,5 @@
 import { useEditor, EditorContent } from "@tiptap/react";
-import { Node, mergeAttributes } from "@tiptap/core";
+import { Node as TipTapNode, mergeAttributes } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -30,7 +30,7 @@ const CALLOUT_TYPES = [
   { type: "tip",     emoji: "💡",  label: "Tips" },
 ];
 
-const CalloutExtension = Node.create({
+const CalloutExtension = TipTapNode.create({
   name: "callout",
   group: "block",
   content: "block+",
@@ -67,7 +67,7 @@ const CalloutExtension = Node.create({
   },
 });
 
-const VideoExtension = Node.create({
+const VideoExtension = TipTapNode.create({
   name: "video",
   group: "block",
   atom: true,

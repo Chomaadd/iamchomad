@@ -1531,6 +1531,7 @@ async function seedDatabase() {
         imageUrl:
           "https://images.unsplash.com/photo-1499750310107-5fef28a66643",
         published: true,
+        tags: [],
       });
     }
 

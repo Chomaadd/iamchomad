@@ -97,7 +97,7 @@ export function LinkIcon({ url, emoji, size = 22 }: LinkIconProps) {
 
   const platform = detectPlatform(url);
   if (platform) {
-    const Icon = platform.icon;
+    const Icon = platform.icon as any;
     return <Icon size={size} style={{ color: platform.color }} />;
   }
 

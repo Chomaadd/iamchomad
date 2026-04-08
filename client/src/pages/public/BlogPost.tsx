@@ -168,18 +168,28 @@ export default function BlogPost() {
 
   const headings = useMemo(() => {
     if (!post) return [];
-    return post.content
-      .split("\n\n")
-      .filter((p: string) => p.startsWith("# ") || p.startsWith("## "))
-      .map((p: string) => {
-        const isH2 = p.startsWith("## ");
-        const text = isH2 ? p.slice(3) : p.slice(2);
-        return { text, id: slugify(text), level: isH2 ? 2 : 1 };
-      });
+    const html = renderRichContent(post.content);
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    return Array.from(div.querySelectorAll("h1, h2, h3, h4"))
+      .map(el => ({
+        text: el.textContent?.trim() ?? "",
+        id: slugify(el.textContent?.trim() ?? ""),
+        level: parseInt(el.tagName[1]),
+      }))
+      .filter(h => h.text.length > 0);
   }, [post]);
 
   useEffect(() => {
     if (!headings.length) return;
+
+    const articleEl = document.querySelector(".article-content");
+    if (!articleEl) return;
+    const renderedHeadings = articleEl.querySelectorAll("h1, h2, h3, h4");
+    renderedHeadings.forEach((el, i) => {
+      if (headings[i]) el.id = headings[i].id;
+    });
+
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -196,7 +206,7 @@ export default function BlogPost() {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, [headings]);
+  }, [headings, translatedContent]);
 
   const pageUrl = `https://iamchomad.my.id/blog/${slug}`;
 
