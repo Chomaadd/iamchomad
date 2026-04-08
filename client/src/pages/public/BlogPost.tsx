@@ -51,8 +51,10 @@ export default function BlogPost() {
   const [showTranslate, setShowTranslate] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const [translatedContent, setTranslatedContent] = useState<string | null>(null);
+  const [translatedTitle, setTranslatedTitle] = useState<string | null>(null);
+  const [translatedExcerpt, setTranslatedExcerpt] = useState<string | null>(null);
   const [currentLangCode, setCurrentLangCode] = useState<string | null>(null);
-  const translationCache = useRef<Record<string, string>>({});
+  const translationCache = useRef<Record<string, { html: string; title: string; excerpt: string }>>({});
   const translateRef = useRef<HTMLDivElement>(null);
 
   const viewMutation = useMutation({
@@ -98,7 +100,10 @@ export default function BlogPost() {
     setShowTranslate(false);
 
     if (translationCache.current[langCode]) {
-      setTranslatedContent(translationCache.current[langCode]);
+      const cached = translationCache.current[langCode];
+      setTranslatedContent(cached.html);
+      setTranslatedTitle(cached.title);
+      setTranslatedExcerpt(cached.excerpt);
       setCurrentLangCode(langCode);
       return;
     }
@@ -114,27 +119,38 @@ export default function BlogPost() {
         tempDiv.querySelectorAll("p, h1, h2, h3, h4, h5, h6, li, figcaption, blockquote > p")
       );
       const blocksWithText = blocks.filter(el => (el.textContent?.trim() ?? "").length > 0);
-      const segments = blocksWithText.map(el => el.textContent!.trim());
+      const bodySegments = blocksWithText.map(el => el.textContent!.trim());
 
-      if (segments.length === 0) return;
+      const titleText = post.title ?? "";
+      const excerptText = post.excerpt ?? "";
+
+      const allSegments = [titleText, excerptText, ...bodySegments].filter(Boolean);
+      if (allSegments.length === 0) return;
 
       const res = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ segments, from: "auto", to: langCode }),
+        body: JSON.stringify({ segments: allSegments, from: "auto", to: langCode }),
       });
       const data = await res.json();
+      if (!data.segments) return;
+
+      const newTitle = data.segments[0] ?? titleText;
+      const newExcerpt = excerptText ? (data.segments[1] ?? excerptText) : "";
+      const bodyStart = excerptText ? 2 : 1;
 
       blocksWithText.forEach((block, i) => {
-        if (data.segments?.[i]) {
-          block.textContent = data.segments[i];
+        if (data.segments[bodyStart + i]) {
+          block.textContent = data.segments[bodyStart + i];
         }
       });
 
-      const result = tempDiv.innerHTML;
-      translationCache.current[langCode] = result;
-      setTranslatedContent(result);
+      const resultHtml = tempDiv.innerHTML;
+      translationCache.current[langCode] = { html: resultHtml, title: newTitle, excerpt: newExcerpt };
+      setTranslatedContent(resultHtml);
+      setTranslatedTitle(newTitle);
+      setTranslatedExcerpt(newExcerpt);
       setCurrentLangCode(langCode);
     } catch (err) {
       console.error("Translation failed:", err);
@@ -145,6 +161,8 @@ export default function BlogPost() {
 
   const handleShowOriginal = () => {
     setTranslatedContent(null);
+    setTranslatedTitle(null);
+    setTranslatedExcerpt(null);
     setCurrentLangCode(null);
   };
 
@@ -284,13 +302,13 @@ export default function BlogPost() {
 
               {/* Title */}
               <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-5" data-testid="text-post-title">
-                {post.title}
+                {translatedTitle ?? post.title}
               </h1>
 
               {/* Excerpt */}
               {post.excerpt && (
                 <p className="text-lg text-muted-foreground leading-relaxed mb-6 border-l-4 border-primary/40 pl-4">
-                  {post.excerpt}
+                  {translatedExcerpt || post.excerpt}
                 </p>
               )}
 
