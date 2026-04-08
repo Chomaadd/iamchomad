@@ -1234,6 +1234,51 @@ ${novelEntries}
   });
   // ─────────────────────────────────────────────────────────────────────────
 
+  // ── In-page Translation API ──────────────────────────────────────────────
+  app.post("/api/translate", async (req, res) => {
+    try {
+      const { segments, from = "auto", to } = req.body as { segments: string[]; from?: string; to: string };
+      if (!Array.isArray(segments) || !to) {
+        return res.status(400).json({ error: "Invalid request" });
+      }
+
+      function chunkText(text: string, maxLen = 450): string[] {
+        if (text.length <= maxLen) return [text];
+        const chunks: string[] = [];
+        let remaining = text;
+        while (remaining.length > 0) {
+          if (remaining.length <= maxLen) { chunks.push(remaining); break; }
+          let cut = remaining.lastIndexOf(". ", maxLen);
+          if (cut === -1) cut = remaining.lastIndexOf(" ", maxLen);
+          if (cut === -1) cut = maxLen;
+          else cut += 1;
+          chunks.push(remaining.slice(0, cut).trim());
+          remaining = remaining.slice(cut).trim();
+        }
+        return chunks;
+      }
+
+      const translated: string[] = [];
+      for (const segment of segments) {
+        if (!segment.trim()) { translated.push(segment); continue; }
+        const chunks = chunkText(segment);
+        const parts: string[] = [];
+        for (const chunk of chunks) {
+          const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${from}|${to}`;
+          const r = await fetch(url);
+          const d = await r.json() as any;
+          parts.push(d.responseStatus === 200 ? d.responseData.translatedText : chunk);
+        }
+        translated.push(parts.join(" "));
+      }
+
+      res.json({ segments: translated });
+    } catch (err) {
+      console.error("Translation error:", err);
+      res.status(500).json({ error: "Translation failed" });
+    }
+  });
+
   // ── Short URL Admin API ──────────────────────────────────────────────────
   app.get("/api/short-urls", requireAuth, async (_req, res) => {
     try {

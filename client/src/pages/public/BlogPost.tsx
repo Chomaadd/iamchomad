@@ -1,13 +1,13 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useRoute } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { usePost } from "@/hooks/use-blog";
 import { useLanguage } from "@/hooks/use-language";
-import { Loader2, ArrowLeft, Clock, Calendar, Share2, Link2, Check, Eye, ThumbsUp, Heart, List, Globe, ChevronDown } from "lucide-react";
+import { Loader2, ArrowLeft, Clock, Calendar, Share2, Link2, Check, Eye, ThumbsUp, Heart, List, Globe, ChevronDown, X, RotateCcw } from "lucide-react";
 import { SiWhatsapp, SiX } from "react-icons/si";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { SeoHead } from "@/components/seometa/SeoHead";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -47,7 +47,12 @@ export default function BlogPost() {
   const [liveReactions, setLiveReactions] = useState<{ thumbsUp: number; heart: number } | null>(null);
   const [userReacted, setUserReacted] = useState<{ thumbsUp: boolean; heart: boolean }>({ thumbsUp: false, heart: false });
   const [activeHeading, setActiveHeading] = useState<string>("");
+
   const [showTranslate, setShowTranslate] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translatedContent, setTranslatedContent] = useState<string | null>(null);
+  const [currentLangCode, setCurrentLangCode] = useState<string | null>(null);
+  const translationCache = useRef<Record<string, string>>({});
   const translateRef = useRef<HTMLDivElement>(null);
 
   const viewMutation = useMutation({
@@ -87,6 +92,60 @@ export default function BlogPost() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleTranslate = useCallback(async (langCode: string) => {
+    if (!post) return;
+    setShowTranslate(false);
+
+    if (currentLangCode === langCode && translatedContent) return;
+
+    if (translationCache.current[langCode]) {
+      setTranslatedContent(translationCache.current[langCode]);
+      setCurrentLangCode(langCode);
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const sourceHtml = renderRichContent(post.content);
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(`<div>${sourceHtml}</div>`, "text/html");
+      const container = doc.body.firstChild as HTMLElement;
+
+      const blocks = Array.from(
+        container.querySelectorAll("p, h1, h2, h3, h4, h5, h6, li, figcaption")
+      );
+      const blocksWithText = blocks.filter(el => (el.textContent?.trim() ?? "").length > 0);
+      const segments = blocksWithText.map(el => el.textContent!.trim());
+
+      const res = await apiRequest("POST", "/api/translate", {
+        segments,
+        from: "auto",
+        to: langCode,
+      });
+      const data = await res.json();
+
+      blocksWithText.forEach((block, i) => {
+        if (data.segments?.[i]) {
+          block.textContent = data.segments[i];
+        }
+      });
+
+      const result = container.innerHTML;
+      translationCache.current[langCode] = result;
+      setTranslatedContent(result);
+      setCurrentLangCode(langCode);
+    } catch (err) {
+      console.error("Translation failed", err);
+    } finally {
+      setIsTranslating(false);
+    }
+  }, [post, currentLangCode, translatedContent]);
+
+  const handleShowOriginal = () => {
+    setTranslatedContent(null);
+    setCurrentLangCode(null);
+  };
 
   const headings = useMemo(() => {
     if (!post) return [];
@@ -136,12 +195,8 @@ export default function BlogPost() {
     window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(post?.title ?? "")}&url=${encodeURIComponent(pageUrl)}`, "_blank", "noopener");
   };
 
-  const translateTo = (langCode: string) => {
-    window.open(`https://translate.google.com/translate?sl=auto&tl=${langCode}&u=${encodeURIComponent(pageUrl)}`, "_blank", "noopener");
-    setShowTranslate(false);
-  };
-
   const hasToc = headings.length > 1;
+  const currentLangLabel = TRANSLATE_LANGS.find(l => l.code === currentLangCode)?.label ?? null;
 
   if (isLoading) return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -168,6 +223,7 @@ export default function BlogPost() {
   const currentReactions = liveReactions ?? (post as any).reactions ?? { thumbsUp: 0, heart: 0 };
   const readTime = estimateReadTime(post.content);
   const viewCount = liveViewCount ?? (post as any).viewCount ?? 0;
+  const displayHtml = translatedContent ?? renderRichContent(post.content);
 
   return (
     <div className="min-h-screen bg-background">
@@ -201,7 +257,7 @@ export default function BlogPost() {
           </div>
         )}
 
-        {/* Main layout: conditionally 2-col with TOC or centered single col */}
+        {/* Main layout */}
         <div className={hasToc ? "lg:grid lg:grid-cols-[1fr_210px] lg:gap-14 lg:items-start" : ""}>
 
           {/* ── Article ── */}
@@ -252,34 +308,65 @@ export default function BlogPost() {
                   {viewCount.toLocaleString()} views
                 </span>
 
-                {/* Translate button */}
-                <div className="relative" ref={translateRef}>
-                  <button
-                    onClick={() => setShowTranslate(v => !v)}
-                    data-testid="button-translate"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:text-primary transition-colors"
-                  >
-                    <Globe size={12} />
-                    {t("blogpost.translate")}
-                    <ChevronDown size={10} className={`transition-transform ${showTranslate ? "rotate-180" : ""}`} />
-                  </button>
-                  {showTranslate && (
-                    <div className="absolute top-full left-0 mt-1.5 z-50 bg-card border border-border rounded-xl shadow-lg py-1.5 min-w-[180px]">
-                      <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                        {t("blogpost.translateTo")}
-                      </p>
-                      {TRANSLATE_LANGS.map(lang => (
-                        <button
-                          key={lang.code}
-                          onClick={() => translateTo(lang.code)}
-                          className="w-full text-left px-3 py-1.5 text-xs hover:bg-accent transition-colors text-foreground"
+                {/* Translate control */}
+                {currentLangCode ? (
+                  <div className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
+                      <Globe size={12} />
+                      {currentLangLabel}
+                    </span>
+                    <button
+                      onClick={handleShowOriginal}
+                      data-testid="button-show-original"
+                      title="Show original"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-border transition-colors"
+                    >
+                      <RotateCcw size={11} /> Original
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative" ref={translateRef}>
+                    <button
+                      onClick={() => setShowTranslate(v => !v)}
+                      data-testid="button-translate"
+                      disabled={isTranslating}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors disabled:opacity-50"
+                    >
+                      {isTranslating ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <Globe size={12} />
+                      )}
+                      {isTranslating ? (language === "id" ? "Menerjemahkan…" : "Translating…") : t("blogpost.translate")}
+                      {!isTranslating && <ChevronDown size={10} className={`transition-transform ${showTranslate ? "rotate-180" : ""}`} />}
+                    </button>
+
+                    <AnimatePresence>
+                      {showTranslate && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute top-full left-0 mt-2 z-50 bg-card border border-border rounded-2xl shadow-lg py-2 min-w-[186px]"
                         >
-                          {lang.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                          <p className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                            {t("blogpost.translateTo")}
+                          </p>
+                          {TRANSLATE_LANGS.map(lang => (
+                            <button
+                              key={lang.code}
+                              onClick={() => handleTranslate(lang.code)}
+                              className="w-full text-left px-4 py-2 text-xs hover:bg-accent transition-colors text-foreground flex items-center justify-between group"
+                            >
+                              <span>{lang.label}</span>
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
               </div>
 
               {/* Divider */}
@@ -287,10 +374,36 @@ export default function BlogPost() {
             </header>
 
             {/* ── Article Body ── */}
-            <div
-              className="prose prose-lg dark:prose-invert prose-p:leading-[1.85] prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-blockquote:border-primary/50 prose-blockquote:bg-primary/5 prose-blockquote:rounded-r-xl prose-blockquote:py-1 max-w-none article-content"
-              dangerouslySetInnerHTML={{ __html: renderRichContent(post.content) }}
-            />
+            <div className="relative">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentLangCode ?? "original"}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="prose prose-lg dark:prose-invert prose-p:leading-[1.85] prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-blockquote:border-primary/50 prose-blockquote:bg-primary/5 prose-blockquote:rounded-r-xl prose-blockquote:py-1 max-w-none article-content"
+                  dangerouslySetInnerHTML={{ __html: displayHtml }}
+                />
+              </AnimatePresence>
+
+              {/* Translating overlay */}
+              <AnimatePresence>
+                {isTranslating && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-background/70 backdrop-blur-[2px] rounded-xl flex flex-col items-center justify-center gap-3 z-10"
+                  >
+                    <Loader2 size={28} className="animate-spin text-primary" />
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {language === "id" ? "Sedang menerjemahkan…" : "Translating article…"}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* ── Reactions ── */}
             <div className="mt-14 pt-8 border-t border-border/50">
@@ -367,7 +480,7 @@ export default function BlogPost() {
             </div>
           </motion.article>
 
-          {/* ── Table of Contents (only when there are headings) ── */}
+          {/* ── Table of Contents ── */}
           {hasToc && (
             <aside className="hidden lg:block" data-testid="toc-sidebar">
               <div className="sticky top-24">
