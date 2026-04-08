@@ -4,7 +4,7 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useLinkItems, useCreateLinkItem, useUpdateLinkItem, useDeleteLinkItem } from "@/hooks/use-links";
 import { useSiteSettings, useUpdateSiteSettings } from "@/hooks/use-settings";
 import { Button, Input, Label, Modal } from "@/components/ui/core";
-import { Plus, Edit2, Trash2, GripVertical, Eye, EyeOff, Upload, User, Loader2, CropIcon, ZoomIn, ZoomOut, Image, X } from "lucide-react";
+import { Plus, Edit2, Trash2, GripVertical, Eye, EyeOff, Upload, User, Loader2, CropIcon, ZoomIn, ZoomOut, Image as ImageIcon, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useConfirm } from "@/hooks/use-confirm";
 import { LinkIcon, LinkIconPreview } from "@/lib/social-icons";
@@ -311,7 +311,7 @@ export default function ManageLinks() {
               className="w-24 h-16 rounded-xl border border-border overflow-hidden shrink-0 bg-muted flex items-center justify-center"
               style={profile.linksBackgroundUrl ? { backgroundImage: `url(${profile.linksBackgroundUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
             >
-              {!profile.linksBackgroundUrl && <Image size={20} className="text-muted-foreground/40" />}
+              {!profile.linksBackgroundUrl && <ImageIcon size={20} className="text-muted-foreground/40" />}
             </div>
             <div className="flex-1 space-y-2">
               <div className="flex gap-2">
