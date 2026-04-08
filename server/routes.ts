@@ -1235,6 +1235,26 @@ ${novelEntries}
   // ─────────────────────────────────────────────────────────────────────────
 
   // ── In-page Translation API ──────────────────────────────────────────────
+  const LINGVA_INSTANCES = [
+    "https://lingva.ml",
+    "https://translate.plausibility.cloud",
+    "https://lingva.tiekoetter.com",
+  ];
+
+  async function lingvaTranslate(text: string, from: string, to: string): Promise<string> {
+    const srcLang = !from || from === "auto" ? "auto" : from;
+    for (const instance of LINGVA_INSTANCES) {
+      try {
+        const url = `${instance}/api/v1/${srcLang}/${to}/${encodeURIComponent(text)}`;
+        const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
+        if (!r.ok) continue;
+        const d = await r.json() as any;
+        if (d.translation && d.translation !== text) return d.translation;
+      } catch {}
+    }
+    return text;
+  }
+
   app.post("/api/translate", async (req, res) => {
     try {
       const { segments, from = "auto", to } = req.body as { segments: string[]; from?: string; to: string };
@@ -1242,35 +1262,9 @@ ${novelEntries}
         return res.status(400).json({ error: "Invalid request" });
       }
 
-      function chunkText(text: string, maxLen = 450): string[] {
-        if (text.length <= maxLen) return [text];
-        const chunks: string[] = [];
-        let remaining = text;
-        while (remaining.length > 0) {
-          if (remaining.length <= maxLen) { chunks.push(remaining); break; }
-          let cut = remaining.lastIndexOf(". ", maxLen);
-          if (cut === -1) cut = remaining.lastIndexOf(" ", maxLen);
-          if (cut === -1) cut = maxLen;
-          else cut += 1;
-          chunks.push(remaining.slice(0, cut).trim());
-          remaining = remaining.slice(cut).trim();
-        }
-        return chunks;
-      }
-
-      const translated: string[] = [];
-      for (const segment of segments) {
-        if (!segment.trim()) { translated.push(segment); continue; }
-        const chunks = chunkText(segment);
-        const parts: string[] = [];
-        for (const chunk of chunks) {
-          const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${from}|${to}`;
-          const r = await fetch(url);
-          const d = await r.json() as any;
-          parts.push(d.responseStatus === 200 ? d.responseData.translatedText : chunk);
-        }
-        translated.push(parts.join(" "));
-      }
+      const translated: string[] = await Promise.all(
+        segments.map(seg => seg.trim() ? lingvaTranslate(seg.trim(), from, to) : Promise.resolve(seg))
+      );
 
       res.json({ segments: translated });
     } catch (err) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRoute } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -93,11 +93,9 @@ export default function BlogPost() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleTranslate = useCallback(async (langCode: string) => {
+  const handleTranslate = async (langCode: string) => {
     if (!post) return;
     setShowTranslate(false);
-
-    if (currentLangCode === langCode && translatedContent) return;
 
     if (translationCache.current[langCode]) {
       setTranslatedContent(translationCache.current[langCode]);
@@ -108,20 +106,23 @@ export default function BlogPost() {
     setIsTranslating(true);
     try {
       const sourceHtml = renderRichContent(post.content);
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(`<div>${sourceHtml}</div>`, "text/html");
-      const container = doc.body.firstChild as HTMLElement;
+
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = sourceHtml;
 
       const blocks = Array.from(
-        container.querySelectorAll("p, h1, h2, h3, h4, h5, h6, li, figcaption")
+        tempDiv.querySelectorAll("p, h1, h2, h3, h4, h5, h6, li, figcaption, blockquote > p")
       );
       const blocksWithText = blocks.filter(el => (el.textContent?.trim() ?? "").length > 0);
       const segments = blocksWithText.map(el => el.textContent!.trim());
 
-      const res = await apiRequest("POST", "/api/translate", {
-        segments,
-        from: "auto",
-        to: langCode,
+      if (segments.length === 0) return;
+
+      const res = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ segments, from: "auto", to: langCode }),
       });
       const data = await res.json();
 
@@ -131,16 +132,16 @@ export default function BlogPost() {
         }
       });
 
-      const result = container.innerHTML;
+      const result = tempDiv.innerHTML;
       translationCache.current[langCode] = result;
       setTranslatedContent(result);
       setCurrentLangCode(langCode);
     } catch (err) {
-      console.error("Translation failed", err);
+      console.error("Translation failed:", err);
     } finally {
       setIsTranslating(false);
     }
-  }, [post, currentLangCode, translatedContent]);
+  };
 
   const handleShowOriginal = () => {
     setTranslatedContent(null);
