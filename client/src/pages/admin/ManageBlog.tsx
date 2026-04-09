@@ -36,6 +36,7 @@ export default function ManageBlog() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [uploading, setUploading] = useState(false);
+  const [slugTouched, setSlugTouched] = useState(false);
 
   const isSaving = isCreating || isUpdating;
 
@@ -61,6 +62,7 @@ export default function ManageBlog() {
   const openCreate = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setSlugTouched(false);
     setView("editor");
   };
 
@@ -75,6 +77,7 @@ export default function ManageBlog() {
       tags: (post.tags ?? []).join(", "),
       published: post.published,
     });
+    setSlugTouched(true);
     setView("editor");
   };
 
@@ -82,17 +85,18 @@ export default function ManageBlog() {
     setView("list");
     setEditingId(null);
     setForm(emptyForm);
+    setSlugTouched(false);
   };
 
   useEffect(() => {
-    if (!editingId && form.title && !form.slug) {
+    if (!editingId && !slugTouched && form.title) {
       const generatedSlug = form.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)+/g, "");
       setForm(prev => ({ ...prev, slug: generatedSlug }));
     }
-  }, [form.title, form.slug, editingId]);
+  }, [form.title, editingId, slugTouched]);
 
   const parseTags = (raw: string) => raw.split(",").map(s => s.trim()).filter(Boolean);
 
@@ -231,7 +235,10 @@ export default function ManageBlog() {
               </Label>
               <Input
                 value={form.slug}
-                onChange={e => setForm({ ...form, slug: e.target.value })}
+                onChange={e => {
+                  setSlugTouched(true);
+                  setForm({ ...form, slug: e.target.value });
+                }}
                 placeholder="url-artikel-kamu"
                 data-testid="input-blog-slug"
                 className="font-mono text-sm"

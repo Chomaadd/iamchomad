@@ -220,7 +220,7 @@ export default function BlogPost() {
       />
       <Navbar />
 
-      <main className="max-w-[720px] mx-auto px-6 lg:px-8 py-10 lg:py-14">
+      <main className="max-w-5xl mx-auto px-6 lg:px-8 py-10 lg:py-14">
 
         {/* Back link */}
         <Link
@@ -231,18 +231,19 @@ export default function BlogPost() {
           <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" /> {t("blogpost.back")}
         </Link>
 
-        {/* Cover Image */}
+        {/* Cover Image — full container width */}
         {post.imageUrl && (
           <div className="mb-10 rounded-2xl overflow-hidden bg-muted soft-shadow-lg aspect-video">
             <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
           </div>
         )}
 
-        {/* ── Article ── */}
+        {/* ── Article — constrained to 720px for readability ── */}
         <motion.article
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
+          className="max-w-[720px] mx-auto"
         >
           {/* Header */}
           <header className="mb-10">
