@@ -13,25 +13,47 @@ import { useLanguage } from "@/hooks/use-language";
 
 const BASE_URL = window.location.origin;
 
+type ExpiryUnit = "permanent" | "seconds" | "minutes" | "hours" | "days" | "months";
+
+const UNIT_MS: Record<Exclude<ExpiryUnit, "permanent">, number> = {
+  seconds: 1_000,
+  minutes: 60_000,
+  hours: 3_600_000,
+  days: 86_400_000,
+  months: 30 * 86_400_000,
+};
+
+function computeExpiryMs(unit: ExpiryUnit, amount: number): number | null {
+  if (unit === "permanent") return null;
+  return amount * UNIT_MS[unit];
+}
+
 function generateSlug() {
   return Math.random().toString(36).slice(2, 9);
 }
 
-function formatExpiry(expiresAt: Date | string | null | undefined): {
-  label: string;
-  isExpired: boolean;
-  isNearExpiry: boolean;
-} {
-  if (!expiresAt) return { label: "Permanent", isExpired: false, isNearExpiry: false };
+function formatExpiry(
+  expiresAt: Date | string | null | undefined,
+  lang: string = "id",
+): { label: string; isExpired: boolean; isNearExpiry: boolean } {
+  if (!expiresAt) return { label: lang === "id" ? "Permanent" : "Permanent", isExpired: false, isNearExpiry: false };
   const exp = new Date(expiresAt);
   const now = new Date();
   const diffMs = exp.getTime() - now.getTime();
-  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffMs < 0) return { label: "Expired", isExpired: true, isNearExpiry: false };
-  if (diffDays <= 2) return { label: `${diffDays}h lagi`, isExpired: false, isNearExpiry: true };
+  if (diffMs < 0) return { label: lang === "id" ? "Expired" : "Expired", isExpired: true, isNearExpiry: false };
+
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHrs = Math.floor(diffMin / 60);
+  const diffDays = Math.ceil(diffMs / 86_400_000);
+
+  if (diffSec < 60) return { label: `${diffSec}${lang === "id" ? "d" : "s"}`, isExpired: false, isNearExpiry: true };
+  if (diffMin < 60) return { label: `${diffMin}m`, isExpired: false, isNearExpiry: diffMin < 10 };
+  if (diffHrs < 24) return { label: `${diffHrs}${lang === "id" ? "j" : "h"}`, isExpired: false, isNearExpiry: diffHrs <= 2 };
+  if (diffDays <= 3) return { label: lang === "id" ? `${diffDays} hari lagi` : `${diffDays} days left`, isExpired: false, isNearExpiry: true };
   return {
-    label: exp.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
+    label: exp.toLocaleDateString(lang === "id" ? "id-ID" : "en-US", { day: "numeric", month: "short", year: "numeric" }),
     isExpired: false,
     isNearExpiry: false,
   };
@@ -39,21 +61,38 @@ function formatExpiry(expiresAt: Date | string | null | undefined): {
 
 export default function ManageShortUrls() {
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isID = language === "id";
+
   const [targetUrl, setTargetUrl] = useState("");
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState(generateSlug());
   const [isCustomSlug, setIsCustomSlug] = useState(false);
-  const [expiryDays, setExpiryDays] = useState("permanent");
+  const [expiryUnit, setExpiryUnit] = useState<ExpiryUnit>("permanent");
+  const [expiryAmount, setExpiryAmount] = useState(7);
 
-  const EXPIRY_OPTIONS = [
-    { value: "permanent", label: "Permanent ♾️", days: null },
-    { value: "1",  label: "1 " + t("admin.shorturls.form.expiry").slice(0,4),  days: 1 },
-    { value: "3",  label: "3 " + t("admin.shorturls.form.expiry").slice(0,4),  days: 3 },
-    { value: "7",  label: "7 " + t("admin.shorturls.form.expiry").slice(0,4),  days: 7 },
-    { value: "14", label: "14 " + t("admin.shorturls.form.expiry").slice(0,4), days: 14 },
-    { value: "30", label: "1 " + (t("admin.shorturls.form.expiry") === "Masa Berlaku" ? "Bulan" : "Month"), days: 30 },
-  ];
+  const UNIT_LABELS: Record<ExpiryUnit, string> = {
+    permanent: isID ? "Permanent ♾️" : "Permanent ♾️",
+    seconds: isID ? "Detik" : "Seconds",
+    minutes: isID ? "Menit" : "Minutes",
+    hours: isID ? "Jam" : "Hours",
+    days: isID ? "Hari" : "Days",
+    months: isID ? "Bulan" : "Months",
+  };
+
+  const expiryMs = computeExpiryMs(expiryUnit, expiryAmount);
+
+  function expiryPreviewLabel(): string {
+    if (expiryUnit === "permanent") return t("admin.shorturls.form.permanent");
+    const amount = expiryAmount;
+    switch (expiryUnit) {
+      case "seconds": return `${amount} ${UNIT_LABELS.seconds}`;
+      case "minutes": return `${amount} ${UNIT_LABELS.minutes}`;
+      case "hours": return `${amount} ${UNIT_LABELS.hours}`;
+      case "days": return `${amount} ${UNIT_LABELS.days}`;
+      case "months": return `${amount} ${UNIT_LABELS.months}`;
+    }
+  }
 
   const { data: urls = [], isLoading } = useQuery<ShortUrl[]>({
     queryKey: ["/api/short-urls"],
@@ -65,7 +104,7 @@ export default function ManageShortUrls() {
         targetUrl,
         title: title || undefined,
         slug,
-        expiryDays,
+        expiryMs: expiryMs ?? 0,
       }).then(r => r.json()),
     onSuccess: (created: ShortUrl) => {
       queryClient.invalidateQueries({ queryKey: ["/api/short-urls"] });
@@ -74,7 +113,8 @@ export default function ManageShortUrls() {
       setTitle("");
       setSlug(generateSlug());
       setIsCustomSlug(false);
-      setExpiryDays("permanent");
+      setExpiryUnit("permanent");
+      setExpiryAmount(7);
       toast({ title: "Short URL dibuat!", description: `${BASE_URL}/${savedSlug}` });
     },
     onError: (err: any) => {
@@ -137,24 +177,40 @@ export default function ManageShortUrls() {
               <Input
                 id="title"
                 data-testid="input-short-url-title"
-                placeholder="Contoh: Link Portfolio"
+                placeholder={isID ? "Contoh: Link Portfolio" : "Example: Portfolio Link"}
                 value={title}
                 onChange={e => setTitle(e.target.value)}
               />
             </div>
 
+            {/* Expiry: unit select + amount input */}
             <div className="space-y-2">
               <Label>{t("admin.shorturls.form.expiry")}</Label>
-              <Select value={expiryDays} onValueChange={setExpiryDays}>
-                <SelectTrigger data-testid="select-expiry">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {EXPIRY_OPTIONS.map(opt => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                {expiryUnit !== "permanent" && (
+                  <Input
+                    data-testid="input-expiry-amount"
+                    type="number"
+                    min={1}
+                    value={expiryAmount}
+                    onChange={e => setExpiryAmount(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="w-20 shrink-0"
+                  />
+                )}
+                <Select
+                  value={expiryUnit}
+                  onValueChange={v => setExpiryUnit(v as ExpiryUnit)}
+                >
+                  <SelectTrigger data-testid="select-expiry-unit" className="flex-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(Object.keys(UNIT_LABELS) as ExpiryUnit[]).map(u => (
+                      <SelectItem key={u} value={u}>{UNIT_LABELS[u]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
@@ -209,9 +265,9 @@ export default function ManageShortUrls() {
                 <span className="truncate">{targetUrl}</span>
               </div>
               <div className="flex items-center gap-1 text-muted-foreground text-xs">
-                {expiryDays === "permanent"
+                {expiryUnit === "permanent"
                   ? <><Infinity className="w-3 h-3" /> {t("admin.shorturls.form.permanent")}</>
-                  : <><Clock className="w-3 h-3" /> {t("admin.shorturls.form.activeFor")} {EXPIRY_OPTIONS.find(o => o.value === expiryDays)?.label}</>
+                  : <><Clock className="w-3 h-3" /> {t("admin.shorturls.form.activeFor")} {expiryPreviewLabel()}</>
                 }
               </div>
             </div>
@@ -241,6 +297,7 @@ export default function ManageShortUrls() {
               title={t("admin.shorturls.section.active")}
               emptyLabel={t("admin.shorturls.empty")}
               urls={activeUrls}
+              language={language}
               onCopy={copyToClipboard}
               onDelete={id => deleteMutation.mutate(id)}
               isDeleting={deleteMutation.isPending}
@@ -250,6 +307,7 @@ export default function ManageShortUrls() {
                 title={t("admin.shorturls.section.expired")}
                 emptyLabel={t("admin.shorturls.empty")}
                 urls={expiredUrls}
+                language={language}
                 onCopy={copyToClipboard}
                 onDelete={id => deleteMutation.mutate(id)}
                 isDeleting={deleteMutation.isPending}
@@ -264,11 +322,12 @@ export default function ManageShortUrls() {
 }
 
 function UrlSection({
-  title, emptyLabel, urls, onCopy, onDelete, isDeleting, expired = false,
+  title, emptyLabel, urls, language, onCopy, onDelete, isDeleting, expired = false,
 }: {
   title: string;
   emptyLabel: string;
   urls: ShortUrl[];
+  language: string;
   onCopy: (text: string) => void;
   onDelete: (id: string) => void;
   isDeleting: boolean;
@@ -292,7 +351,7 @@ function UrlSection({
         <div className="space-y-3">
           {urls.map(url => {
             const shortLink = `${BASE_URL}/${url.slug}`;
-            const expiry = formatExpiry(url.expiresAt);
+            const expiry = formatExpiry(url.expiresAt, language);
             return (
               <div
                 key={url.id}
@@ -325,12 +384,7 @@ function UrlSection({
                       ? "bg-orange-500/10 text-orange-500"
                       : "bg-muted/60 text-muted-foreground"
                   }`}>
-                    {expiry.isExpired || expiry.isNearExpiry
-                      ? <Clock className="w-3 h-3" />
-                      : url.expiresAt
-                      ? <Clock className="w-3 h-3" />
-                      : <Infinity className="w-3 h-3" />
-                    }
+                    {url.expiresAt ? <Clock className="w-3 h-3" /> : <Infinity className="w-3 h-3" />}
                     <span data-testid={`text-expiry-${url.id}`}>{expiry.label}</span>
                   </div>
 

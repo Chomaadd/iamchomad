@@ -33,6 +33,7 @@ import NovelRead from "./pages/public/NovelRead";
 import ManageNovel from "./pages/admin/ManageNovel";
 import AdminSettings from "./pages/admin/Settings";
 import ManageShortUrls from "./pages/admin/ManageShortUrls";
+import LinkExpired from "./pages/public/LinkExpired";
 
 // Base Fallback
 import NotFound from "@/pages/public/Not-Found";
@@ -59,6 +60,7 @@ function Router() {
       <Route path="/novel" component={Novel} />
       <Route path="/novel/:slug/:seasonSlug/:chapterSlug" component={NovelRead} />
       <Route path="/novel/:slug" component={NovelDetail} />
+      <Route path="/link-expired" component={LinkExpired} />
 
       {/* Admin Routes */}
       <Route path="/login" component={Login} />

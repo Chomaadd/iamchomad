@@ -1286,7 +1286,7 @@ ${novelEntries}
 
   app.post("/api/short-urls", requireAuth, async (req, res) => {
     try {
-      const { targetUrl, title, slug, expiryDays } = req.body;
+      const { targetUrl, title, slug, expiryMs } = req.body;
       if (!targetUrl)
         return res.status(400).json({ message: "targetUrl required" });
       const finalSlug = slug || Math.random().toString(36).slice(2, 9);
@@ -1294,10 +1294,8 @@ ${novelEntries}
       if (existing)
         return res.status(409).json({ message: "Slug already taken" });
       let expiresAt: Date | null = null;
-      if (expiryDays && expiryDays !== "permanent") {
-        expiresAt = new Date(
-          Date.now() + Number(expiryDays) * 24 * 60 * 60 * 1000,
-        );
+      if (expiryMs && expiryMs !== "permanent" && Number(expiryMs) > 0) {
+        expiresAt = new Date(Date.now() + Number(expiryMs));
       }
       const url = await storage.createShortUrl({
         targetUrl,
@@ -1330,181 +1328,7 @@ ${novelEntries}
       const shortUrl = await storage.getShortUrlBySlug(slug);
       if (!shortUrl) return next();
       if (shortUrl.expiresAt && new Date(shortUrl.expiresAt) < new Date()) {
-        const acceptLang = req.headers["accept-language"] || "";
-        const isID = /^id\b/i.test(acceptLang);
-        const text = isID
-          ? {
-              title: "Tautan Kedaluwarsa",
-              badge: "Kedaluwarsa",
-              heading: "Tautan Ini Sudah Tidak Aktif",
-              desc: "Tautan pendek ini telah melewati masa berlakunya dan tidak dapat lagi digunakan.",
-              btn: "Kembali ke Beranda",
-              footer: "Tautan pendek oleh",
-            }
-          : {
-              title: "Link Expired",
-              badge: "Expired",
-              heading: "This Link Has Expired",
-              desc: "This short URL has passed its expiry date and is no longer available.",
-              btn: "Back to Home",
-              footer: "Short URL by",
-            };
-        const expiredHtml = `<!DOCTYPE html>
-<html lang="${isID ? "id" : "en"}">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${text.title} — iamchomad.my.id</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #f8f8f7;
-      color: #0f0f0f;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      -webkit-font-smoothing: antialiased;
-    }
-    .wrap {
-      width: 100%;
-      max-width: 420px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 32px;
-    }
-    .logo {
-      width: 52px;
-      height: 52px;
-      object-fit: contain;
-    }
-    .card {
-      background: #ffffff;
-      border: 1px solid #e8e8e6;
-      border-radius: 20px;
-      padding: 40px 36px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
-    }
-    .icon-wrap {
-      display: none;
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-    .badge {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #dc2626;
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      padding: 3px 10px;
-      border-radius: 999px;
-      margin-bottom: 16px;
-    }
-    h1 {
-      font-size: 20px;
-      font-weight: 700;
-      color: #0f0f0f;
-      letter-spacing: -0.03em;
-      line-height: 1.3;
-      margin-bottom: 10px;
-    }
-    p {
-      font-size: 13.5px;
-      color: #888;
-      line-height: 1.65;
-      margin-bottom: 28px;
-    }
-    .divider {
-      height: 1px;
-      background: #f0f0ee;
-      margin: 0 -36px 28px;
-    }
-    .slug-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      margin-bottom: 24px;
-    }
-    .slug-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #d1d5db;
-      flex-shrink: 0;
-    }
-    .slug {
-      font-family: 'Courier New', monospace;
-      font-size: 12.5px;
-      color: #6b7280;
-      background: #f9f9f8;
-      border: 1px solid #e8e8e6;
-      padding: 6px 14px;
-      border-radius: 8px;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      background: #0f0f0f;
-      color: #ffffff;
-      font-weight: 600;
-      font-size: 13.5px;
-      padding: 11px 28px;
-      border-radius: 10px;
-      text-decoration: none;
-      transition: background 0.15s, transform 0.1s;
-      width: 100%;
-      letter-spacing: -0.01em;
-    }
-    .btn:hover { background: #1a1a1a; transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); }
-    .footer {
-      font-size: 12px;
-      color: #bbb;
-    }
-    .footer a {
-      color: #999;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .footer a:hover { color: #555; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <img class="logo" src="/favicon-black.ico" alt="Logo">
-    <div class="card">
-      <div class="badge">${text.badge}</div>
-      <h1>${text.heading}</h1>
-      <p>${text.desc}</p>
-      <div class="divider"></div>
-      <div class="slug-row">
-        <div class="slug-dot"></div>
-        <div class="slug">iamchomad.my.id/${shortUrl.slug}</div>
-        <div class="slug-dot"></div>
-      </div>
-      <a href="https://iamchomad.my.id" class="btn">
-        ← ${text.btn}
-      </a>
-    </div>
-    <div class="footer">${text.footer} <a href="https://iamchomad.my.id">iamchomad.my.id</a></div>
-  </div>
-</body>
-</html>`;
-        return res.status(410).send(expiredHtml);
+        return res.redirect(302, "/link-expired");
       }
       await storage.incrementShortUrlClicks(shortUrl.id);
       return res.redirect(302, shortUrl.targetUrl);
