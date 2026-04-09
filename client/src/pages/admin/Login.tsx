@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
@@ -11,6 +12,12 @@ export default function Login() {
   const { t } = useLanguage();
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+
+  const { data: settings } = useQuery<{ adminAvatarUrl?: string }>({
+    queryKey: ["/api/settings"],
+  });
+
+  const avatarUrl = settings?.adminAvatarUrl || "/image/hellomaddy.jpg";
 
   if (user) return <Redirect to="/admin" />;
 
@@ -27,43 +34,57 @@ export default function Login() {
   return (
     <div className="min-h-screen flex bg-background">
 
-      {/* ── Left branding panel ── */}
-      <div
-        className="hidden lg:flex flex-col justify-between w-[42%] shrink-0 relative overflow-hidden"
-        style={{ background: "linear-gradient(145deg, hsl(222 47% 6%) 0%, hsl(234 40% 12%) 100%)" }}
-      >
-        <div className="absolute inset-0 opacity-[0.04]"
-          style={{ backgroundImage: "radial-gradient(circle at 60% 40%, hsl(234 89% 67%) 0%, transparent 60%)" }}
-        />
-        <div className="absolute bottom-0 left-0 right-0 h-px opacity-10"
-          style={{ background: "linear-gradient(90deg, transparent, hsl(234 89% 67%), transparent)" }}
+      {/* ── Left photo panel ── */}
+      <div className="hidden lg:flex flex-col justify-between w-[42%] shrink-0 relative overflow-hidden">
+
+        {/* Background photo */}
+        <img
+          src={avatarUrl}
+          alt="Choiril Ahmad"
+          className="absolute inset-0 w-full h-full object-cover object-top"
         />
 
+        {/* Gradient overlay — dark at top + heavier at bottom */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(8,10,20,0.55) 0%, rgba(8,10,20,0.15) 25%, rgba(8,10,20,0.65) 65%, rgba(8,10,20,0.97) 100%)",
+          }}
+        />
+
+        {/* Top: Wordmark */}
         <div className="relative p-12 pt-14">
           <div className="flex items-center gap-3">
             <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white"
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white shadow-lg"
               style={{ background: "hsl(234 89% 64%)" }}
             >
               CA
             </div>
-            <span className="text-white/60 text-sm tracking-widest uppercase font-medium">Admin Console</span>
+            <span className="text-white/70 text-sm tracking-widest uppercase font-medium">Admin Console</span>
           </div>
         </div>
 
+        {/* Bottom: Name + tagline */}
         <div className="relative px-12 pb-16">
-          <div className="mb-6">
+          <div className="mb-7">
             <div
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-6"
-              style={{ background: "rgba(99,102,241,0.15)", color: "hsl(234 89% 75%)", border: "1px solid rgba(99,102,241,0.25)" }}
+              style={{
+                background: "rgba(99,102,241,0.18)",
+                color: "hsl(234 89% 78%)",
+                border: "1px solid rgba(99,102,241,0.28)",
+                backdropFilter: "blur(8px)",
+              }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
               {t("admin.login.secure")}
             </div>
-            <h1 className="font-serif text-4xl xl:text-5xl font-bold text-white leading-tight mb-4">
+            <h1 className="font-serif text-4xl xl:text-5xl font-bold text-white leading-tight mb-4 drop-shadow-xl">
               Choiril<br />Ahmad
             </h1>
-            <p className="text-white/40 text-sm leading-relaxed max-w-xs">
+            <p className="text-white/50 text-sm leading-relaxed max-w-xs">
               {t("admin.login.tagline")}
             </p>
           </div>
@@ -72,14 +93,15 @@ export default function Login() {
             {["Blog & Stories", "Resume & CV", "Music & Brand"].map((item) => (
               <div key={item} className="flex items-center gap-3">
                 <div className="w-1 h-1 rounded-full" style={{ background: "hsl(234 89% 64%)" }} />
-                <span className="text-white/30 text-xs">{item}</span>
+                <span className="text-white/35 text-xs">{item}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="relative p-12 pb-10">
-          <p className="text-white/15 text-[10px] tracking-widest uppercase">iamchomad.my.id</p>
+        {/* Footer */}
+        <div className="relative px-12 pb-10">
+          <p className="text-white/20 text-[10px] tracking-widest uppercase">iamchomad.my.id</p>
         </div>
       </div>
 
