@@ -50,7 +50,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               {siteSettings?.adminAvatarUrl ? (
                 <img src={siteSettings.adminAvatarUrl} alt={user.name} className="w-full h-full object-cover" />
               ) : (
-                user.name.charAt(0)
+                <img src="/favicon-white.ico" alt="Logo" className="w-7 h-7 object-contain" />
               )}
             </div>
             <div className="min-w-0">

@@ -56,12 +56,7 @@ export default function Login() {
         {/* Top: Wordmark */}
         <div className="relative p-12 pt-14">
           <div className="flex items-center gap-3">
-            <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white shadow-lg"
-              style={{ background: "hsl(234 89% 64%)" }}
-            >
-              CA
-            </div>
+            <img src="/favicon-white.ico" alt="Logo" className="w-9 h-9 object-contain drop-shadow-lg" />
             <span className="text-white/70 text-sm tracking-widest uppercase font-medium">Admin Console</span>
           </div>
         </div>
@@ -111,12 +106,8 @@ export default function Login() {
 
           {/* Mobile brand mark */}
           <div className="lg:hidden flex items-center gap-2.5 mb-10">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white"
-              style={{ background: "hsl(234 89% 64%)" }}
-            >
-              CA
-            </div>
+            <img src="/favicon-black.ico" alt="Logo" className="w-8 h-8 object-contain block dark:hidden" />
+            <img src="/favicon-white.ico" alt="Logo" className="w-8 h-8 object-contain hidden dark:block" />
             <span className="text-muted-foreground text-xs tracking-widest uppercase">Admin Console</span>
           </div>
 
