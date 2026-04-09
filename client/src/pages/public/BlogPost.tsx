@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRoute } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { usePost } from "@/hooks/use-blog";
 import { useLanguage } from "@/hooks/use-language";
-import { Loader2, ArrowLeft, Clock, Calendar, Share2, Link2, Check, Eye, ThumbsUp, Heart, List, Globe, ChevronDown, X, RotateCcw } from "lucide-react";
+import { Loader2, ArrowLeft, Clock, Calendar, Share2, Link2, Check, Eye, ThumbsUp, Heart, Globe, ChevronDown, RotateCcw } from "lucide-react";
 import { SiWhatsapp, SiX } from "react-icons/si";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,10 +17,6 @@ function estimateReadTime(content: string): number {
   const text = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const words = text.split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 200));
-}
-
-function slugify(text: string): string {
-  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
 const TRANSLATE_LANGS = [
@@ -46,7 +42,6 @@ export default function BlogPost() {
   const [liveViewCount, setLiveViewCount] = useState<number | null>(null);
   const [liveReactions, setLiveReactions] = useState<{ thumbsUp: number; heart: number } | null>(null);
   const [userReacted, setUserReacted] = useState<{ thumbsUp: boolean; heart: boolean }>({ thumbsUp: false, heart: false });
-  const [activeHeading, setActiveHeading] = useState<string>("");
 
   const [showTranslate, setShowTranslate] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
@@ -166,48 +161,6 @@ export default function BlogPost() {
     setCurrentLangCode(null);
   };
 
-  const headings = useMemo(() => {
-    if (!post) return [];
-    const html = renderRichContent(post.content);
-    const div = document.createElement("div");
-    div.innerHTML = html;
-    return Array.from(div.querySelectorAll("h1, h2, h3, h4"))
-      .map(el => ({
-        text: el.textContent?.trim() ?? "",
-        id: slugify(el.textContent?.trim() ?? ""),
-        level: parseInt(el.tagName[1]),
-      }))
-      .filter(h => h.text.length > 0);
-  }, [post]);
-
-  useEffect(() => {
-    if (!headings.length) return;
-
-    const articleEl = document.querySelector(".article-content");
-    if (!articleEl) return;
-    const renderedHeadings = articleEl.querySelectorAll("h1, h2, h3, h4");
-    renderedHeadings.forEach((el, i) => {
-      if (headings[i]) el.id = headings[i].id;
-    });
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveHeading(entry.target.id);
-            break;
-          }
-        }
-      },
-      { rootMargin: "-10% 0% -80% 0%", threshold: 0 }
-    );
-    headings.forEach((h) => {
-      const el = document.getElementById(h.id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, [headings, translatedContent]);
-
   const pageUrl = `https://iamchomad.my.id/blog/${slug}`;
 
   const handleCopy = async () => {
@@ -224,7 +177,6 @@ export default function BlogPost() {
     window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(post?.title ?? "")}&url=${encodeURIComponent(pageUrl)}`, "_blank", "noopener");
   };
 
-  const hasToc = headings.length > 1;
   const currentLangLabel = TRANSLATE_LANGS.find(l => l.code === currentLangCode)?.label ?? null;
 
   if (isLoading) return (
@@ -268,7 +220,7 @@ export default function BlogPost() {
       />
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-6 lg:px-8 py-10 lg:py-14">
+      <main className="max-w-[720px] mx-auto px-6 lg:px-8 py-10 lg:py-14">
 
         {/* Back link */}
         <Link
@@ -286,285 +238,223 @@ export default function BlogPost() {
           </div>
         )}
 
-        {/* Main layout */}
-        <div className={hasToc ? "lg:grid lg:grid-cols-[1fr_210px] lg:gap-14 lg:items-start" : ""}>
+        {/* ── Article ── */}
+        <motion.article
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Header */}
+          <header className="mb-10">
+            {/* Tags */}
+            {(post.tags ?? []).length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-5">
+                {(post.tags ?? []).map((tag: string) => (
+                  <span key={tag} className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
 
-          {/* ── Article ── */}
-          <motion.article
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className={!hasToc ? "max-w-[720px] mx-auto" : ""}
-          >
+            {/* Title */}
+            <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-5" data-testid="text-post-title">
+              {translatedTitle ?? post.title}
+            </h1>
 
-            {/* Header */}
-            <header className="mb-10">
-              {/* Tags */}
-              {(post.tags ?? []).length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-5">
-                  {(post.tags ?? []).map((tag: string) => (
-                    <span key={tag} className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-                      {tag}
-                    </span>
-                  ))}
+            {/* Excerpt */}
+            {post.excerpt && (
+              <p className="text-lg text-muted-foreground leading-relaxed mb-6 border-l-4 border-primary/40 pl-4">
+                {translatedExcerpt || post.excerpt}
+              </p>
+            )}
+
+            {/* Meta row */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground">
+                <Calendar size={12} />
+                {new Date(post.createdAt || Date.now()).toLocaleDateString(dateLocale, { month: "long", day: "numeric", year: "numeric" })}
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground">
+                <Clock size={12} />
+                {readTime} {t("blogpost.minRead")}
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground" data-testid="text-view-count">
+                <Eye size={12} />
+                {viewCount.toLocaleString()} views
+              </span>
+
+              {/* Translate control */}
+              {currentLangCode ? (
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
+                    <Globe size={12} />
+                    {currentLangLabel}
+                  </span>
+                  <button
+                    onClick={handleShowOriginal}
+                    data-testid="button-show-original"
+                    title="Show original"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-border transition-colors"
+                  >
+                    <RotateCcw size={11} /> Original
+                  </button>
+                </div>
+              ) : (
+                <div className="relative" ref={translateRef}>
+                  <button
+                    onClick={() => setShowTranslate(v => !v)}
+                    data-testid="button-translate"
+                    disabled={isTranslating}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors disabled:opacity-50"
+                  >
+                    {isTranslating ? (
+                      <Loader2 size={12} className="animate-spin" />
+                    ) : (
+                      <Globe size={12} />
+                    )}
+                    {isTranslating ? (language === "id" ? "Menerjemahkan…" : "Translating…") : t("blogpost.translate")}
+                    {!isTranslating && <ChevronDown size={10} className={`transition-transform ${showTranslate ? "rotate-180" : ""}`} />}
+                  </button>
+
+                  <AnimatePresence>
+                    {showTranslate && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute top-full left-0 mt-2 z-50 bg-card border border-border rounded-2xl shadow-lg py-2 min-w-[186px]"
+                      >
+                        <p className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                          {t("blogpost.translateTo")}
+                        </p>
+                        {TRANSLATE_LANGS.map(lang => (
+                          <button
+                            key={lang.code}
+                            onClick={() => handleTranslate(lang.code)}
+                            className="w-full text-left px-4 py-2 text-xs hover:bg-accent transition-colors text-foreground flex items-center justify-between group"
+                          >
+                            <span>{lang.label}</span>
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               )}
+            </div>
 
-              {/* Title */}
-              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-5" data-testid="text-post-title">
-                {translatedTitle ?? post.title}
-              </h1>
+            {/* Divider */}
+            <div className="mt-8 h-px bg-gradient-to-r from-border via-border/50 to-transparent" />
+          </header>
 
-              {/* Excerpt */}
-              {post.excerpt && (
-                <p className="text-lg text-muted-foreground leading-relaxed mb-6 border-l-4 border-primary/40 pl-4">
-                  {translatedExcerpt || post.excerpt}
-                </p>
-              )}
+          {/* ── Article Body ── */}
+          <div className="relative">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentLangCode ?? "original"}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="prose prose-lg dark:prose-invert prose-p:leading-[1.85] prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-blockquote:border-primary/50 prose-blockquote:bg-primary/5 prose-blockquote:rounded-r-xl prose-blockquote:py-1 max-w-none article-content"
+                dangerouslySetInnerHTML={{ __html: displayHtml }}
+              />
+            </AnimatePresence>
 
-              {/* Meta row */}
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground">
-                  <Calendar size={12} />
-                  {new Date(post.createdAt || Date.now()).toLocaleDateString(dateLocale, { month: "long", day: "numeric", year: "numeric" })}
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground">
-                  <Clock size={12} />
-                  {readTime} {t("blogpost.minRead")}
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground" data-testid="text-view-count">
-                  <Eye size={12} />
-                  {viewCount.toLocaleString()} views
-                </span>
-
-                {/* Translate control */}
-                {currentLangCode ? (
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
-                      <Globe size={12} />
-                      {currentLangLabel}
-                    </span>
-                    <button
-                      onClick={handleShowOriginal}
-                      data-testid="button-show-original"
-                      title="Show original"
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-border transition-colors"
-                    >
-                      <RotateCcw size={11} /> Original
-                    </button>
-                  </div>
-                ) : (
-                  <div className="relative" ref={translateRef}>
-                    <button
-                      onClick={() => setShowTranslate(v => !v)}
-                      data-testid="button-translate"
-                      disabled={isTranslating}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors disabled:opacity-50"
-                    >
-                      {isTranslating ? (
-                        <Loader2 size={12} className="animate-spin" />
-                      ) : (
-                        <Globe size={12} />
-                      )}
-                      {isTranslating ? (language === "id" ? "Menerjemahkan…" : "Translating…") : t("blogpost.translate")}
-                      {!isTranslating && <ChevronDown size={10} className={`transition-transform ${showTranslate ? "rotate-180" : ""}`} />}
-                    </button>
-
-                    <AnimatePresence>
-                      {showTranslate && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -6, scale: 0.97 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute top-full left-0 mt-2 z-50 bg-card border border-border rounded-2xl shadow-lg py-2 min-w-[186px]"
-                        >
-                          <p className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                            {t("blogpost.translateTo")}
-                          </p>
-                          {TRANSLATE_LANGS.map(lang => (
-                            <button
-                              key={lang.code}
-                              onClick={() => handleTranslate(lang.code)}
-                              className="w-full text-left px-4 py-2 text-xs hover:bg-accent transition-colors text-foreground flex items-center justify-between group"
-                            >
-                              <span>{lang.label}</span>
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                )}
-              </div>
-
-              {/* Divider */}
-              <div className="mt-8 h-px bg-gradient-to-r from-border via-border/50 to-transparent" />
-            </header>
-
-            {/* ── Article Body ── */}
-            <div className="relative">
-              <AnimatePresence mode="wait">
+            {/* Translating overlay */}
+            <AnimatePresence>
+              {isTranslating && (
                 <motion.div
-                  key={currentLangCode ?? "original"}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="prose prose-lg dark:prose-invert prose-p:leading-[1.85] prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-blockquote:border-primary/50 prose-blockquote:bg-primary/5 prose-blockquote:rounded-r-xl prose-blockquote:py-1 max-w-none article-content"
-                  dangerouslySetInnerHTML={{ __html: displayHtml }}
-                />
-              </AnimatePresence>
-
-              {/* Translating overlay */}
-              <AnimatePresence>
-                {isTranslating && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-background/70 backdrop-blur-[2px] rounded-xl flex flex-col items-center justify-center gap-3 z-10"
-                  >
-                    <Loader2 size={28} className="animate-spin text-primary" />
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {language === "id" ? "Sedang menerjemahkan…" : "Translating article…"}
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* ── Reactions ── */}
-            <div className="mt-14 pt-8 border-t border-border/50">
-              <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-5">
-                {t("blogpost.helpful")}
-              </p>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => !userReacted.thumbsUp && reactMutation.mutate("thumbsUp")}
-                  data-testid="button-react-thumbsup"
-                  disabled={userReacted.thumbsUp}
-                  className={`inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl border text-sm font-semibold transition-all duration-200 ${
-                    userReacted.thumbsUp
-                      ? "bg-primary/10 text-primary border-primary/30 cursor-default"
-                      : "border-border bg-card text-foreground hover:bg-primary/8 hover:border-primary/30 hover:text-primary active:scale-95"
-                  }`}
+                  className="absolute inset-0 bg-background/70 backdrop-blur-[2px] rounded-xl flex flex-col items-center justify-center gap-3 z-10"
                 >
-                  <ThumbsUp size={16} className={userReacted.thumbsUp ? "fill-primary text-primary" : ""} />
-                  <span>{currentReactions.thumbsUp ?? 0}</span>
-                </button>
-                <button
-                  onClick={() => !userReacted.heart && reactMutation.mutate("heart")}
-                  data-testid="button-react-heart"
-                  disabled={userReacted.heart}
-                  className={`inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl border text-sm font-semibold transition-all duration-200 ${
-                    userReacted.heart
-                      ? "bg-rose-50 text-rose-500 border-rose-200 cursor-default dark:bg-rose-500/10 dark:border-rose-500/30"
-                      : "border-border bg-card text-foreground hover:bg-rose-50 hover:border-rose-200 hover:text-rose-500 dark:hover:bg-rose-500/10 dark:hover:border-rose-500/30 active:scale-95"
-                  }`}
-                >
-                  <Heart size={16} className={userReacted.heart ? "fill-rose-500 text-rose-500" : ""} />
-                  <span>{currentReactions.heart ?? 0}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* ── Share ── */}
-            <div className="mt-8 pt-8 border-t border-border/50">
-              <p className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-4">
-                <Share2 size={12} /> {t("blogpost.share")}
-              </p>
-              <div className="flex flex-wrap gap-2 mb-8">
-                <button
-                  onClick={shareWhatsApp}
-                  data-testid="button-share-whatsapp"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-green-500 hover:text-white hover:border-green-500 transition-all"
-                >
-                  <SiWhatsapp size={14} /> WhatsApp
-                </button>
-                <button
-                  onClick={shareX}
-                  data-testid="button-share-x"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-black hover:text-white hover:border-black dark:hover:bg-white dark:hover:text-black transition-all"
-                >
-                  <SiX size={13} /> Share on X
-                </button>
-                <button
-                  onClick={handleCopy}
-                  data-testid="button-copy-link"
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
-                    copied
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "border-border bg-card hover:bg-accent"
-                  }`}
-                >
-                  {copied ? <Check size={14} /> : <Link2 size={14} />}
-                  {copied ? "Copied!" : "Copy Link"}
-                </button>
-              </div>
-
-              <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all group">
-                <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" /> {t("blogpost.more")}
-              </Link>
-            </div>
-          </motion.article>
-
-          {/* ── Table of Contents ── */}
-          {hasToc && (
-            <aside className="hidden lg:block" data-testid="toc-sidebar">
-              <div className="sticky top-24">
-                <div className="bg-card border border-border/60 rounded-2xl p-5 soft-shadow">
-                  <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4">
-                    <List size={12} /> On this page
+                  <Loader2 size={28} className="animate-spin text-primary" />
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {language === "id" ? "Sedang menerjemahkan…" : "Translating article…"}
                   </p>
-                  <nav className="space-y-0.5">
-                    {headings.map((h) => (
-                      <a
-                        key={h.id}
-                        href={`#${h.id}`}
-                        data-testid={`toc-link-${h.id}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          document.getElementById(h.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }}
-                        className={`block text-xs py-1.5 pl-3 border-l-2 rounded-r transition-all duration-150 ${
-                          h.level === 2 ? "ml-2" : ""
-                        } ${
-                          activeHeading === h.id
-                            ? "border-primary text-primary font-semibold bg-primary/5"
-                            : "border-transparent text-muted-foreground hover:text-foreground hover:border-border/60"
-                        }`}
-                      >
-                        {h.text}
-                      </a>
-                    ))}
-                  </nav>
-                </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
-                {/* Mini meta card */}
-                <div className="mt-4 bg-card border border-border/60 rounded-2xl p-4 soft-shadow space-y-2.5">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Clock size={12} className="text-primary" />
-                    <span>{readTime} min read</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Eye size={12} className="text-primary" />
-                    <span>{viewCount.toLocaleString()} views</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <ThumbsUp size={12} className="text-primary" />
-                    <span>{currentReactions.thumbsUp ?? 0} likes</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Heart size={12} className="text-rose-400" />
-                    <span>{currentReactions.heart ?? 0} hearts</span>
-                  </div>
-                </div>
-              </div>
-            </aside>
-          )}
+          {/* ── Reactions ── */}
+          <div className="mt-14 pt-8 border-t border-border/50">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-5">
+              {t("blogpost.helpful")}
+            </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => !userReacted.thumbsUp && reactMutation.mutate("thumbsUp")}
+                data-testid="button-react-thumbsup"
+                disabled={userReacted.thumbsUp}
+                className={`inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl border text-sm font-semibold transition-all duration-200 ${
+                  userReacted.thumbsUp
+                    ? "bg-primary/10 text-primary border-primary/30 cursor-default"
+                    : "border-border bg-card text-foreground hover:bg-primary/8 hover:border-primary/30 hover:text-primary active:scale-95"
+                }`}
+              >
+                <ThumbsUp size={16} className={userReacted.thumbsUp ? "fill-primary text-primary" : ""} />
+                <span>{currentReactions.thumbsUp ?? 0}</span>
+              </button>
+              <button
+                onClick={() => !userReacted.heart && reactMutation.mutate("heart")}
+                data-testid="button-react-heart"
+                disabled={userReacted.heart}
+                className={`inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl border text-sm font-semibold transition-all duration-200 ${
+                  userReacted.heart
+                    ? "bg-rose-50 text-rose-500 border-rose-200 cursor-default dark:bg-rose-500/10 dark:border-rose-500/30"
+                    : "border-border bg-card text-foreground hover:bg-rose-50 hover:border-rose-200 hover:text-rose-500 dark:hover:bg-rose-500/10 dark:hover:border-rose-500/30 active:scale-95"
+                }`}
+              >
+                <Heart size={16} className={userReacted.heart ? "fill-rose-500 text-rose-500" : ""} />
+                <span>{currentReactions.heart ?? 0}</span>
+              </button>
+            </div>
+          </div>
 
-        </div>
+          {/* ── Share ── */}
+          <div className="mt-8 pt-8 border-t border-border/50">
+            <p className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-4">
+              <Share2 size={12} /> {t("blogpost.share")}
+            </p>
+            <div className="flex flex-wrap gap-2 mb-8">
+              <button
+                onClick={shareWhatsApp}
+                data-testid="button-share-whatsapp"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-green-500 hover:text-white hover:border-green-500 transition-all"
+              >
+                <SiWhatsapp size={14} /> WhatsApp
+              </button>
+              <button
+                onClick={shareX}
+                data-testid="button-share-x"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-black hover:text-white hover:border-black dark:hover:bg-white dark:hover:text-black transition-all"
+              >
+                <SiX size={13} /> Share on X
+              </button>
+              <button
+                onClick={handleCopy}
+                data-testid="button-copy-link"
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
+                  copied
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border bg-card hover:bg-accent"
+                }`}
+              >
+                {copied ? <Check size={14} /> : <Link2 size={14} />}
+                {copied ? "Copied!" : "Copy Link"}
+              </button>
+            </div>
+
+            <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all group">
+              <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" /> {t("blogpost.more")}
+            </Link>
+          </div>
+        </motion.article>
       </main>
 
       <Footer />
