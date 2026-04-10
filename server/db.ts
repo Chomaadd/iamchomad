@@ -30,6 +30,7 @@ import mongoose from 'mongoose';
     excerpt: { type: String, required: true },
     imageUrl: { type: String },
     published: { type: Boolean, default: false },
+    scheduledAt: { type: Date, default: null },
     tags: { type: [String], default: [] },
     viewCount: { type: Number, default: 0 },
     reactions: {

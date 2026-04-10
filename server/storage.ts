@@ -152,8 +152,12 @@ import mongoose from 'mongoose';
     }
 
     async getBlogPosts(published?: boolean): Promise<BlogPost[]> {
+      await BlogPostModel.updateMany(
+        { scheduledAt: { $ne: null, $lte: new Date() }, published: false },
+        { $set: { published: true, scheduledAt: null } }
+      );
       const query = published !== undefined ? { published } : {};
-      const posts = await BlogPostModel.find(query).sort({ createdAt: 1 });
+      const posts = await BlogPostModel.find(query).sort({ createdAt: -1 });
       return posts.map(p => mapId<BlogPost>(p));
     }
 
