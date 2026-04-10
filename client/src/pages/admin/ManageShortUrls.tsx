@@ -171,7 +171,7 @@ export default function ManageShortUrls() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="title">{t("admin.shorturls.form.label")}</Label>
               <Input
@@ -356,26 +356,63 @@ function UrlSection({
               <div
                 key={url.id}
                 data-testid={`card-short-url-${url.id}`}
-                className={`bg-card border rounded-2xl px-5 py-4 flex items-center gap-4 ${
+                className={`bg-card border rounded-2xl px-4 py-4 ${
                   expired ? "border-border/50 opacity-60" : "border-border"
                 }`}
               >
-                <div className="flex-1 min-w-0">
-                  {url.title && (
-                    <p className="font-medium text-sm truncate">{url.title}</p>
-                  )}
-                  <button
-                    type="button"
-                    className="font-mono text-primary text-sm hover:underline truncate max-w-full text-left"
-                    data-testid={`text-short-url-slug-${url.id}`}
-                    onClick={() => onCopy(shortLink)}
-                  >
-                    {shortLink}
-                  </button>
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">{url.targetUrl}</p>
+                {/* Top row: info + action buttons */}
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    {url.title && (
+                      <p className="font-medium text-sm truncate">{url.title}</p>
+                    )}
+                    <button
+                      type="button"
+                      className="font-mono text-primary text-sm hover:underline truncate max-w-full text-left"
+                      data-testid={`text-short-url-slug-${url.id}`}
+                      onClick={() => onCopy(shortLink)}
+                    >
+                      {shortLink}
+                    </button>
+                    <p className="text-xs text-muted-foreground truncate mt-0.5">{url.targetUrl}</p>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      data-testid={`button-copy-${url.id}`}
+                      onClick={() => onCopy(shortLink)}
+                      title="Copy link"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      data-testid={`button-open-${url.id}`}
+                      onClick={() => window.open(shortLink, "_blank")}
+                      title="Test link"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      data-testid={`button-delete-short-url-${url.id}`}
+                      onClick={() => onDelete(url.id)}
+                      disabled={isDeleting}
+                      className="text-destructive hover:text-destructive"
+                      title="Hapus"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                {/* Bottom row: badges */}
+                <div className="flex items-center gap-2 mt-2.5 flex-wrap">
                   {/* Expiry badge */}
                   <div className={`flex items-center gap-1 text-xs rounded-full px-2.5 py-1 ${
                     expiry.isExpired
@@ -393,36 +430,6 @@ function UrlSection({
                     <MousePointerClick className="w-3 h-3" />
                     <span data-testid={`text-clicks-${url.id}`}>{url.clicks}</span>
                   </div>
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    data-testid={`button-copy-${url.id}`}
-                    onClick={() => onCopy(shortLink)}
-                    title="Copy link"
-                  >
-                    <Copy className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    data-testid={`button-open-${url.id}`}
-                    onClick={() => window.open(shortLink, "_blank")}
-                    title="Test link"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    data-testid={`button-delete-short-url-${url.id}`}
-                    onClick={() => onDelete(url.id)}
-                    disabled={isDeleting}
-                    className="text-destructive hover:text-destructive"
-                    title="Hapus"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
                 </div>
               </div>
             );

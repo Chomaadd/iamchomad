@@ -266,7 +266,7 @@ export default function ManageLinks() {
         <h2 className="text-base font-semibold">Page Profile</h2>
 
         {/* Avatar + Name/Bio */}
-        <div className="flex items-start gap-5">
+        <div className="flex flex-col sm:flex-row items-start gap-5">
           <div className="relative shrink-0">
             <div className="w-20 h-20 rounded-full border-2 border-border overflow-hidden bg-muted flex items-center justify-center">
               {profile.linksAvatarUrl ? (

@@ -297,9 +297,9 @@ export default function ManageBlog() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-start">
+        <div className="flex flex-col-reverse lg:grid lg:grid-cols-[1fr_280px] gap-6 items-start">
           {/* ── Left: Writing area ── */}
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
             <input
               type="text"
               value={form.title}
@@ -325,7 +325,7 @@ export default function ManageBlog() {
           </div>
 
           {/* ── Right: Metadata panel ── */}
-          <div className="space-y-4 lg:sticky lg:top-6">
+          <div className="space-y-4 lg:sticky lg:top-6 min-w-0">
 
             {/* Publish Settings */}
             <div className="bg-card border border-border rounded-xl p-4 space-y-3">
