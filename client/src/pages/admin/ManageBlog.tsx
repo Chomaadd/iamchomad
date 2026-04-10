@@ -572,7 +572,7 @@ export default function ManageBlog() {
                 </span>
 
                 {/* Actions */}
-                <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 transition-opacity shrink-0">
+                <div className="flex items-center gap-1 shrink-0 opacity-100 sm:opacity-40 sm:group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => { openEdit(post); setTimeout(() => setView("preview"), 50); }}
                     className="p-2 rounded-md hover:bg-muted transition-colors"

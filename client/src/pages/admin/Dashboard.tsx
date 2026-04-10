@@ -98,9 +98,16 @@ export default function Dashboard() {
                 Choiril Ahmad
               </h1>
               <p className="text-sm text-muted-foreground mt-1.5 truncate">{t("admin.dashboard.title")}</p>
+              {/* Mobile-only date + view site */}
+              <div className="flex flex-wrap items-center gap-3 mt-2 md:hidden">
+                <span className="text-[11px] text-muted-foreground">{todayLabel}</span>
+                <Link href="/" className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline font-medium">
+                  {t("admin.view_site")} <ExternalLink size={10} />
+                </Link>
+              </div>
             </div>
 
-            {/* Right meta */}
+            {/* Right meta — desktop only */}
             <div className="hidden md:flex flex-col items-end gap-2 shrink-0 text-right">
               <p className="text-[11px] text-muted-foreground leading-relaxed">{todayLabel}</p>
               <Link

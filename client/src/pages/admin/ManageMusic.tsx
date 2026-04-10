@@ -159,7 +159,7 @@ export default function ManageMusic() {
               {track.duration || "--:--"}
             </div>
 
-            <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
+            <div className="flex items-center gap-1 shrink-0">
               <button onClick={() => openEdit(track)} className="p-2 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors" data-testid={`button-edit-track-${track.id}`}><Edit2 size={14} /></button>
               <button onClick={() => handleDelete(track.id)} className="p-2 rounded-md hover:bg-destructive hover:text-destructive-foreground transition-colors" data-testid={`button-delete-track-${track.id}`}><Trash2 size={14} /></button>
             </div>

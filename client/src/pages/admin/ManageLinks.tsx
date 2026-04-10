@@ -393,7 +393,7 @@ export default function ManageLinks() {
               {link.description && <p className="text-xs text-muted-foreground/70 truncate">{link.description}</p>}
             </div>
             <div className="text-xs font-mono text-muted-foreground shrink-0 hidden sm:block">#{link.order}</div>
-            <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
+            <div className="flex items-center gap-1 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
               <button onClick={() => handleToggleActive(link)} className="p-2 rounded-md hover:bg-accent transition-colors" title={link.isActive ? "Hide" : "Show"} data-testid={`button-toggle-link-${link.id}`}>
                 {link.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
               </button>
@@ -456,48 +456,60 @@ export default function ManageLinks() {
             <Label>Custom Emoji <span className="text-xs text-muted-foreground">(leave empty for auto-detect)</span></Label>
             <Input placeholder="e.g. 📸 🎵 ✉️" value={form.icon} onChange={e => setForm({ ...form, icon: e.target.value })} data-testid="input-link-icon" />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-3">
+            {/* Border Color */}
             <div>
-              <Label>Border Color <span className="text-xs text-muted-foreground">(optional)</span></Label>
+              <Label>Border Color <span className="text-xs text-muted-foreground font-normal">(optional)</span></Label>
               <div className="flex items-center gap-2 mt-1.5">
-                <input
-                  type="color"
-                  value={form.borderColor || "#cccccc"}
-                  onChange={e => setForm({ ...form, borderColor: e.target.value })}
-                  className="w-9 h-9 rounded-lg border border-border cursor-pointer p-0.5 bg-card"
-                  data-testid="input-link-border-color"
-                />
+                <div className="relative shrink-0">
+                  <input
+                    type="color"
+                    value={form.borderColor || "#cccccc"}
+                    onChange={e => setForm({ ...form, borderColor: e.target.value })}
+                    className="w-10 h-10 rounded-lg border border-border cursor-pointer p-0.5 bg-card"
+                    data-testid="input-link-border-color"
+                    title="Pick border color"
+                  />
+                </div>
                 <Input
-                  placeholder="#hex or color name"
+                  placeholder="e.g. #ff5500 or transparent"
                   value={form.borderColor}
                   onChange={e => setForm({ ...form, borderColor: e.target.value })}
-                  className="text-xs"
+                  className="text-xs flex-1"
                   data-testid="input-link-border-color-text"
                 />
                 {form.borderColor && (
-                  <button type="button" onClick={() => setForm({ ...form, borderColor: "" })} className="text-muted-foreground hover:text-foreground text-xs shrink-0" title="Clear">✕</button>
+                  <button type="button" onClick={() => setForm({ ...form, borderColor: "" })} className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0" title="Clear">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
                 )}
               </div>
             </div>
+            {/* Text Color */}
             <div>
-              <Label>Text Color <span className="text-xs text-muted-foreground">(optional)</span></Label>
+              <Label>Text Color <span className="text-xs text-muted-foreground font-normal">(optional)</span></Label>
               <div className="flex items-center gap-2 mt-1.5">
-                <input
-                  type="color"
-                  value={form.textColor || "#000000"}
-                  onChange={e => setForm({ ...form, textColor: e.target.value })}
-                  className="w-9 h-9 rounded-lg border border-border cursor-pointer p-0.5 bg-card"
-                  data-testid="input-link-text-color"
-                />
+                <div className="relative shrink-0">
+                  <input
+                    type="color"
+                    value={form.textColor || "#000000"}
+                    onChange={e => setForm({ ...form, textColor: e.target.value })}
+                    className="w-10 h-10 rounded-lg border border-border cursor-pointer p-0.5 bg-card"
+                    data-testid="input-link-text-color"
+                    title="Pick text color"
+                  />
+                </div>
                 <Input
-                  placeholder="#hex or color name"
+                  placeholder="e.g. #ffffff or white"
                   value={form.textColor}
                   onChange={e => setForm({ ...form, textColor: e.target.value })}
-                  className="text-xs"
+                  className="text-xs flex-1"
                   data-testid="input-link-text-color-text"
                 />
                 {form.textColor && (
-                  <button type="button" onClick={() => setForm({ ...form, textColor: "" })} className="text-muted-foreground hover:text-foreground text-xs shrink-0" title="Clear">✕</button>
+                  <button type="button" onClick={() => setForm({ ...form, textColor: "" })} className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0" title="Clear">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
                 )}
               </div>
             </div>
