@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
   import * as schema from '@shared/schema';
+  import { log } from './logger';
 
   if (!process.env.MONGODB_URI) {
     console.warn("MONGODB_URI must be set in production.");
@@ -9,7 +10,7 @@ import mongoose from 'mongoose';
     try {
       const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/portfolio';
       await mongoose.connect(uri);
-      console.log('Connected to MongoDB');
+      log('Connected to MongoDB', 'mongodb');
     } catch (error) {
       console.error('MongoDB connection error:', error);
       process.exit(1);

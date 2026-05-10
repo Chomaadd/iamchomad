@@ -3,6 +3,9 @@ import { registerRoutes } from "./routes";
 import { connectToDatabase } from "./db";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import { log, colorMethod, colorStatus, clr } from "./logger";
+
+export { log };
 
 const app = express();
 const httpServer = createServer(app);
@@ -23,54 +26,10 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
-// ── ANSI color helpers (Vite-style) ──────────────────────────────────────────
-const clr = {
-  dim:    "\x1b[2m",
-  reset:  "\x1b[0m",
-  bold:   "\x1b[1m",
-  green:  "\x1b[32m",
-  yellow: "\x1b[33m",
-  red:    "\x1b[31m",
-  cyan:   "\x1b[36m",
-  blue:   "\x1b[34m",
-  magenta:"\x1b[35m",
-};
-
-function colorMethod(method: string) {
-  const map: Record<string, string> = {
-    GET:    clr.green,
-    POST:   clr.blue,
-    PUT:    clr.yellow,
-    PATCH:  clr.cyan,
-    DELETE: clr.red,
-  };
-  return (map[method] ?? clr.dim) + method.padEnd(6) + clr.reset;
-}
-
-function colorStatus(status: number) {
-  if (status >= 500) return clr.red    + status + clr.reset;
-  if (status >= 400) return clr.yellow + status + clr.reset;
-  if (status >= 300) return clr.dim    + status + clr.reset;
-  return clr.green + status + clr.reset;
-}
-
 // Routes too noisy to log every hit
 const SKIP_LOG_PATHS = new Set([
   "/api/analytics/pageview",
 ]);
-
-export function log(message: string, source = "express") {
-  const formattedTime = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-  const tag = source === "express"
-    ? `${clr.cyan}[express]${clr.reset}`
-    : `${clr.dim}[${source}]${clr.reset}`;
-  console.log(`${clr.dim}${formattedTime}${clr.reset} ${tag} ${message}`);
-}
 
 app.use((req, res, next) => {
   const start = Date.now();
