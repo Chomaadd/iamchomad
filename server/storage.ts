@@ -503,6 +503,11 @@ import mongoose from 'mongoose';
 
     // ── Novel Chapters ────────────────────────────────────────────────────
     async getNovelChapters(seasonId: string, published?: boolean): Promise<NovelChapter[]> {
+      // Auto-publish any scheduled chapters that are now due
+      await NovelChapterModel.updateMany(
+        { scheduledAt: { $lte: new Date() }, published: false },
+        { $set: { published: true } }
+      );
       const query: any = { seasonId };
       if (published !== undefined) query.published = published;
       const docs = await NovelChapterModel.find(query).sort({ chapterNumber: 1 });
@@ -510,6 +515,7 @@ import mongoose from 'mongoose';
         ...mapId<NovelChapter>(d),
         storyId: d.storyId?.toString(),
         seasonId: d.seasonId?.toString(),
+        scheduledAt: d.scheduledAt ?? null,
       }));
     }
 

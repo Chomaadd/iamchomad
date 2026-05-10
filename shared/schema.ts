@@ -236,6 +236,7 @@ export const novelChapterSchema = z.object({
   title: z.string(),
   content: z.string().default(""),
   published: z.boolean().default(false),
+  scheduledAt: z.union([z.date(), z.string()]).nullable().optional(),
   createdAt: z.union([z.date(), z.string()]).optional(),
   updatedAt: z.union([z.date(), z.string()]).optional(),
 });

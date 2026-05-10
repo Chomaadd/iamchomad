@@ -501,6 +501,11 @@ const translations: Record<Language, Record<string, string>> = {
     "admin.novel.dialog.addSeason": "Add New Season",
     "admin.novel.dialog.confirmDelete": "Confirm Delete",
     "admin.novel.dialog.deleteConfirmMsg": "Are you sure you want to delete",
+    "admin.novel.scheduled": "Scheduled",
+    "admin.novel.form.scheduleRelease": "Schedule Release",
+    "admin.novel.form.scheduleDate": "Release Date & Time",
+    "admin.novel.form.scheduleClear": "Remove Schedule",
+    "admin.novel.form.scheduleHint": "Chapter will auto-publish on this date and time",
 
     "admin.shorturls.title": "Short URLs",
     "admin.shorturls.create.title": "Create New Short URL",
@@ -1019,6 +1024,11 @@ const translations: Record<Language, Record<string, string>> = {
     "admin.novel.dialog.addSeason": "Tambah Season Baru",
     "admin.novel.dialog.confirmDelete": "Konfirmasi Hapus",
     "admin.novel.dialog.deleteConfirmMsg": "Apakah kamu yakin ingin menghapus",
+    "admin.novel.scheduled": "Terjadwal",
+    "admin.novel.form.scheduleRelease": "Jadwalkan Rilis",
+    "admin.novel.form.scheduleDate": "Tanggal & Waktu Rilis",
+    "admin.novel.form.scheduleClear": "Hapus Jadwal",
+    "admin.novel.form.scheduleHint": "Bab akan otomatis terbit pada tanggal dan waktu ini",
 
     "admin.shorturls.title": "URL Pendek",
     "admin.shorturls.create.title": "Buat Short URL Baru",

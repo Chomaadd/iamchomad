@@ -17,7 +17,7 @@ import {
 import {
   BookOpen, Plus, Pencil, Trash2, ChevronRight,
   Eye, EyeOff, Star, ArrowLeft, Layers, FileText,
-  Upload, ImageIcon, RotateCcw,
+  Upload, ImageIcon, RotateCcw, Clock, CalendarClock, X,
 } from "lucide-react";
 import Cropper from "react-easy-crop";
 import type { NovelStory, NovelSeason, NovelChapter } from "@shared/schema";
@@ -362,12 +362,24 @@ function ChapterWrite({ chapter, storyId, seasonId, onBack }: {
 }) {
   const { toast } = useToast();
   const { t } = useLanguage();
+
+  const toDatetimeLocal = (val?: string | Date | null) => {
+    if (!val) return "";
+    const d = new Date(val as string);
+    if (isNaN(d.getTime())) return "";
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
   const [form, setForm] = useState({
     title: chapter?.title ?? "",
     chapterNumber: chapter?.chapterNumber ?? 1,
     content: chapter ? renderRichContent(chapter.content) : "",
     published: chapter?.published ?? false,
+    scheduledAt: toDatetimeLocal(chapter?.scheduledAt),
   });
+
+  const isScheduled = !form.published && !!form.scheduledAt && new Date(form.scheduledAt) > new Date();
 
   const save = useMutation({
     mutationFn: (data: any) => chapter
@@ -381,6 +393,17 @@ function ChapterWrite({ chapter, storyId, seasonId, onBack }: {
     onError: () => toast({ title: "Failed to save", variant: "destructive" }),
   });
 
+  const handleSave = () => {
+    const payload: any = {
+      title: form.title,
+      chapterNumber: form.chapterNumber,
+      content: form.content,
+      published: form.published,
+      scheduledAt: form.scheduledAt ? new Date(form.scheduledAt).toISOString() : null,
+    };
+    save.mutate(payload);
+  };
+
   return (
     <div className="space-y-4">
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2" data-testid="button-back-from-write">
@@ -393,7 +416,13 @@ function ChapterWrite({ chapter, storyId, seasonId, onBack }: {
         </div>
         <div className="flex items-end pb-0.5">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input type="checkbox" checked={form.published} onChange={e => setForm(f => ({ ...f, published: e.target.checked }))} className="rounded" data-testid="checkbox-chapter-published" />
+            <input
+              type="checkbox"
+              checked={form.published}
+              onChange={e => setForm(f => ({ ...f, published: e.target.checked, scheduledAt: e.target.checked ? "" : f.scheduledAt }))}
+              className="rounded"
+              data-testid="checkbox-chapter-published"
+            />
             {t("admin.novel.form.publish")}
           </label>
         </div>
@@ -416,9 +445,50 @@ function ChapterWrite({ chapter, storyId, seasonId, onBack }: {
           return <p className="text-xs text-muted-foreground mt-1">{words} {t("admin.novel.form.words")} · ~{Math.max(1, Math.ceil(words / 200))} {t("admin.novel.form.minRead")}</p>;
         })()}
       </div>
+
+      {/* Schedule Release */}
+      {!form.published && (
+        <div className="border border-border rounded-xl p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <CalendarClock size={16} className="text-muted-foreground" />
+            <span className="text-sm font-medium">{t("admin.novel.form.scheduleRelease")}</span>
+            {isScheduled && (
+              <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-1">
+                <Clock size={10} /> {t("admin.novel.scheduled")}
+              </span>
+            )}
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">{t("admin.novel.form.scheduleDate")}</label>
+            <div className="flex gap-2 items-center">
+              <Input
+                type="datetime-local"
+                value={form.scheduledAt}
+                onChange={e => setForm(f => ({ ...f, scheduledAt: e.target.value }))}
+                className="flex-1 text-sm"
+                data-testid="input-chapter-scheduled-at"
+              />
+              {form.scheduledAt && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => setForm(f => ({ ...f, scheduledAt: "" }))}
+                  data-testid="button-clear-schedule"
+                >
+                  <X size={14} />
+                </Button>
+              )}
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">{t("admin.novel.form.scheduleHint")}</p>
+        </div>
+      )}
+
       <div className="flex gap-2 pt-2">
         <Button variant="outline" onClick={onBack} data-testid="button-discard-chapter">{t("admin.novel.form.cancel")}</Button>
-        <Button onClick={() => save.mutate(form)} disabled={!form.title || !form.content || save.isPending} data-testid="button-save-chapter">
+        <Button onClick={handleSave} disabled={!form.title || !form.content || save.isPending} data-testid="button-save-chapter">
           {save.isPending ? t("admin.uploading") : t("admin.novel.form.saveChapter")}
         </Button>
       </div>
@@ -688,13 +758,24 @@ export default function ManageNovel() {
               </div>
             ) : (
               <div className="space-y-2">
-                {chapters.map(ch => (
+                {chapters.map(ch => {
+                  const chScheduled = (ch as any).scheduledAt;
+                  const isChScheduled = !ch.published && !!chScheduled && new Date(chScheduled) > new Date();
+                  return (
                   <div key={ch.id} className="flex items-center gap-3 p-3.5 border border-border rounded-xl hover:bg-muted/30 transition-colors" data-testid={`card-chapter-${ch.id}`}>
                     <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                       <span className="text-xs font-bold text-muted-foreground">{ch.chapterNumber}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground text-sm truncate">{ch.title}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-foreground text-sm truncate">{ch.title}</p>
+                        {isChScheduled && (
+                          <span className="shrink-0 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-1">
+                            <Clock size={10} />
+                            {new Date(chScheduled).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-muted-foreground">{(ch.content ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().split(" ").filter(Boolean).length} {t("admin.novel.form.words")}</p>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -702,8 +783,9 @@ export default function ManageNovel() {
                         onClick={() => toggleChapterPublish.mutate({ id: ch.id, published: !ch.published })}
                         className={`text-xs px-2.5 py-1 rounded-full font-medium transition-colors ${ch.published ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
                         data-testid={`button-toggle-publish-${ch.id}`}
+                        title={isChScheduled ? new Date(chScheduled).toLocaleString("id-ID") : undefined}
                       >
-                        {ch.published ? <Eye size={12} /> : <EyeOff size={12} />}
+                        {ch.published ? <Eye size={12} /> : isChScheduled ? <Clock size={12} /> : <EyeOff size={12} />}
                       </button>
                       <Button size="icon" variant="ghost" onClick={() => { setEditingChapter(ch); setView("write"); }} data-testid={`button-edit-chapter-${ch.id}`}>
                         <Pencil size={14} />
@@ -713,7 +795,8 @@ export default function ManageNovel() {
                       </Button>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

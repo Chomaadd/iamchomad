@@ -155,6 +155,7 @@ import mongoose from 'mongoose';
     title: { type: String, required: true },
     content: { type: String, default: '' },
     published: { type: Boolean, default: false },
+    scheduledAt: { type: Date, default: null },
   }, { timestamps: true });
 
   export const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
