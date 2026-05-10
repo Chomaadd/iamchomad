@@ -4,7 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { usePost } from "@/hooks/use-blog";
 import { useLanguage } from "@/hooks/use-language";
-import { Loader2, ArrowLeft, Clock, Calendar, Share2, Link2, Check, Eye, ThumbsUp, Heart, Globe, ChevronDown, RotateCcw } from "lucide-react";
+import { Loader2, ArrowLeft, Clock, Calendar, Share2, Link2, Check, Eye, ThumbsUp, Heart, Globe, ChevronDown, RotateCcw, Zap } from "lucide-react";
 import { SiWhatsapp, SiX } from "react-icons/si";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,6 +12,7 @@ import { SeoHead } from "@/components/seometa/SeoHead";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { renderRichContent } from "@/components/ui/rich-text-editor";
+import { useToast } from "@/hooks/use-toast";
 
 function estimateReadTime(content: string): number {
   const text = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -20,21 +21,35 @@ function estimateReadTime(content: string): number {
 }
 
 const TRANSLATE_LANGS = [
-  { code: "en", label: "English" },
-  { code: "id", label: "Bahasa Indonesia" },
-  { code: "ja", label: "日本語" },
-  { code: "ko", label: "한국어" },
-  { code: "zh-CN", label: "中文（简体）" },
-  { code: "ar", label: "العربية" },
-  { code: "es", label: "Español" },
-  { code: "fr", label: "Français" },
-  { code: "de", label: "Deutsch" },
+  { code: "en",    label: "English",           flag: "🇬🇧" },
+  { code: "id",    label: "Bahasa Indonesia",   flag: "🇮🇩" },
+  { code: "ja",    label: "日本語",              flag: "🇯🇵" },
+  { code: "ko",    label: "한국어",              flag: "🇰🇷" },
+  { code: "zh-CN", label: "中文（简体）",         flag: "🇨🇳" },
+  { code: "ar",    label: "العربية",            flag: "🇸🇦" },
+  { code: "es",    label: "Español",            flag: "🇪🇸" },
+  { code: "fr",    label: "Français",           flag: "🇫🇷" },
+  { code: "de",    label: "Deutsch",            flag: "🇩🇪" },
 ];
+
+/** Walk all non-empty text nodes in an element (preserves HTML structure) */
+function extractTextNodes(root: Element): Text[] {
+  const nodes: Text[] = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let node: Node | null;
+  while ((node = walker.nextNode())) {
+    if ((node as Text).textContent?.trim()) {
+      nodes.push(node as Text);
+    }
+  }
+  return nodes;
+}
 
 export default function BlogPost() {
   const [, params] = useRoute("/blog/:slug");
   const slug = params?.slug ?? "";
   const { t, language } = useLanguage();
+  const { toast } = useToast();
   const dateLocale = language === "id" ? "id-ID" : "en-US";
 
   const { data: post, isLoading } = usePost(slug);
@@ -44,6 +59,8 @@ export default function BlogPost() {
   const [userReacted, setUserReacted] = useState<{ thumbsUp: boolean; heart: boolean }>({ thumbsUp: false, heart: false });
 
   const [showTranslate, setShowTranslate] = useState(false);
+  const [showFloating, setShowFloating] = useState(false);
+  const [floatingVisible, setFloatingVisible] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const [translatedContent, setTranslatedContent] = useState<string | null>(null);
   const [translatedTitle, setTranslatedTitle] = useState<string | null>(null);
@@ -51,6 +68,7 @@ export default function BlogPost() {
   const [currentLangCode, setCurrentLangCode] = useState<string | null>(null);
   const translationCache = useRef<Record<string, { html: string; title: string; excerpt: string }>>({});
   const translateRef = useRef<HTMLDivElement>(null);
+  const floatingRef = useRef<HTMLDivElement>(null);
 
   const viewMutation = useMutation({
     mutationFn: () => apiRequest("POST", `/api/blog/${slug}/view`),
@@ -80,20 +98,33 @@ export default function BlogPost() {
     } catch {}
   }, [slug]);
 
+  // Close dropdowns on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (translateRef.current && !translateRef.current.contains(e.target as Node)) {
         setShowTranslate(false);
+      }
+      if (floatingRef.current && !floatingRef.current.contains(e.target as Node)) {
+        setShowFloating(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleTranslate = async (langCode: string) => {
+  // Show floating button after scrolling 400px
+  useEffect(() => {
+    const onScroll = () => setFloatingVisible(window.scrollY > 400);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const handleTranslate = async (langCode: string, fromFloating = false) => {
     if (!post) return;
     setShowTranslate(false);
+    setShowFloating(false);
 
+    // Serve from cache instantly
     if (translationCache.current[langCode]) {
       const cached = translationCache.current[langCode];
       setTranslatedContent(cached.html);
@@ -106,20 +137,18 @@ export default function BlogPost() {
     setIsTranslating(true);
     try {
       const sourceHtml = renderRichContent(post.content);
-
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = sourceHtml;
 
-      const blocks = Array.from(
-        tempDiv.querySelectorAll("p, h1, h2, h3, h4, h5, h6, li, figcaption, blockquote > p")
-      );
-      const blocksWithText = blocks.filter(el => (el.textContent?.trim() ?? "").length > 0);
-      const bodySegments = blocksWithText.map(el => el.textContent!.trim());
+      // ── Collect ALL text nodes (preserves bold/italic/code/links!) ──
+      const allTextNodes = extractTextNodes(tempDiv);
+      const nodeTexts = allTextNodes.map(n => n.textContent?.trim() || "");
 
       const titleText = post.title ?? "";
       const excerptText = post.excerpt ?? "";
+      const hasExcerpt = excerptText.length > 0;
 
-      const allSegments = [titleText, excerptText, ...bodySegments].filter(Boolean);
+      const allSegments = [titleText, ...(hasExcerpt ? [excerptText] : []), ...nodeTexts];
       if (allSegments.length === 0) return;
 
       const res = await fetch("/api/translate", {
@@ -128,17 +157,19 @@ export default function BlogPost() {
         credentials: "include",
         body: JSON.stringify({ segments: allSegments, from: "auto", to: langCode }),
       });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (!data.segments) return;
+      if (!data.segments) throw new Error("No segments returned");
 
       const newTitle = data.segments[0] ?? titleText;
-      const newExcerpt = excerptText ? (data.segments[1] ?? excerptText) : "";
-      const bodyStart = excerptText ? 2 : 1;
+      const newExcerpt = hasExcerpt ? (data.segments[1] ?? excerptText) : "";
+      const bodyStart = hasExcerpt ? 2 : 1;
 
-      blocksWithText.forEach((block, i) => {
-        if (data.segments[bodyStart + i]) {
-          block.textContent = data.segments[bodyStart + i];
-        }
+      // ── Write back to text nodes — HTML formatting is preserved! ──
+      allTextNodes.forEach((node, i) => {
+        const translated = data.segments[bodyStart + i];
+        if (translated) node.textContent = translated;
       });
 
       const resultHtml = tempDiv.innerHTML;
@@ -149,6 +180,11 @@ export default function BlogPost() {
       setCurrentLangCode(langCode);
     } catch (err) {
       console.error("Translation failed:", err);
+      toast({
+        title: language === "id" ? "Terjemahan gagal" : "Translation failed",
+        description: language === "id" ? "Periksa koneksi dan coba lagi." : "Check your connection and try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsTranslating(false);
     }
@@ -159,6 +195,8 @@ export default function BlogPost() {
     setTranslatedTitle(null);
     setTranslatedExcerpt(null);
     setCurrentLangCode(null);
+    setShowTranslate(false);
+    setShowFloating(false);
   };
 
   const pageUrl = `https://iamchomad.my.id/blog/${slug}`;
@@ -178,6 +216,55 @@ export default function BlogPost() {
   };
 
   const currentLangLabel = TRANSLATE_LANGS.find(l => l.code === currentLangCode)?.label ?? null;
+  const currentLangFlag  = TRANSLATE_LANGS.find(l => l.code === currentLangCode)?.flag  ?? null;
+
+  /* ── Language dropdown (shared between inline & floating) ── */
+  const LanguageDropdown = ({ upward = false }: { upward?: boolean }) => (
+    <motion.div
+      initial={{ opacity: 0, y: upward ? 6 : -6, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: upward ? 6 : -6, scale: 0.97 }}
+      transition={{ duration: 0.15 }}
+      className={`absolute ${upward ? "bottom-full mb-2" : "top-full mt-2"} right-0 z-50 bg-card border border-border rounded-2xl shadow-xl py-2 min-w-[210px]`}
+    >
+      <p className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        {t("blogpost.translateTo")}
+      </p>
+      {TRANSLATE_LANGS.map(lang => {
+        const isCached  = !!translationCache.current[lang.code];
+        const isActive  = currentLangCode === lang.code;
+        return (
+          <button
+            key={lang.code}
+            onClick={() => handleTranslate(lang.code)}
+            className={`w-full text-left px-4 py-2 text-xs transition-colors flex items-center gap-2.5 group ${
+              isActive ? "bg-primary/8 text-primary font-semibold" : "hover:bg-accent text-foreground"
+            }`}
+          >
+            <span className="text-sm leading-none shrink-0">{lang.flag}</span>
+            <span className="flex-1">{lang.label}</span>
+            {isCached && !isActive && (
+              <Zap size={10} className="text-amber-500 shrink-0" title="Cached — instant" />
+            )}
+            {isActive && <Check size={11} className="text-primary shrink-0" />}
+          </button>
+        );
+      })}
+
+      {currentLangCode && (
+        <>
+          <div className="mx-4 my-1.5 h-px bg-border" />
+          <button
+            onClick={handleShowOriginal}
+            className="w-full text-left px-4 py-2 text-xs hover:bg-accent transition-colors text-muted-foreground hover:text-foreground flex items-center gap-2.5"
+          >
+            <RotateCcw size={11} className="shrink-0" />
+            {language === "id" ? "Tampilkan asli" : "Show original"}
+          </button>
+        </>
+      )}
+    </motion.div>
+  );
 
   if (isLoading) return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -231,21 +318,20 @@ export default function BlogPost() {
           <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" /> {t("blogpost.back")}
         </Link>
 
-        {/* Cover Image — full container width */}
+        {/* Cover Image */}
         {post.imageUrl && (
           <div className="mb-10 rounded-2xl overflow-hidden bg-muted soft-shadow-lg aspect-video">
             <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
           </div>
         )}
 
-        {/* ── Article — constrained to 720px for readability ── */}
+        {/* ── Article ── */}
         <motion.article
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="max-w-[720px] mx-auto"
         >
-          {/* Header */}
           <header className="mb-10">
             {/* Tags */}
             {(post.tags ?? []).length > 0 && (
@@ -285,65 +371,38 @@ export default function BlogPost() {
                 {viewCount.toLocaleString()} views
               </span>
 
-              {/* Translate control */}
-              {currentLangCode ? (
-                <div className="flex items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
+              {/* ── Translate button (inline, always a dropdown) ── */}
+              <div className="relative" ref={translateRef}>
+                <button
+                  onClick={() => setShowTranslate(v => !v)}
+                  data-testid="button-translate"
+                  disabled={isTranslating}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors disabled:opacity-50 ${
+                    currentLangCode
+                      ? "bg-primary/10 text-primary border border-primary/20 hover:bg-primary/15"
+                      : "bg-accent text-muted-foreground hover:text-primary hover:bg-primary/10"
+                  }`}
+                >
+                  {isTranslating ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : currentLangFlag ? (
+                    <span className="text-sm leading-none">{currentLangFlag}</span>
+                  ) : (
                     <Globe size={12} />
-                    {currentLangLabel}
-                  </span>
-                  <button
-                    onClick={handleShowOriginal}
-                    data-testid="button-show-original"
-                    title="Show original"
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-border transition-colors"
-                  >
-                    <RotateCcw size={11} /> Original
-                  </button>
-                </div>
-              ) : (
-                <div className="relative" ref={translateRef}>
-                  <button
-                    onClick={() => setShowTranslate(v => !v)}
-                    data-testid="button-translate"
-                    disabled={isTranslating}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors disabled:opacity-50"
-                  >
-                    {isTranslating ? (
-                      <Loader2 size={12} className="animate-spin" />
-                    ) : (
-                      <Globe size={12} />
-                    )}
-                    {isTranslating ? (language === "id" ? "Menerjemahkan…" : "Translating…") : t("blogpost.translate")}
-                    {!isTranslating && <ChevronDown size={10} className={`transition-transform ${showTranslate ? "rotate-180" : ""}`} />}
-                  </button>
+                  )}
+                  {isTranslating
+                    ? (language === "id" ? "Menerjemahkan…" : "Translating…")
+                    : (currentLangLabel ?? t("blogpost.translate"))
+                  }
+                  {!isTranslating && (
+                    <ChevronDown size={10} className={`transition-transform ${showTranslate ? "rotate-180" : ""}`} />
+                  )}
+                </button>
 
-                  <AnimatePresence>
-                    {showTranslate && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -6, scale: 0.97 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute top-full left-0 mt-2 z-50 bg-card border border-border rounded-2xl shadow-lg py-2 min-w-[186px]"
-                      >
-                        <p className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                          {t("blogpost.translateTo")}
-                        </p>
-                        {TRANSLATE_LANGS.map(lang => (
-                          <button
-                            key={lang.code}
-                            onClick={() => handleTranslate(lang.code)}
-                            className="w-full text-left px-4 py-2 text-xs hover:bg-accent transition-colors text-foreground flex items-center justify-between group"
-                          >
-                            <span>{lang.label}</span>
-                          </button>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              )}
+                <AnimatePresence>
+                  {showTranslate && <LanguageDropdown />}
+                </AnimatePresence>
+              </div>
             </div>
 
             {/* Divider */}
@@ -459,6 +518,52 @@ export default function BlogPost() {
       </main>
 
       <Footer />
+
+      {/* ── Floating Translate Pill ── */}
+      <AnimatePresence>
+        {floatingVisible && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-6 right-5 z-40"
+            ref={floatingRef}
+          >
+            <div className="relative">
+              <button
+                onClick={() => setShowFloating(v => !v)}
+                disabled={isTranslating}
+                data-testid="button-translate-floating"
+                className={`inline-flex items-center gap-2 pl-4 pr-3 py-2.5 rounded-full shadow-lg border text-sm font-medium transition-all disabled:opacity-50 ${
+                  currentLangCode
+                    ? "bg-primary text-primary-foreground border-primary/50 hover:bg-primary/90 shadow-primary/20"
+                    : "bg-card text-foreground border-border hover:border-primary/40 hover:shadow-xl"
+                }`}
+              >
+                {isTranslating ? (
+                  <Loader2 size={14} className="animate-spin shrink-0" />
+                ) : currentLangFlag ? (
+                  <span className="text-base leading-none shrink-0">{currentLangFlag}</span>
+                ) : (
+                  <Globe size={14} className="shrink-0" />
+                )}
+                <span className="max-w-[110px] truncate">
+                  {isTranslating
+                    ? (language === "id" ? "Menerjemahkan…" : "Translating…")
+                    : (currentLangLabel ?? (language === "id" ? "Terjemahkan" : "Translate"))
+                  }
+                </span>
+                <ChevronDown size={12} className={`shrink-0 transition-transform ${showFloating ? "rotate-180" : ""}`} />
+              </button>
+
+              <AnimatePresence>
+                {showFloating && <LanguageDropdown upward />}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
