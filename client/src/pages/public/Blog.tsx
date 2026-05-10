@@ -220,7 +220,7 @@ export default function Blog() {
                       <p className="text-white/65 text-sm leading-relaxed line-clamp-2 max-w-2xl mb-6">
                         {featuredPost.excerpt}
                       </p>
-                      <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-foreground text-sm font-semibold hover:bg-white/90 transition-all group/btn">
+                      <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-gray-900 text-sm font-semibold hover:bg-white/90 transition-all group/btn">
                         {t("blog.readArticle")} <ArrowRight size={15} className="group-hover/btn:translate-x-0.5 transition-transform" />
                       </span>
                     </div>
