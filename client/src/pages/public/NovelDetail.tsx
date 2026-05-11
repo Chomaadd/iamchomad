@@ -6,7 +6,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SeoHead } from "@/components/seometa/SeoHead";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, ChevronDown, ChevronRight, ArrowLeft, Clock, Eye } from "lucide-react";
+import { BookOpen, ChevronDown, ChevronRight, ArrowLeft, Clock, Eye, Play, Lock } from "lucide-react";
 import type { NovelStory, NovelSeason, NovelChapter } from "@shared/schema";
 import { useLanguage } from "@/hooks/use-language";
 
@@ -20,28 +20,50 @@ function timeAgo(date: string | Date, lang: string): string {
   const now = Date.now();
   const then = new Date(date).getTime();
   const diff = Math.max(0, now - then);
-
   const minutes = Math.floor(diff / 60000);
   const hours   = Math.floor(diff / 3600000);
   const days    = Math.floor(diff / 86400000);
   const months  = Math.floor(days / 30);
   const years   = Math.floor(days / 365);
-
   if (lang === "id") {
-    if (minutes < 1)   return "Baru saja";
-    if (minutes < 60)  return `${minutes} menit lalu`;
-    if (hours < 24)    return `${hours} jam lalu`;
-    if (days < 30)     return `${days} hari lalu`;
-    if (months < 12)   return `${months} bulan lalu`;
+    if (minutes < 1)  return "Baru saja";
+    if (minutes < 60) return `${minutes} menit lalu`;
+    if (hours < 24)   return `${hours} jam lalu`;
+    if (days < 30)    return `${days} hari lalu`;
+    if (months < 12)  return `${months} bulan lalu`;
     return `${years} tahun lalu`;
   } else {
-    if (minutes < 1)   return "Just now";
-    if (minutes < 60)  return `${minutes}m ago`;
-    if (hours < 24)    return `${hours}h ago`;
-    if (days < 30)     return `${days}d ago`;
-    if (months < 12)   return `${months}mo ago`;
+    if (minutes < 1)  return "Just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24)   return `${hours}h ago`;
+    if (days < 30)    return `${days}d ago`;
+    if (months < 12)  return `${months}mo ago`;
     return `${years}y ago`;
   }
+}
+
+function countdown(scheduledAt: string, lang: string): string {
+  const diff = new Date(scheduledAt).getTime() - Date.now();
+  if (diff <= 0) return lang === "id" ? "Sebentar lagi" : "Very soon";
+  const days  = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins  = Math.floor((diff % 3600000) / 60000);
+  if (lang === "id") {
+    if (days > 0) return `${days} hari${hours > 0 ? ` ${hours} jam` : ""}`;
+    if (hours > 0) return `${hours} jam ${mins} menit`;
+    return `${mins} menit`;
+  } else {
+    if (days > 0) return `${days}d${hours > 0 ? ` ${hours}h` : ""}`;
+    if (hours > 0) return `${hours}h ${mins}m`;
+    return `${mins}m`;
+  }
+}
+
+interface UpcomingChapter {
+  id: string;
+  chapterNumber: number;
+  title: string;
+  scheduledAt: string | null;
 }
 
 function SeasonAccordion({ story, season }: { story: NovelStory; season: NovelSeason }) {
@@ -52,6 +74,13 @@ function SeasonAccordion({ story, season }: { story: NovelStory; season: NovelSe
     queryKey: ["/api/novel/seasons", season.id, "chapters"],
     queryFn: () => fetch(`/api/novel/seasons/${season.id}/chapters`).then(r => r.json()),
   });
+
+  const { data: upcoming } = useQuery<UpcomingChapter[]>({
+    queryKey: ["/api/novel/seasons", season.id, "upcoming"],
+    queryFn: () => fetch(`/api/novel/seasons/${season.id}/upcoming`).then(r => r.json()),
+  });
+
+  const totalVisible = (chapters?.length ?? 0) + (upcoming?.length ?? 0);
 
   return (
     <div className="border border-border rounded-xl overflow-hidden">
@@ -65,39 +94,60 @@ function SeasonAccordion({ story, season }: { story: NovelStory; season: NovelSe
           <span className="ml-2 text-sm text-muted-foreground">— {season.title}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
-          <span className="text-xs">{chapters?.length ?? 0} {t("novel.detail.chapters")}</span>
+          <span className="text-xs">{totalVisible} {t("novel.detail.chapters")}</span>
           {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </div>
       </button>
+
       {open && (
         <div className="divide-y divide-border">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="px-5 py-3">
-                <Skeleton className="h-4 w-2/3" />
-              </div>
+              <div key={i} className="px-5 py-3"><Skeleton className="h-4 w-2/3" /></div>
             ))
-          ) : chapters?.length === 0 ? (
+          ) : chapters?.length === 0 && !upcoming?.length ? (
             <div className="px-5 py-4 text-sm text-muted-foreground">{t("novel.detail.noChapters")}</div>
           ) : (
-            chapters?.map(ch => (
-              <Link
-                key={ch.id}
-                href={`/novel/${story.slug}/season-${season.seasonNumber}/bab-${ch.chapterNumber}`}
-                data-testid={`link-chapter-${ch.id}`}
-              >
-                <div className="px-5 py-3.5 hover:bg-muted/40 transition-colors flex items-center justify-between group cursor-pointer">
-                  <div>
-                    <span className="text-xs text-muted-foreground mr-2">{t("novel.detail.chapter")} {ch.chapterNumber}</span>
-                    <span className="text-sm text-foreground group-hover:text-primary transition-colors font-medium">{ch.title}</span>
+            <>
+              {chapters?.map(ch => (
+                <Link
+                  key={ch.id}
+                  href={`/novel/${story.slug}/season-${season.seasonNumber}/bab-${ch.chapterNumber}`}
+                  data-testid={`link-chapter-${ch.id}`}
+                >
+                  <div className="px-5 py-3.5 hover:bg-muted/40 transition-colors flex items-center justify-between group cursor-pointer">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="shrink-0 text-xs text-muted-foreground w-8">{t("novel.detail.chapter")} {ch.chapterNumber}</span>
+                      <span className="text-sm text-foreground group-hover:text-primary transition-colors font-medium truncate">{ch.title}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+                      <Clock size={12} />
+                      <span>{ch.createdAt ? timeAgo(ch.createdAt, language) : "—"}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock size={12} />
-                    <span>{ch.createdAt ? timeAgo(ch.createdAt, language) : "—"}</span>
+                </Link>
+              ))}
+
+              {upcoming?.map(ch => (
+                <div
+                  key={ch.id}
+                  className="px-5 py-3.5 flex items-center justify-between opacity-60"
+                  data-testid={`upcoming-chapter-${ch.id}`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="shrink-0 text-xs text-muted-foreground w-8">{t("novel.detail.chapter")} {ch.chapterNumber}</span>
+                    <Lock size={12} className="shrink-0 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground italic truncate">{ch.title}</span>
                   </div>
+                  {ch.scheduledAt && (
+                    <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 shrink-0 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-full">
+                      <Clock size={10} />
+                      <span>{t("novel.detail.releasesIn")} {countdown(ch.scheduledAt, language)}</span>
+                    </div>
+                  )}
                 </div>
-              </Link>
-            ))
+              ))}
+            </>
           )}
         </div>
       )}
@@ -111,11 +161,19 @@ const STATUS_LABEL_KEY: Record<string, string> = {
   hiatus: "novel.status.hiatus",
 };
 
+interface ReadingProgress {
+  seasonNum: number;
+  chapterNum: number;
+  chapterTitle: string;
+  updatedAt: string;
+}
+
 export default function NovelDetail() {
   const [, params] = useRoute("/novel/:slug");
   const { t } = useLanguage();
   const slug = params?.slug ?? "";
   const [viewCount, setViewCount] = useState<number | null>(null);
+  const [readingProgress, setReadingProgress] = useState<ReadingProgress | null>(null);
 
   const { data: story, isLoading: storyLoading } = useQuery<NovelStory>({
     queryKey: ["/api/novel/stories", slug],
@@ -129,6 +187,10 @@ export default function NovelDetail() {
       .then(r => r.json())
       .then(data => setViewCount(data.viewCount))
       .catch(() => {});
+    try {
+      const saved = localStorage.getItem(`novel-progress-${slug}`);
+      if (saved) setReadingProgress(JSON.parse(saved));
+    } catch {}
   }, [slug]);
 
   const { data: seasons, isLoading: seasonsLoading } = useQuery<NovelSeason[]>({
@@ -184,7 +246,6 @@ export default function NovelDetail() {
       <Navbar />
 
       <main className="max-w-4xl mx-auto px-6 lg:px-8 py-12">
-        {/* Back */}
         <Link href="/novel">
           <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors" data-testid="button-back-novel">
             <ArrowLeft size={16} />
@@ -192,14 +253,39 @@ export default function NovelDetail() {
           </button>
         </Link>
 
+        {/* Continue Reading Banner */}
+        {readingProgress && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 flex items-center justify-between gap-4 p-4 rounded-xl bg-primary/8 border border-primary/20"
+            data-testid="banner-continue-reading"
+          >
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground mb-0.5">{t("novel.detail.lastRead")}</p>
+              <p className="font-medium text-foreground text-sm truncate">
+                {t("novel.detail.chapter")} {readingProgress.chapterNum}: {readingProgress.chapterTitle}
+              </p>
+            </div>
+            <Link href={`/novel/${slug}/season-${readingProgress.seasonNum}/bab-${readingProgress.chapterNum}`}>
+              <button
+                className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+                data-testid="button-continue-reading"
+              >
+                <Play size={13} fill="currentColor" />
+                {t("novel.detail.continueReading")}
+              </button>
+            </Link>
+          </motion.div>
+        )}
+
         {/* Story Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col sm:flex-row gap-8 mb-10"
         >
-          {/* Cover */}
-          <div className="w-full sm:w-48 flex-shrink-0">
+          <div className="w-full sm:w-44 flex-shrink-0">
             <div className="aspect-[2/3] rounded-xl overflow-hidden bg-muted">
               {story.coverUrl ? (
                 <img src={story.coverUrl} alt={story.title} className="w-full h-full object-cover" />
@@ -211,7 +297,6 @@ export default function NovelDetail() {
             </div>
           </div>
 
-          {/* Info */}
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_COLOR[story.status] ?? STATUS_COLOR.ongoing}`}>
@@ -233,17 +318,14 @@ export default function NovelDetail() {
               {viewCount !== null && (
                 <>
                   <span>·</span>
-                  <span className="flex items-center gap-1">
-                    <Eye size={13} />
-                    {viewCount.toLocaleString()}
-                  </span>
+                  <span className="flex items-center gap-1"><Eye size={13} />{viewCount.toLocaleString()}</span>
                 </>
               )}
             </div>
           </div>
         </motion.div>
 
-        {/* Seasons & Chapters */}
+        {/* Table of Contents */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

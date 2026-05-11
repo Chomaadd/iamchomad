@@ -1051,6 +1051,16 @@ ${novelEntries}
     }
   });
 
+  // Public: get upcoming scheduled chapters for a season (title + scheduledAt only, no content)
+  app.get("/api/novel/seasons/:seasonId/upcoming", async (req, res) => {
+    try {
+      const chapters = await storage.getUpcomingChapters(req.params.seasonId);
+      res.json(chapters);
+    } catch {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Admin: get all chapters for a season (including unpublished)
   app.get("/api/novel/seasons/:seasonId/chapters/all", async (req, res) => {
     if (!req.session?.adminId)

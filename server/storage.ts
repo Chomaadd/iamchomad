@@ -111,6 +111,7 @@ import mongoose from 'mongoose';
     deleteNovelSeason(id: string): Promise<void>;
 
     getNovelChapters(seasonId: string, published?: boolean): Promise<NovelChapter[]>;
+    getUpcomingChapters(seasonId: string): Promise<{ id: string; chapterNumber: number; title: string; scheduledAt: string | null }[]>;
     getNovelChapter(id: string): Promise<NovelChapter | undefined>;
     getNovelChapterByNumber(storyId: string, seasonId: string, chapterNumber: number): Promise<NovelChapter | undefined>;
     createNovelChapter(data: CreateNovelChapterRequest): Promise<NovelChapter>;
@@ -516,6 +517,20 @@ import mongoose from 'mongoose';
         storyId: d.storyId?.toString(),
         seasonId: d.seasonId?.toString(),
         scheduledAt: d.scheduledAt ?? null,
+      }));
+    }
+
+    async getUpcomingChapters(seasonId: string) {
+      const docs = await NovelChapterModel.find({
+        seasonId,
+        published: false,
+        scheduledAt: { $gt: new Date() },
+      }).sort({ chapterNumber: 1 }).select("chapterNumber title scheduledAt");
+      return docs.map((d: any) => ({
+        id: d._id.toString(),
+        chapterNumber: d.chapterNumber,
+        title: d.title,
+        scheduledAt: d.scheduledAt ? (d.scheduledAt as Date).toISOString() : null,
       }));
     }
 
