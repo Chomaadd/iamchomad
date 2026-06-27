@@ -1,11 +1,12 @@
 import {
-  SiInstagram, SiX, SiGithub, SiLinkedin, SiYoutube, SiTiktok,
+  SiInstagram, SiX, SiGithub, SiYoutube, SiTiktok,
   SiFacebook, SiSpotify, SiBehance, SiDribbble, SiMedium,
   SiTelegram, SiDiscord, SiWhatsapp, SiSnapchat, SiPinterest,
   SiReddit, SiTwitch, SiThreads, SiFigma, SiNotion, SiSubstack,
   SiPatreon, SiKofi, SiDevdotto, SiHashnode, SiCodepen,
   SiSoundcloud, SiApplemusic, SiLastdotfm,
 } from "react-icons/si";
+import { FaLinkedinIn } from "react-icons/fa6";
 import { MdEmail, MdLink } from "react-icons/md";
 import type { ComponentType } from "react";
 
@@ -20,7 +21,7 @@ const DOMAIN_MAP: Record<string, SocialPlatform> = {
   "x.com": { icon: SiX, color: "#000000", label: "X (Twitter)" },
   "twitter.com": { icon: SiX, color: "#000000", label: "Twitter" },
   "github.com": { icon: SiGithub, color: "#181717", label: "GitHub" },
-  "linkedin.com": { icon: SiLinkedin, color: "#0A66C2", label: "LinkedIn" },
+  "linkedin.com": { icon: FaLinkedinIn, color: "#0A66C2", label: "LinkedIn" },
   "youtube.com": { icon: SiYoutube, color: "#FF0000", label: "YouTube" },
   "youtu.be": { icon: SiYoutube, color: "#FF0000", label: "YouTube" },
   "tiktok.com": { icon: SiTiktok, color: "#000000", label: "TikTok" },

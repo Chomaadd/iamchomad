@@ -283,8 +283,9 @@ export async function registerRoutes(
 
   app.get("/robots.txt", (_req, res) => {
     res.setHeader("Content-Type", "text/plain");
+    res.setHeader("Cache-Control", "public, max-age=86400");
     res.send(
-      `User-agent: *\nAllow: /\n\nSitemap: https://iamchomad.my.id/sitemap.xml\n`,
+      `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /login\nDisallow: /api/\n\nSitemap: https://iamchomad.my.id/sitemap.xml\n`,
     );
   });
 
@@ -347,6 +348,7 @@ ${blogEntries}
 </urlset>`;
 
     res.setHeader("Content-Type", "application/xml");
+    res.setHeader("Cache-Control", "public, max-age=3600");
     res.send(xml);
   });
 
