@@ -69,6 +69,17 @@ export async function registerRoutes(
     }),
   );
 
+  // Redirect www → non-www in production
+  app.use((req: any, res: any, next: any) => {
+    const host = req.headers.host || "";
+    if (host.startsWith("www.")) {
+      const newHost = host.slice(4);
+      const protocol = req.headers["x-forwarded-proto"] || "https";
+      return res.redirect(301, `${protocol}://${newHost}${req.url}`);
+    }
+    next();
+  });
+
   const requireAuth = (req: any, res: any, next: any) => {
     if (!req.session.adminId) {
       return res.status(401).json({ message: "Unauthorized" });
