@@ -27,10 +27,6 @@ import ManageMessages from "./pages/admin/ManageMessages";
 import ManageMusic from "./pages/admin/ManageMusic";
 import ManageResume from "./pages/admin/ManageResume";
 import ManageLinks from "./pages/admin/ManageLinks";
-import Novel from "./pages/public/Novel";
-import NovelDetail from "./pages/public/NovelDetail";
-import NovelRead from "./pages/public/NovelRead";
-import ManageNovel from "./pages/admin/ManageNovel";
 import AdminSettings from "./pages/admin/Settings";
 import ManageShortUrls from "./pages/admin/ManageShortUrls";
 import LinkExpired from "./pages/public/LinkExpired";
@@ -57,9 +53,6 @@ function Router() {
       <Route path="/resume" component={Resume} />
       <Route path="/resume/pdf" component={ResumePrint} />
       <Route path="/links" component={Links} />
-      <Route path="/novel" component={Novel} />
-      <Route path="/novel/:slug/:seasonSlug/:chapterSlug" component={NovelRead} />
-      <Route path="/novel/:slug" component={NovelDetail} />
       <Route path="/link-expired" component={LinkExpired} />
 
       {/* Admin Routes */}
@@ -72,7 +65,6 @@ function Router() {
       <Route path="/admin/music" component={ManageMusic} />
       <Route path="/admin/resume" component={ManageResume} />
       <Route path="/admin/links" component={ManageLinks} />
-      <Route path="/admin/novel" component={ManageNovel} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/short-urls" component={ManageShortUrls} />
 

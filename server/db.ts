@@ -129,35 +129,6 @@ import mongoose from 'mongoose';
     resumeWebsite: { type: String },
   });
 
-  const novelStorySchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
-    coverUrl: { type: String },
-    description: { type: String },
-    category: { type: String, default: 'novel' },
-    status: { type: String, enum: ['ongoing', 'completed', 'hiatus'], default: 'ongoing' },
-    tags: { type: [String], default: [] },
-    published: { type: Boolean, default: false },
-    featured: { type: Boolean, default: false },
-    viewCount: { type: Number, default: 0 },
-  }, { timestamps: true });
-
-  const novelSeasonSchema = new mongoose.Schema({
-    storyId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'NovelStory' },
-    seasonNumber: { type: Number, required: true },
-    title: { type: String, required: true },
-  }, { timestamps: { createdAt: true, updatedAt: false } });
-
-  const novelChapterSchema = new mongoose.Schema({
-    storyId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'NovelStory' },
-    seasonId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'NovelSeason' },
-    chapterNumber: { type: Number, required: true },
-    title: { type: String, required: true },
-    content: { type: String, default: '' },
-    published: { type: Boolean, default: false },
-    scheduledAt: { type: Date, default: null },
-  }, { timestamps: true });
-
   export const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
   export const BlogPostModel = mongoose.models.BlogPost || mongoose.model('BlogPost', blogPostSchema);
   export const ContactMessageModel = mongoose.models.ContactMessage || mongoose.model('ContactMessage', contactMessageSchema);
@@ -167,10 +138,6 @@ import mongoose from 'mongoose';
   export const LinkItemModel = mongoose.models.LinkItem || mongoose.model('LinkItem', linkItemSchema);
   export const SiteSettingsModel = mongoose.models.SiteSettings || mongoose.model('SiteSettings', siteSettingsSchema);
   export const PageViewModel = mongoose.models.PageView || mongoose.model('PageView', pageViewSchema);
-  export const NovelStoryModel = mongoose.models.NovelStory || mongoose.model('NovelStory', novelStorySchema);
-  export const NovelSeasonModel = mongoose.models.NovelSeason || mongoose.model('NovelSeason', novelSeasonSchema);
-  export const NovelChapterModel = mongoose.models.NovelChapter || mongoose.model('NovelChapter', novelChapterSchema);
-
   const shortUrlSchema = new mongoose.Schema({
     slug: { type: String, required: true, unique: true },
     targetUrl: { type: String, required: true },

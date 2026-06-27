@@ -5,11 +5,10 @@ import { useBrandItems } from "@/hooks/use-brand";
 import { useMusicTracks } from "@/hooks/use-music";
 import { useResumeItems } from "@/hooks/use-resume";
 import { useSiteSettings, useUpdateSiteSettings } from "@/hooks/use-settings";
-import { useQuery } from "@tanstack/react-query";
-import { FileText, Mail, Image, Music, TrendingUp, Clock, ScrollText, Briefcase, BookOpen, ExternalLink, ChevronRight } from "lucide-react";
+import { FileText, Mail, Image, Music, TrendingUp, Clock, ScrollText, Briefcase, ExternalLink, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import type { AvailabilityStatus, NovelStory } from "@shared/schema";
+import type { AvailabilityStatus } from "@shared/schema";
 import { useLanguage } from "@/hooks/use-language";
 
 export default function Dashboard() {
@@ -28,8 +27,6 @@ export default function Dashboard() {
     { value: "busy", label: t("home.activity.curentlybusy"), color: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400", dot: "bg-amber-500" },
     { value: "unavailable", label: t("home.activity.notavailable"), color: "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-400", dot: "bg-red-500" },
   ];
-
-  const { data: novelStories } = useQuery<NovelStory[]>({ queryKey: ["/api/novel/stories/all"] });
 
   const unreadMessages = messages?.filter(m => !m.read).length || 0;
 
@@ -55,7 +52,6 @@ export default function Dashboard() {
     { label: t("admin.dashboard.stat.brand"), value: brands?.length || 0, icon: Image, href: "/admin/brand", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400", accent: "group-hover:bg-emerald-500/15" },
     { label: t("admin.dashboard.stat.music"), value: tracks?.length || 0, icon: Music, href: "/admin/music", color: "bg-purple-500/10 text-purple-600 dark:text-purple-400", accent: "group-hover:bg-purple-500/15" },
     { label: t("admin.dashboard.stat.resume"), value: resumeItems?.length || 0, icon: ScrollText, href: "/admin/resume", color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400", accent: "group-hover:bg-cyan-500/15" },
-    { label: t("admin.dashboard.stat.novels"), value: novelStories?.length || 0, icon: BookOpen, href: "/admin/novel", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400", accent: "group-hover:bg-rose-500/15" },
   ];
 
   const recentMessages = messages?.slice(0, 3) || [];
@@ -122,7 +118,7 @@ export default function Dashboard() {
         </div>
 
         {/* ── Stats Grid ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (

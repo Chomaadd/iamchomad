@@ -27,10 +27,6 @@ A personal portfolio website with blog, brand showcase, music collection, and co
   - Custom background image support (with dark overlay, NO `background-attachment: fixed` — iOS bug)
   - 5 border styles: `default` (rounded-2xl), `pill` (rounded-full), `sharp` (rounded-md), `dashed` (border-2 dashed), `glow` (shadow, no border)
   - Colors adapt automatically based on whether background image is present
-- **Novel & Komik** (`/novel`) - Reading platform for stories with grid cover display, search & category filter
-  - Story detail (`/novel/:slug`) - Synopsis, season & chapter accordion list; **view count** (👁) auto-incremented on page load via PATCH endpoint, displayed next to chapter count
-  - Reading page (`/novel/:slug/season-:n/bab-:n`) - Clean reading view with prev/next chapter navigation
-  - Supports categories: novel, komik, cerpen, puisi, lainnya; statuses: ongoing, completed, hiatus
 
 ### Admin Dashboard
 - **Secure Authentication** - Session-based login (no public registration)
@@ -49,6 +45,7 @@ A personal portfolio website with blog, brand showcase, music collection, and co
   - Grid: 3 cols on mobile, 5 cols on sm+
 - **Messages** (`/admin/messages`) - View and manage contact form messages
 - **Settings** (`/admin/settings`) - Site Identity (title, name, owner name), SEO (meta description, keywords, OG image with preview), Photos (profile/about photos), **"Now" section** (Discord User ID for Lanyard, manual fields: nowListening/nowReading/nowWorking/nowLocation)
+- **ManageNovel** - Removed (feature deleted)
 
 ## Admin Access
 
