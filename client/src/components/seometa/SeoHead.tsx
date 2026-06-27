@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { useSiteSettings } from "@/hooks/use-settings";
 
-const SITE_URL = "https://iamchomad.my.id";
+const SITE_URL = "https://www.iamchomad.my.id";
 const FALLBACK_NAME = "Choiril Ahmad";
 const FALLBACK_DESCRIPTION = "Personal website of Choiril Ahmad — Entrepreneur & Software Developer crafting digital experiences with precision and purpose.";
 const FALLBACK_IMAGE = `${SITE_URL}/og-image.jpg`;

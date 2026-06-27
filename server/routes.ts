@@ -69,13 +69,12 @@ export async function registerRoutes(
     }),
   );
 
-  // Redirect www → non-www in production
+  // Redirect non-www → www in production
   app.use((req: any, res: any, next: any) => {
     const host = req.headers.host || "";
-    if (host.startsWith("www.")) {
-      const newHost = host.slice(4);
+    if (process.env.NODE_ENV === "production" && host === "iamchomad.my.id") {
       const protocol = req.headers["x-forwarded-proto"] || "https";
-      return res.redirect(301, `${protocol}://${newHost}${req.url}`);
+      return res.redirect(301, `${protocol}://www.iamchomad.my.id${req.url}`);
     }
     next();
   });
@@ -296,12 +295,12 @@ export async function registerRoutes(
     res.setHeader("Content-Type", "text/plain");
     res.setHeader("Cache-Control", "public, max-age=86400");
     res.send(
-      `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /login\nDisallow: /api/\n\nSitemap: https://iamchomad.my.id/sitemap.xml\n`,
+      `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /login\nDisallow: /api/\n\nSitemap: https://www.iamchomad.my.id/sitemap.xml\n`,
     );
   });
 
   app.get("/sitemap.xml", async (_req, res) => {
-    const SITE_URL = "https://iamchomad.my.id";
+    const SITE_URL = "https://www.iamchomad.my.id";
     const today = new Date().toISOString().split("T")[0];
 
     const staticPages = [
