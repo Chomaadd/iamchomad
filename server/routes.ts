@@ -353,6 +353,8 @@ export async function registerRoutes(
         footerNote: settings?.loveFooterNote || null,
         musicUrl: settings?.loveMusicUrl || null,
         musicTitle: settings?.loveMusicTitle || null,
+        musicStartTime: settings?.loveMusicStartTime ?? null,
+        musicEndTime: settings?.loveMusicEndTime ?? null,
         photos: (() => { try { return settings?.lovePhotos ? JSON.parse(settings.lovePhotos) : []; } catch { return []; } })(),
         quiz: (() => { try { return settings?.loveQuiz ? JSON.parse(settings.loveQuiz) : []; } catch { return []; } })(),
       });
@@ -370,10 +372,11 @@ export async function registerRoutes(
         loveFinalQuestion?: string; loveFinalSuccessTitle?: string;
         loveFinalSuccessMessage?: string; loveFinalNoTease?: string;
         loveFooterNote?: string; loveMusicUrl?: string; loveMusicTitle?: string;
+        loveMusicStartTime?: number | null; loveMusicEndTime?: number | null;
         loveSessionExpiryHours?: number;
         lovePhotos?: string; loveQuiz?: string;
       };
-      console.log("[love/config PUT] photos len:", body.lovePhotos?.length, "quiz len:", body.loveQuiz?.length, "musicUrl:", body.loveMusicUrl);
+      console.log("[love/config PUT] photos len:", body.lovePhotos?.length, "quiz len:", body.loveQuiz?.length, "musicUrl:", body.loveMusicUrl, "startTime:", body.loveMusicStartTime, "endTime:", body.loveMusicEndTime);
       await storage.updateSiteSettings(body);
       res.json({ success: true });
     } catch (err) {

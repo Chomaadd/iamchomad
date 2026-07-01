@@ -53,22 +53,43 @@ export default function LoveYou() {
   const quiz: { question: string; options: string[]; correctIndex: number; successMessage: string }[] = Array.isArray(cfg.quiz) ? cfg.quiz : [];
   const musicUrl: string = cfg.musicUrl || "";
   const musicTitle: string = cfg.musicTitle || "";
+  const musicStartTime: number = cfg.musicStartTime ?? 0;
+  const musicEndTime: number | null = cfg.musicEndTime ?? null;
 
-  // Keep audioRef synced with the latest musicUrl from server
+  // Keep audioRef synced with the latest musicUrl/range from server
   useEffect(() => {
     if (!musicUrl) return;
-    // Pause old audio if any
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
       setMusicPlaying(false);
     }
     const audio = new Audio(musicUrl);
-    audio.loop = true;
     audio.volume = 0.6;
     audio.preload = "auto";
+    // Seek to startTime when ready
+    audio.addEventListener("canplay", () => {
+      if (audio.currentTime < musicStartTime) audio.currentTime = musicStartTime;
+    }, { once: true });
+    // Time range enforcement via timeupdate
+    const onTimeUpdate = () => {
+      if (musicEndTime !== null && audio.currentTime >= musicEndTime) {
+        audio.currentTime = musicStartTime;
+      }
+    };
+    // Loop back to startTime when track ends (if no endTime)
+    const onEnded = () => {
+      audio.currentTime = musicStartTime;
+      audio.play().catch(() => {});
+    };
+    audio.addEventListener("timeupdate", onTimeUpdate);
+    audio.addEventListener("ended", onEnded);
     audioRef.current = audio;
-  }, [musicUrl]);
+    return () => {
+      audio.removeEventListener("timeupdate", onTimeUpdate);
+      audio.removeEventListener("ended", onEnded);
+    };
+  }, [musicUrl, musicStartTime, musicEndTime]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cleanup audio on unmount
   useEffect(() => {
@@ -92,6 +113,10 @@ export default function LoveYou() {
   const startMusic = () => {
     const audio = audioRef.current;
     if (!audio || musicPlaying) return;
+    // Seek to startTime before playing (in case canplay event didn't fire yet)
+    if (musicStartTime > 0 && audio.currentTime < musicStartTime) {
+      audio.currentTime = musicStartTime;
+    }
     audio.play().then(() => setMusicPlaying(true)).catch(() => {});
   };
 

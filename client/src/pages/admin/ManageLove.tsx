@@ -8,6 +8,26 @@ import { Heart, Plus, Trash2, Loader2, Upload, Music, Image, Clock, FileText, Me
 type Photo = { url: string; caption: string };
 type QuizQuestion = { question: string; options: string[]; correctIndex: number; successMessage: string };
 
+const parseMmSs = (str: string): number | null => {
+  const s = str.trim();
+  if (!s) return null;
+  if (s.includes(":")) {
+    const [m, sec] = s.split(":");
+    const mins = parseInt(m, 10);
+    const secs = parseFloat(sec);
+    if (!isNaN(mins) && !isNaN(secs)) return mins * 60 + secs;
+  }
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
+};
+
+const formatSeconds = (s: number | null | undefined): string => {
+  if (s === null || s === undefined) return "";
+  const m = Math.floor(s / 60);
+  const sec = Math.round(s % 60);
+  return `${m}:${sec.toString().padStart(2, "0")}`;
+};
+
 const DEFAULT_TEXTS = {
   gateTitle: "Untuk Kamu, Sayang",
   gateSubtitle: "Halaman ini cuma bisa dibuka oleh satu orang di dunia... kamu. Masukkan tanggal jadian kita ya 🥰",
@@ -33,6 +53,8 @@ export default function ManageLove() {
   });
   const [musicUrl, setMusicUrl] = useState("");
   const [musicTitle, setMusicTitle] = useState("");
+  const [musicStartTime, setMusicStartTime] = useState("");
+  const [musicEndTime, setMusicEndTime] = useState("");
   const [sessionExpiryHours, setSessionExpiryHours] = useState<number | "">(24);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [quiz, setQuiz] = useState<QuizQuestion[]>([]);
@@ -54,6 +76,8 @@ export default function ManageLove() {
     });
     setMusicUrl(cfg.musicUrl || "");
     setMusicTitle(cfg.musicTitle || "");
+    setMusicStartTime(formatSeconds(cfg.musicStartTime ?? null));
+    setMusicEndTime(formatSeconds(cfg.musicEndTime ?? null));
     setPhotos(Array.isArray(cfg.photos) ? cfg.photos : []);
     setQuiz(Array.isArray(cfg.quiz) && cfg.quiz.length > 0 ? cfg.quiz : []);
   }, [cfg]);
@@ -78,6 +102,8 @@ export default function ManageLove() {
         loveFooterNote: texts.footerNote,
         loveMusicUrl: musicUrl,
         loveMusicTitle: musicTitle,
+        loveMusicStartTime: parseMmSs(musicStartTime),
+        loveMusicEndTime: parseMmSs(musicEndTime),
         loveSessionExpiryHours: sessionExpiryHours === "" ? null : Number(sessionExpiryHours),
         lovePhotos: JSON.stringify(photos),
         loveQuiz: JSON.stringify(quiz),
@@ -241,6 +267,33 @@ export default function ManageLove() {
             {musicUrl && (
               <audio controls src={musicUrl} className="mt-2 w-full h-10 rounded-lg" />
             )}
+          </Field>
+          <Field label="Range Waktu Putar">
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground w-16">Mulai dari</span>
+                <input
+                  value={musicStartTime}
+                  onChange={e => setMusicStartTime(e.target.value)}
+                  placeholder="0:00"
+                  className="w-24 rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 font-mono"
+                  data-testid="input-music-start"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground w-16">Berhenti di</span>
+                <input
+                  value={musicEndTime}
+                  onChange={e => setMusicEndTime(e.target.value)}
+                  placeholder="kosong = sampai habis"
+                  className="w-36 rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 font-mono"
+                  data-testid="input-music-end"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1.5">
+              Format <code className="bg-muted px-1 rounded">menit:detik</code> — contoh: <code className="bg-muted px-1 rounded">1:30</code> sampai <code className="bg-muted px-1 rounded">3:45</code>. Dikosongkan = main dari awal sampai habis.
+            </p>
           </Field>
         </Section>
 

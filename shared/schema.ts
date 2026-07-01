@@ -197,6 +197,8 @@ export const siteSettingsSchema = z.object({
   loveFooterNote: z.string().nullable().optional(),
   loveMusicUrl: z.string().nullable().optional(),
   loveMusicTitle: z.string().nullable().optional(),
+  loveMusicStartTime: z.number().nullable().optional(),
+  loveMusicEndTime: z.number().nullable().optional(),
   loveSessionExpiryHours: z.number().nullable().optional(),
   lovePhotos: z.string().nullable().optional(),
   loveQuiz: z.string().nullable().optional(),

@@ -138,6 +138,8 @@ import mongoose from 'mongoose';
     loveFooterNote: { type: String },
     loveMusicUrl: { type: String },
     loveMusicTitle: { type: String },
+    loveMusicStartTime: { type: Number },
+    loveMusicEndTime: { type: Number },
     loveSessionExpiryHours: { type: Number },
     lovePhotos: { type: String },
     loveQuiz: { type: String },
