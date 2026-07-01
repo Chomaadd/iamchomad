@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
-import { Heart, Lock, Sparkles, ChevronRight, RotateCcw, Music2 } from "lucide-react";
+import { Heart, Lock, Sparkles, ChevronRight, RotateCcw, Music2, MessageCircle } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useQuery } from "@tanstack/react-query";
 
@@ -55,6 +55,9 @@ export default function LoveYou() {
   const musicTitle: string = cfg.musicTitle || "";
   const musicStartTime: number = cfg.musicStartTime ?? 0;
   const musicEndTime: number | null = cfg.musicEndTime ?? null;
+  const gateImageUrl: string = cfg.gateImageUrl || "";
+  const stickerUrl: string = cfg.stickerUrl || "";
+  const whatsappNumber: string = cfg.whatsappNumber || "";
 
   // Keep audioRef synced with the latest musicUrl/range from server
   useEffect(() => {
@@ -212,9 +215,13 @@ export default function LoveYou() {
             <motion.div key="gate" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               className="max-w-md w-full bg-white/80 dark:bg-black/50 backdrop-blur-xl rounded-3xl shadow-2xl p-8 text-center border border-rose-200/50 dark:border-rose-800/30"
               data-testid="stage-gate">
-              <div className="w-16 h-16 mx-auto rounded-full bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center mb-5">
-                <Lock className="w-7 h-7 text-rose-500" />
-              </div>
+              {gateImageUrl ? (
+                <img src={gateImageUrl} alt="Gate" className="w-20 h-20 mx-auto rounded-full object-cover border-4 border-rose-200 dark:border-rose-800 shadow mb-5" />
+              ) : (
+                <div className="w-16 h-16 mx-auto rounded-full bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center mb-5">
+                  <Lock className="w-7 h-7 text-rose-500" />
+                </div>
+              )}
               <h1 className="text-2xl font-serif font-semibold text-rose-900 dark:text-rose-100 mb-2" data-testid="text-gate-title">{gateTitle}</h1>
               <p className="text-sm text-rose-700/80 dark:text-rose-300/80 mb-6" data-testid="text-gate-subtitle">{gateSubtitle}</p>
               <form onSubmit={handleUnlock} className="space-y-3">
@@ -350,9 +357,32 @@ export default function LoveYou() {
             <motion.div key="celebrate" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
               className="max-w-lg w-full bg-white/90 dark:bg-black/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 text-center border border-rose-200/50 dark:border-rose-800/30"
               data-testid="stage-celebrate">
-              <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ repeat: Infinity, duration: 1.4 }} className="text-5xl mb-4">💖</motion.div>
+              {stickerUrl ? (
+                <motion.img
+                  src={stickerUrl}
+                  alt="stiker"
+                  className="w-28 h-28 object-contain mx-auto mb-4"
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ repeat: Infinity, duration: 1.6 }}
+                  data-testid="img-sticker"
+                />
+              ) : (
+                <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ repeat: Infinity, duration: 1.4 }} className="text-5xl mb-4">💖</motion.div>
+              )}
               <h2 className="text-3xl font-serif font-semibold text-rose-900 dark:text-rose-100 mb-4" data-testid="text-celebrate-title">{finalSuccessTitle}</h2>
               <p className="text-rose-800/90 dark:text-rose-200/90 leading-relaxed mb-6" data-testid="text-celebrate-message">{finalSuccessMessage}</p>
+              {whatsappNumber && (
+                <a
+                  href={`https://wa.me/${whatsappNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-green-500 hover:bg-green-600 text-white font-medium text-sm transition-colors mb-5"
+                  data-testid="button-whatsapp-share"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Kirim pesan ke WhatsApp
+                </a>
+              )}
               <button onClick={() => { setStage("intro"); setQuizIndex(0); setSelected(null); setShowQuizFeedback(false); confettiFired.current = false; }}
                 className="text-sm text-rose-400 hover:text-rose-500 flex items-center gap-1 mx-auto"
                 data-testid="button-replay">

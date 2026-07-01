@@ -169,6 +169,9 @@ export default function ManageLove() {
         loveFinalSuccessMessage: texts.finalSuccessMessage,
         loveFinalNoTease: texts.finalNoTease,
         loveFooterNote: texts.footerNote,
+        loveGateImageUrl: gateImageUrl,
+        loveStickerUrl: stickerUrl,
+        loveWhatsappNumber: whatsappNumber,
         loveMusicUrl: musicUrl,
         loveMusicTitle: musicTitle,
         loveMusicStartTime: parseMmSs(musicStartTime),
@@ -297,6 +300,106 @@ export default function ManageLove() {
           <Field label="Subjudul">
             <textarea value={texts.gateSubtitle} onChange={e => setTexts(t => ({ ...t, gateSubtitle: e.target.value }))}
               rows={2} className={textareaCls} data-testid="input-gate-subtitle" />
+          </Field>
+          <Field label="Foto Gate (opsional — tampil di atas form password)">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border border-dashed border-rose-300 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-colors text-sm text-muted-foreground">
+                  {uploadingCrop ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  Pilih foto
+                  <input ref={gateFileRef} type="file" accept="image/*" className="hidden" onChange={handleGateFileSelect} data-testid="input-gate-image" />
+                </label>
+                {gateImageUrl && (
+                  <div className="flex items-center gap-2 text-xs text-rose-600 dark:text-rose-400 font-medium">
+                    <Image className="w-3.5 h-3.5" />
+                    Foto sudah diset
+                    <button onClick={() => setGateImageUrl("")} className="text-muted-foreground hover:text-destructive ml-1">✕</button>
+                  </div>
+                )}
+              </div>
+              {gateImageUrl && (
+                <img src={gateImageUrl} alt="Gate" className="w-24 h-24 rounded-full object-cover border-2 border-rose-200" />
+              )}
+              {cropSrc && (
+                <div className="space-y-3">
+                  <div className="relative w-full h-56 rounded-xl overflow-hidden bg-black">
+                    <Cropper
+                      image={cropSrc}
+                      crop={crop}
+                      zoom={zoom}
+                      aspect={1}
+                      onCropChange={setCrop}
+                      onZoomChange={setZoom}
+                      onCropComplete={onCropComplete}
+                    />
+                  </div>
+                  <input type="range" min={1} max={3} step={0.05} value={zoom}
+                    onChange={e => setZoom(Number(e.target.value))}
+                    className="w-full accent-rose-500" />
+                  <div className="flex gap-2">
+                    <button onClick={handleCropSave} disabled={uploadingCrop}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium disabled:opacity-50 transition-colors">
+                      {uploadingCrop ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                      Simpan Crop
+                    </button>
+                    <button onClick={() => setCropSrc(null)}
+                      className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:bg-muted transition-colors">
+                      Batal
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Field>
+        </Section>
+
+        {/* WhatsApp & Sticker */}
+        <Section icon={<Phone className="w-4 h-4" />} title="WhatsApp & Stiker Perayaan" desc="Tombol WhatsApp share dan stiker di halaman perayaan">
+          <Field label="Nomor WhatsApp (format internasional, tanpa +)">
+            <input
+              value={whatsappNumber}
+              onChange={e => setWhatsappNumber(e.target.value)}
+              placeholder="628123456789"
+              className={inputCls}
+              data-testid="input-whatsapp-number"
+            />
+            <p className="text-xs text-muted-foreground mt-1">Contoh: <code className="bg-muted px-1 rounded">628123456789</code>. Tombol 'Kirim pesan ke WA' akan muncul di halaman perayaan.</p>
+          </Field>
+          <Field label="Stiker/GIF Perayaan (opsional — muncul di halaman Yeay!)">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border border-dashed border-rose-300 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-colors text-sm text-muted-foreground">
+                  {uploading === "sticker" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  {uploading === "sticker" ? "Mengupload..." : "Upload stiker/GIF"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    data-testid="input-sticker-upload"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploading("sticker");
+                      try {
+                        await uploadFile(file, (url) => setStickerUrl(url));
+                        toast({ title: "🎉 Stiker berhasil diupload!" });
+                      } catch {
+                        toast({ title: "Upload gagal", variant: "destructive" });
+                      } finally {
+                        setUploading(null);
+                        e.target.value = "";
+                      }
+                    }}
+                  />
+                </label>
+                {stickerUrl && (
+                  <button onClick={() => setStickerUrl("")} className="text-xs text-muted-foreground hover:text-destructive">Hapus stiker</button>
+                )}
+              </div>
+              {stickerUrl && (
+                <img src={stickerUrl} alt="Stiker" className="w-24 h-24 object-contain rounded-xl border border-border bg-muted" />
+              )}
+            </div>
           </Field>
         </Section>
 
