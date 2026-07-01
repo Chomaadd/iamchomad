@@ -1,12 +1,34 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import Cropper from "react-easy-crop";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Heart, Plus, Trash2, Loader2, Upload, Music, Image, Clock, FileText, MessageSquare } from "lucide-react";
+import { Heart, Plus, Trash2, Loader2, Upload, Music, Image, Clock, FileText, MessageSquare, Sparkles, Phone } from "lucide-react";
 
 type Photo = { url: string; caption: string };
 type QuizQuestion = { question: string; options: string[]; correctIndex: number; successMessage: string };
+
+async function getCroppedBlob(
+  imageSrc: string,
+  pixelCrop: { x: number; y: number; width: number; height: number }
+): Promise<Blob> {
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = imageSrc;
+  });
+  const canvas = document.createElement("canvas");
+  const size = Math.min(pixelCrop.width, pixelCrop.height, 800);
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(image, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, size, size);
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(b => (b ? resolve(b) : reject(new Error("Canvas empty"))), "image/jpeg", 0.92);
+  });
+}
 
 const parseMmSs = (str: string): number | null => {
   const s = str.trim();
@@ -51,14 +73,58 @@ export default function ManageLove() {
     finalQuestion: "", finalSuccessTitle: "", finalSuccessMessage: "",
     finalNoTease: "", footerNote: "",
   });
+  const [gateImageUrl, setGateImageUrl] = useState("");
   const [musicUrl, setMusicUrl] = useState("");
   const [musicTitle, setMusicTitle] = useState("");
   const [musicStartTime, setMusicStartTime] = useState("");
   const [musicEndTime, setMusicEndTime] = useState("");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [stickerUrl, setStickerUrl] = useState("");
   const [sessionExpiryHours, setSessionExpiryHours] = useState<number | "">(24);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [quiz, setQuiz] = useState<QuizQuestion[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
+
+  // Gate image crop state
+  const gateFileRef = useRef<HTMLInputElement>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  const [uploadingCrop, setUploadingCrop] = useState(false);
+
+  const onCropComplete = useCallback((_: unknown, pixels: { x: number; y: number; width: number; height: number }) => {
+    setCroppedAreaPixels(pixels);
+  }, []);
+
+  const handleGateFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { setCropSrc(reader.result as string); setCrop({ x: 0, y: 0 }); setZoom(1); };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleCropSave = async () => {
+    if (!cropSrc || !croppedAreaPixels) return;
+    setUploadingCrop(true);
+    try {
+      const blob = await getCroppedBlob(cropSrc, croppedAreaPixels);
+      const fd = new FormData();
+      fd.append("file", blob, "gate-photo.jpg");
+      const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      setGateImageUrl(data.url);
+      setCropSrc(null);
+      toast({ title: "📸 Foto gate berhasil disimpan!" });
+    } catch {
+      toast({ title: "Upload gagal", variant: "destructive" });
+    } finally {
+      setUploadingCrop(false);
+    }
+  };
 
   // Init from cfg ONLY — don't mix with settings to avoid state reset on settings refetch
   useEffect(() => {
@@ -74,10 +140,13 @@ export default function ManageLove() {
       finalNoTease: cfg.finalNoTease || DEFAULT_TEXTS.finalNoTease,
       footerNote: cfg.footerNote || DEFAULT_TEXTS.footerNote,
     });
+    setGateImageUrl(cfg.gateImageUrl || "");
     setMusicUrl(cfg.musicUrl || "");
     setMusicTitle(cfg.musicTitle || "");
     setMusicStartTime(formatSeconds(cfg.musicStartTime ?? null));
     setMusicEndTime(formatSeconds(cfg.musicEndTime ?? null));
+    setWhatsappNumber(cfg.whatsappNumber || "");
+    setStickerUrl(cfg.stickerUrl || "");
     setPhotos(Array.isArray(cfg.photos) ? cfg.photos : []);
     setQuiz(Array.isArray(cfg.quiz) && cfg.quiz.length > 0 ? cfg.quiz : []);
   }, [cfg]);
