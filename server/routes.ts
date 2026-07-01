@@ -353,8 +353,8 @@ export async function registerRoutes(
         footerNote: settings?.loveFooterNote || null,
         musicUrl: settings?.loveMusicUrl || null,
         musicTitle: settings?.loveMusicTitle || null,
-        photos: settings?.lovePhotos ? JSON.parse(settings.lovePhotos) : [],
-        quiz: settings?.loveQuiz ? JSON.parse(settings.loveQuiz) : [],
+        photos: (() => { try { return settings?.lovePhotos ? JSON.parse(settings.lovePhotos) : []; } catch { return []; } })(),
+        quiz: (() => { try { return settings?.loveQuiz ? JSON.parse(settings.loveQuiz) : []; } catch { return []; } })(),
       });
     } catch (err) {
       console.error("Love config error:", err);
@@ -373,6 +373,7 @@ export async function registerRoutes(
         loveSessionExpiryHours?: number;
         lovePhotos?: string; loveQuiz?: string;
       };
+      console.log("[love/config PUT] photos len:", body.lovePhotos?.length, "quiz len:", body.loveQuiz?.length, "musicUrl:", body.loveMusicUrl);
       await storage.updateSiteSettings(body);
       res.json({ success: true });
     } catch (err) {

@@ -33,9 +33,10 @@ export default function LoveYou() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [musicPlaying, setMusicPlaying] = useState(false);
 
+  // Always fetch fresh — staleTime:0 ensures music/photos show immediately after admin save
   const { data: cfg = {} as any } = useQuery<any>({
     queryKey: ["/api/love/config"],
-    staleTime: 60_000,
+    staleTime: 0,
   });
 
   // Resolved text values
@@ -48,43 +49,50 @@ export default function LoveYou() {
   const finalSuccessMessage = cfg.finalSuccessMessage || D.finalSuccessMessage;
   const finalNoTease = cfg.finalNoTease || D.finalNoTease;
   const footerNote = cfg.footerNote || D.footerNote;
-  const photos: { url: string; caption: string }[] = cfg.photos || [];
-  const quiz: { question: string; options: string[]; correctIndex: number; successMessage: string }[] = cfg.quiz || [];
+  const photos: { url: string; caption: string }[] = Array.isArray(cfg.photos) ? cfg.photos : [];
+  const quiz: { question: string; options: string[]; correctIndex: number; successMessage: string }[] = Array.isArray(cfg.quiz) ? cfg.quiz : [];
   const musicUrl: string = cfg.musicUrl || "";
   const musicTitle: string = cfg.musicTitle || "";
 
-  // Pre-load audio element when musicUrl becomes available
+  // Keep audioRef synced with the latest musicUrl from server
   useEffect(() => {
-    if (musicUrl) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      const audio = new Audio(musicUrl);
-      audio.loop = true;
-      audio.volume = 0.5;
-      audio.preload = "auto";
-      audioRef.current = audio;
-      // If already unlocked (e.g. page refresh), auto-play
-      if (stage !== "gate") {
-        audio.play().then(() => setMusicPlaying(true)).catch(() => {});
-      }
+    if (!musicUrl) return;
+    // Pause old audio if any
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setMusicPlaying(false);
     }
-  }, [musicUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+    const audio = new Audio(musicUrl);
+    audio.loop = true;
+    audio.volume = 0.6;
+    audio.preload = "auto";
+    audioRef.current = audio;
+  }, [musicUrl]);
 
   // Cleanup audio on unmount
   useEffect(() => {
-    return () => { audioRef.current?.pause(); };
+    return () => {
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
   }, []);
 
   const toggleMusic = () => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
     if (musicPlaying) {
-      audioRef.current.pause();
+      audio.pause();
       setMusicPlaying(false);
     } else {
-      audioRef.current.play().catch(() => {});
-      setMusicPlaying(true);
+      audio.play().then(() => setMusicPlaying(true)).catch(() => {});
     }
+  };
+
+  const startMusic = () => {
+    const audio = audioRef.current;
+    if (!audio || musicPlaying) return;
+    audio.play().then(() => setMusicPlaying(true)).catch(() => {});
   };
 
   const handleUnlock = async (e: React.FormEvent) => {
@@ -95,10 +103,15 @@ export default function LoveYou() {
       const res = await apiRequest("POST", "/api/love/verify", { password });
       const data = await res.json();
       if (data.valid) {
-        // Play music immediately while still in user-gesture context
-        if (audioRef.current) {
-          audioRef.current.play().then(() => setMusicPlaying(true)).catch(() => {});
+        // Must call play() here — still within user gesture chain
+        // Also create audio on-the-fly if somehow not pre-loaded yet
+        if (!audioRef.current && musicUrl) {
+          const audio = new Audio(musicUrl);
+          audio.loop = true;
+          audio.volume = 0.6;
+          audioRef.current = audio;
         }
+        startMusic();
         setStage("intro");
       } else {
         setError("Hmm, coba lagi ya. Pastiin formatnya bener 💭");

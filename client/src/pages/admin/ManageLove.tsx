@@ -38,28 +38,31 @@ export default function ManageLove() {
   const [quiz, setQuiz] = useState<QuizQuestion[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
 
+  // Init from cfg ONLY — don't mix with settings to avoid state reset on settings refetch
   useEffect(() => {
-    if (cfg) {
-      setTexts({
-        gateTitle: cfg.gateTitle || DEFAULT_TEXTS.gateTitle,
-        gateSubtitle: cfg.gateSubtitle || DEFAULT_TEXTS.gateSubtitle,
-        introTitle: cfg.introTitle || DEFAULT_TEXTS.introTitle,
-        introMessage: cfg.introMessage || DEFAULT_TEXTS.introMessage,
-        finalQuestion: cfg.finalQuestion || DEFAULT_TEXTS.finalQuestion,
-        finalSuccessTitle: cfg.finalSuccessTitle || DEFAULT_TEXTS.finalSuccessTitle,
-        finalSuccessMessage: cfg.finalSuccessMessage || DEFAULT_TEXTS.finalSuccessMessage,
-        finalNoTease: cfg.finalNoTease || DEFAULT_TEXTS.finalNoTease,
-        footerNote: cfg.footerNote || DEFAULT_TEXTS.footerNote,
-      });
-      setMusicUrl(cfg.musicUrl || "");
-      setMusicTitle(cfg.musicTitle || "");
-      setPhotos(cfg.photos || []);
-      setQuiz(cfg.quiz?.length > 0 ? cfg.quiz : []);
-    }
-    if (settings) {
-      setSessionExpiryHours(settings.loveSessionExpiryHours ?? 24);
-    }
-  }, [cfg, settings]);
+    if (!cfg) return;
+    setTexts({
+      gateTitle: cfg.gateTitle || DEFAULT_TEXTS.gateTitle,
+      gateSubtitle: cfg.gateSubtitle || DEFAULT_TEXTS.gateSubtitle,
+      introTitle: cfg.introTitle || DEFAULT_TEXTS.introTitle,
+      introMessage: cfg.introMessage || DEFAULT_TEXTS.introMessage,
+      finalQuestion: cfg.finalQuestion || DEFAULT_TEXTS.finalQuestion,
+      finalSuccessTitle: cfg.finalSuccessTitle || DEFAULT_TEXTS.finalSuccessTitle,
+      finalSuccessMessage: cfg.finalSuccessMessage || DEFAULT_TEXTS.finalSuccessMessage,
+      finalNoTease: cfg.finalNoTease || DEFAULT_TEXTS.finalNoTease,
+      footerNote: cfg.footerNote || DEFAULT_TEXTS.footerNote,
+    });
+    setMusicUrl(cfg.musicUrl || "");
+    setMusicTitle(cfg.musicTitle || "");
+    setPhotos(Array.isArray(cfg.photos) ? cfg.photos : []);
+    setQuiz(Array.isArray(cfg.quiz) && cfg.quiz.length > 0 ? cfg.quiz : []);
+  }, [cfg]);
+
+  // Settings only drives sessionExpiryHours — separate to avoid resetting other state
+  useEffect(() => {
+    if (!settings) return;
+    setSessionExpiryHours(settings.loveSessionExpiryHours ?? 24);
+  }, [settings]);
 
   const { mutateAsync: save, isPending: saving } = useMutation({
     mutationFn: async () => {
@@ -82,7 +85,6 @@ export default function ManageLove() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/love/config"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
       toast({ title: "💾 Tersimpan!", description: "Halaman cinta sudah diperbarui." });
     },
     onError: () => toast({ title: "Gagal menyimpan", variant: "destructive" }),
