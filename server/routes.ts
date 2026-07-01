@@ -900,6 +900,11 @@ ${blogEntries}
         nowReading,
         nowWorking,
         nowLocation,
+        gmailUser,
+        gmailAppPassword,
+        adminUsername,
+        adminPassword,
+        lovePagePassword,
       } = req.body;
       const settings = await storage.updateSiteSettings({
         siteTitle,
@@ -934,6 +939,11 @@ ${blogEntries}
         nowReading,
         nowWorking,
         nowLocation,
+        gmailUser,
+        gmailAppPassword,
+        adminUsername,
+        adminPassword,
+        lovePagePassword,
       });
       res.json(settings);
     } catch (err) {
