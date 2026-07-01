@@ -51,11 +51,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Temporary healthcheck handler that responds 200 while app initializes
+// Healthcheck handler — returns 503 while app is still initializing
 let appReady = false;
 const healthcheckMiddleware = (_req: Request, res: Response, next: NextFunction) => {
   if (!appReady && _req.path === "/") {
-    return res.status(200).send("OK");
+    return res.status(503).send("Starting…");
   }
   next();
 };
@@ -108,5 +108,6 @@ httpServer.listen(
   } catch (error) {
     log(`Initialization error: ${error}`, "express");
     console.error("Failed to initialize application:", error);
+    process.exit(1);
   }
 })();

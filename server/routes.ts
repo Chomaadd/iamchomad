@@ -58,8 +58,12 @@ export async function registerRoutes(
   app.use(
     session({
       store: store,
-      secret:
-        process.env.SESSION_SECRET || "your-secret-key-change-in-production",
+      secret: (() => {
+        if (!process.env.SESSION_SECRET) {
+          throw new Error("SESSION_SECRET environment variable is required");
+        }
+        return process.env.SESSION_SECRET;
+      })(),
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -218,8 +222,11 @@ export async function registerRoutes(
     try {
       const input = api.auth.login.input.parse(req.body);
 
-      const adminUsername = (process.env.ADMIN_USERNAME || "user").trim();
-      const adminPassword = (process.env.ADMIN_PASSWORD || "Makanseblak123#").trim();
+      const adminUsername = process.env.ADMIN_USERNAME?.trim();
+      const adminPassword = process.env.ADMIN_PASSWORD?.trim();
+      if (!adminUsername || !adminPassword) {
+        return res.status(503).json({ message: "Admin credentials not configured" });
+      }
 
       if (input.username.trim() !== adminUsername) {
         return res.status(401).json({ message: "Invalid credentials" });
