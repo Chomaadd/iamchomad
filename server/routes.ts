@@ -328,6 +328,17 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/love/admin-preview", requireAuth, async (req, res) => {
+    try {
+      req.session.loveUnlocked = true;
+      req.session.loveUnlockedAt = Date.now();
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("Love admin preview error:", err);
+      res.status(500).json({ ok: false });
+    }
+  });
+
   app.post("/api/love/verify", async (req, res) => {
     try {
       const { password } = req.body as { password?: string };

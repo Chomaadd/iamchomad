@@ -3,7 +3,7 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Heart, Plus, Trash2, Loader2, Upload, Music, Image, Clock, FileText, MessageSquare, Phone } from "lucide-react";
+import { Heart, Plus, Trash2, Loader2, Upload, Music, Image, Clock, FileText, MessageSquare, Phone, ExternalLink } from "lucide-react";
 import { ImageCropModal } from "@/components/ui/ImageCropModal";
 
 type Photo = { url: string; caption: string };
@@ -78,6 +78,7 @@ export default function ManageLove() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [quiz, setQuiz] = useState<QuizQuestion[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
+  const [previewing, setPreviewing] = useState(false);
 
   // Gate image — ImageCropModal state
   const [gateCropSrc, setGateCropSrc] = useState<string | null>(null);
@@ -142,6 +143,18 @@ export default function ManageLove() {
     if (!settings) return;
     setSessionExpiryHours(settings.loveSessionExpiryHours ?? 24);
   }, [settings]);
+
+  const handlePreview = async () => {
+    setPreviewing(true);
+    try {
+      await apiRequest("POST", "/api/love/admin-preview", {});
+      window.open("/i-love-you", "_blank");
+    } catch {
+      toast({ title: "Gagal membuka preview", variant: "destructive" });
+    } finally {
+      setPreviewing(false);
+    }
+  };
 
   const { mutateAsync: save, isPending: saving } = useMutation({
     mutationFn: async () => {
@@ -250,15 +263,26 @@ export default function ManageLove() {
               <p className="text-sm text-muted-foreground">Kelola konten halaman <code className="text-rose-500">/i-love-you</code></p>
             </div>
           </div>
-          <button
-            onClick={() => save()}
-            disabled={saving}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-medium transition-colors disabled:opacity-50"
-            data-testid="button-save-love"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            Simpan Semua
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePreview}
+              disabled={previewing || saving}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-rose-300 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 font-medium transition-colors disabled:opacity-50 text-sm"
+              data-testid="button-preview-love"
+            >
+              {previewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
+              Preview
+            </button>
+            <button
+              onClick={() => save()}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-medium transition-colors disabled:opacity-50"
+              data-testid="button-save-love"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              Simpan Semua
+            </button>
+          </div>
         </div>
 
         {/* Session Expiry */}
