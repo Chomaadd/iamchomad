@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Heart, Lock, Sparkles, ChevronRight, RotateCcw, Music2, MessageCircle } from "lucide-react";
+import { Footer } from "@/components/layout/Footer";
 import { apiRequest } from "@/lib/queryClient";
 import { useQuery } from "@tanstack/react-query";
 
@@ -193,7 +194,7 @@ export default function LoveYou() {
   const nextAfterPhotos = quiz.length > 0 ? "quiz" : "final";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-rose-50 via-pink-50 to-rose-100 dark:from-rose-950 dark:via-neutral-950 dark:to-rose-950 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-rose-50 via-pink-50 to-rose-100 dark:from-rose-950 dark:via-neutral-950 dark:to-rose-950 flex flex-col relative overflow-hidden">
       <FloatingHearts />
 
       {/* Music indicator */}
@@ -208,7 +209,7 @@ export default function LoveYou() {
         </button>
       )}
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-12">
+      <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-12">
         <AnimatePresence mode="wait">
           {/* GATE */}
           {stage === "gate" && (
@@ -393,9 +394,13 @@ export default function LoveYou() {
         </AnimatePresence>
       </div>
 
-      <p className="absolute bottom-4 left-0 right-0 text-center text-xs text-rose-400/70 z-10" data-testid="text-footer-note">
-        {footerNote}
-      </p>
+      {/* Catatan footer (custom) di atas, footer bawaan website di bawah */}
+      <div className="relative z-10 mt-auto">
+        <p className="text-center text-xs text-rose-400/70 py-3" data-testid="text-footer-note">
+          {footerNote}
+        </p>
+        <Footer />
+      </div>
     </div>
   );
 }
