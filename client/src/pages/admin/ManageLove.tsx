@@ -1,30 +1,24 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import Cropper from "react-easy-crop";
+import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Heart, Plus, Trash2, Loader2, Upload, Music, Image, Clock, FileText, MessageSquare, Sparkles, Phone } from "lucide-react";
+import { Heart, Plus, Trash2, Loader2, Upload, Music, Image, Clock, FileText, MessageSquare, Phone } from "lucide-react";
+import { ImageCropModal } from "@/components/ui/ImageCropModal";
 
 type Photo = { url: string; caption: string };
 type QuizQuestion = { question: string; options: string[]; correctIndex: number; successMessage: string };
 
-async function getCroppedBlob(
-  imageSrc: string,
-  pixelCrop: { x: number; y: number; width: number; height: number }
-): Promise<Blob> {
-  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = imageSrc;
-  });
+/** Resize a blob so the longest side ≤ maxPx, preserving aspect ratio. */
+async function resizeBlob(blob: Blob, maxPx = 800): Promise<Blob> {
+  const bitmap = await createImageBitmap(blob);
+  const scale = Math.min(1, maxPx / Math.max(bitmap.width, bitmap.height));
+  const w = Math.round(bitmap.width * scale);
+  const h = Math.round(bitmap.height * scale);
   const canvas = document.createElement("canvas");
-  const size = Math.min(pixelCrop.width, pixelCrop.height, 800);
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d")!;
-  ctx.drawImage(image, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, size, size);
+  canvas.width = w;
+  canvas.height = h;
+  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, w, h);
   return new Promise((resolve, reject) => {
     canvas.toBlob(b => (b ? resolve(b) : reject(new Error("Canvas empty"))), "image/jpeg", 0.92);
   });
@@ -85,44 +79,36 @@ export default function ManageLove() {
   const [quiz, setQuiz] = useState<QuizQuestion[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
 
-  // Gate image crop state
-  const gateFileRef = useRef<HTMLInputElement>(null);
-  const [cropSrc, setCropSrc] = useState<string | null>(null);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
-  const [uploadingCrop, setUploadingCrop] = useState(false);
-
-  const onCropComplete = useCallback((_: unknown, pixels: { x: number; y: number; width: number; height: number }) => {
-    setCroppedAreaPixels(pixels);
-  }, []);
+  // Gate image — ImageCropModal state
+  const [gateCropSrc, setGateCropSrc] = useState<string | null>(null);
 
   const handleGateFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => { setCropSrc(reader.result as string); setCrop({ x: 0, y: 0 }); setZoom(1); };
+    reader.onload = () => setGateCropSrc(reader.result as string);
     reader.readAsDataURL(file);
     e.target.value = "";
   };
 
-  const handleCropSave = async () => {
-    if (!cropSrc || !croppedAreaPixels) return;
-    setUploadingCrop(true);
+  const handleGateCropDone = async (blob: Blob) => {
+    // Close modal immediately — show upload progress in the label button
+    setGateCropSrc(null);
+    setUploading("gate");
     try {
-      const blob = await getCroppedBlob(cropSrc, croppedAreaPixels);
+      const resized = await resizeBlob(blob, 800);
       const fd = new FormData();
-      fd.append("file", blob, "gate-photo.jpg");
+      fd.append("file", resized, "gate-photo.jpg");
       const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
-      if (!res.ok) throw new Error("Upload failed");
+      if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
       const data = await res.json();
       setGateImageUrl(data.url);
-      setCropSrc(null);
       toast({ title: "📸 Foto gate berhasil disimpan!" });
-    } catch {
-      toast({ title: "Upload gagal", variant: "destructive" });
+    } catch (err) {
+      console.error("Gate image upload error:", err);
+      toast({ title: "Upload gagal", description: String(err), variant: "destructive" });
     } finally {
-      setUploadingCrop(false);
+      setUploading(null);
     }
   };
 
@@ -305,9 +291,9 @@ export default function ManageLove() {
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <label className="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border border-dashed border-rose-300 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-colors text-sm text-muted-foreground">
-                  {uploadingCrop ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                  Pilih foto
-                  <input ref={gateFileRef} type="file" accept="image/*" className="hidden" onChange={handleGateFileSelect} data-testid="input-gate-image" />
+                  {uploading === "gate" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  {uploading === "gate" ? "Mengupload..." : "Pilih foto"}
+                  <input type="file" accept="image/*" className="hidden" onChange={handleGateFileSelect} data-testid="input-gate-image" />
                 </label>
                 {gateImageUrl && (
                   <div className="flex items-center gap-2 text-xs text-rose-600 dark:text-rose-400 font-medium">
@@ -319,35 +305,6 @@ export default function ManageLove() {
               </div>
               {gateImageUrl && (
                 <img src={gateImageUrl} alt="Gate" className="w-24 h-24 rounded-full object-cover border-2 border-rose-200" />
-              )}
-              {cropSrc && (
-                <div className="space-y-3">
-                  <div className="relative w-full h-56 rounded-xl overflow-hidden bg-black">
-                    <Cropper
-                      image={cropSrc}
-                      crop={crop}
-                      zoom={zoom}
-                      aspect={1}
-                      onCropChange={setCrop}
-                      onZoomChange={setZoom}
-                      onCropComplete={onCropComplete}
-                    />
-                  </div>
-                  <input type="range" min={1} max={3} step={0.05} value={zoom}
-                    onChange={e => setZoom(Number(e.target.value))}
-                    className="w-full accent-rose-500" />
-                  <div className="flex gap-2">
-                    <button onClick={handleCropSave} disabled={uploadingCrop}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium disabled:opacity-50 transition-colors">
-                      {uploadingCrop ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-                      Simpan Crop
-                    </button>
-                    <button onClick={() => setCropSrc(null)}
-                      className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:bg-muted transition-colors">
-                      Batal
-                    </button>
-                  </div>
-                </div>
               )}
             </div>
           </Field>
@@ -383,8 +340,9 @@ export default function ManageLove() {
                       try {
                         await uploadFile(file, (url) => setStickerUrl(url));
                         toast({ title: "🎉 Stiker berhasil diupload!" });
-                      } catch {
-                        toast({ title: "Upload gagal", variant: "destructive" });
+                      } catch (err) {
+                        console.error("Sticker upload error:", err);
+                        toast({ title: "Upload gagal", description: String(err), variant: "destructive" });
                       } finally {
                         setUploading(null);
                         e.target.value = "";
@@ -593,6 +551,17 @@ export default function ManageLove() {
           </button>
         </div>
       </div>
+
+      {/* Gate image crop modal */}
+      {gateCropSrc && (
+        <ImageCropModal
+          imageSrc={gateCropSrc}
+          aspectRatio={1}
+          cropShape="round"
+          onCropDone={handleGateCropDone}
+          onCancel={() => setGateCropSrc(null)}
+        />
+      )}
     </AdminLayout>
   );
 }
