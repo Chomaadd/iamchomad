@@ -53,24 +53,23 @@ export default function LoveYou() {
   const musicUrl: string = cfg.musicUrl || "";
   const musicTitle: string = cfg.musicTitle || "";
 
-  // Auto-play music on unlock
+  // Pre-load audio element when musicUrl becomes available
   useEffect(() => {
-    if (stage !== "gate" && musicUrl) {
-      if (!audioRef.current) {
-        const audio = new Audio(musicUrl);
-        audio.loop = true;
-        audio.volume = 0.5;
-        audioRef.current = audio;
-      }
-      audioRef.current.play().then(() => setMusicPlaying(true)).catch(() => {});
-    }
-    return () => {
-      if (stage === "gate" && audioRef.current) {
+    if (musicUrl) {
+      if (audioRef.current) {
         audioRef.current.pause();
-        setMusicPlaying(false);
       }
-    };
-  }, [stage, musicUrl]);
+      const audio = new Audio(musicUrl);
+      audio.loop = true;
+      audio.volume = 0.5;
+      audio.preload = "auto";
+      audioRef.current = audio;
+      // If already unlocked (e.g. page refresh), auto-play
+      if (stage !== "gate") {
+        audio.play().then(() => setMusicPlaying(true)).catch(() => {});
+      }
+    }
+  }, [musicUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cleanup audio on unmount
   useEffect(() => {
@@ -96,6 +95,10 @@ export default function LoveYou() {
       const res = await apiRequest("POST", "/api/love/verify", { password });
       const data = await res.json();
       if (data.valid) {
+        // Play music immediately while still in user-gesture context
+        if (audioRef.current) {
+          audioRef.current.play().then(() => setMusicPlaying(true)).catch(() => {});
+        }
         setStage("intro");
       } else {
         setError("Hmm, coba lagi ya. Pastiin formatnya bener 💭");
