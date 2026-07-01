@@ -70,26 +70,30 @@ export default function LoveYou() {
     }
     const audio = new Audio(musicUrl);
     audio.volume = 0.6;
-    audio.preload = "auto";
-    // Seek to startTime when ready
-    audio.addEventListener("canplay", () => {
-      if (audio.currentTime < musicStartTime) audio.currentTime = musicStartTime;
-    }, { once: true });
-    // Time range enforcement via timeupdate
+    audio.preload = "metadata";
+
+    // loadedmetadata fires once the browser knows duration/structure — safe to seek here
+    const onMetadata = () => {
+      if (musicStartTime > 0) audio.currentTime = musicStartTime;
+    };
+    // Time range enforcement: loop back to startTime when end is reached
     const onTimeUpdate = () => {
       if (musicEndTime !== null && audio.currentTime >= musicEndTime) {
         audio.currentTime = musicStartTime;
       }
     };
-    // Loop back to startTime when track ends (if no endTime)
+    // Natural end of track → restart from startTime
     const onEnded = () => {
       audio.currentTime = musicStartTime;
       audio.play().catch(() => {});
     };
+
+    audio.addEventListener("loadedmetadata", onMetadata, { once: true });
     audio.addEventListener("timeupdate", onTimeUpdate);
     audio.addEventListener("ended", onEnded);
     audioRef.current = audio;
     return () => {
+      audio.removeEventListener("loadedmetadata", onMetadata);
       audio.removeEventListener("timeupdate", onTimeUpdate);
       audio.removeEventListener("ended", onEnded);
     };
@@ -117,10 +121,9 @@ export default function LoveYou() {
   const startMusic = () => {
     const audio = audioRef.current;
     if (!audio || musicPlaying) return;
-    // Seek to startTime before playing (in case canplay event didn't fire yet)
-    if (musicStartTime > 0 && audio.currentTime < musicStartTime) {
-      audio.currentTime = musicStartTime;
-    }
+    // Always snap to startTime before first play — guards against metadata
+    // not yet loaded or seek not yet settled when the user taps quickly
+    audio.currentTime = musicStartTime;
     audio.play().then(() => setMusicPlaying(true)).catch(() => {});
   };
 
@@ -381,7 +384,7 @@ export default function LoveYou() {
                   data-testid="button-whatsapp-share"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  Kirim pesan ke WhatsApp
+                  Chat aku Sayang
                 </a>
               )}
               <button onClick={() => { setStage("intro"); setQuizIndex(0); setSelected(null); setShowQuizFeedback(false); confettiFired.current = false; }}
