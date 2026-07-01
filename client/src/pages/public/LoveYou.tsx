@@ -68,14 +68,12 @@ export default function LoveYou() {
       audioRef.current = null;
       setMusicPlaying(false);
     }
-    const audio = new Audio(musicUrl);
+    // Media Fragment URI: #t=start tells the browser to begin at that second natively
+    const src = musicStartTime > 0 ? `${musicUrl}#t=${musicStartTime}` : musicUrl;
+    const audio = new Audio(src);
     audio.volume = 0.6;
-    audio.preload = "metadata";
+    audio.preload = "auto";
 
-    // loadedmetadata fires once the browser knows duration/structure — safe to seek here
-    const onMetadata = () => {
-      if (musicStartTime > 0) audio.currentTime = musicStartTime;
-    };
     // Time range enforcement: loop back to startTime when end is reached
     const onTimeUpdate = () => {
       if (musicEndTime !== null && audio.currentTime >= musicEndTime) {
@@ -88,12 +86,10 @@ export default function LoveYou() {
       audio.play().catch(() => {});
     };
 
-    audio.addEventListener("loadedmetadata", onMetadata, { once: true });
     audio.addEventListener("timeupdate", onTimeUpdate);
     audio.addEventListener("ended", onEnded);
     audioRef.current = audio;
     return () => {
-      audio.removeEventListener("loadedmetadata", onMetadata);
       audio.removeEventListener("timeupdate", onTimeUpdate);
       audio.removeEventListener("ended", onEnded);
     };
@@ -121,9 +117,7 @@ export default function LoveYou() {
   const startMusic = () => {
     const audio = audioRef.current;
     if (!audio || musicPlaying) return;
-    // Always snap to startTime before first play — guards against metadata
-    // not yet loaded or seek not yet settled when the user taps quickly
-    audio.currentTime = musicStartTime;
+    // src already has #t=startTime so browser begins from there natively
     audio.play().then(() => setMusicPlaying(true)).catch(() => {});
   };
 
