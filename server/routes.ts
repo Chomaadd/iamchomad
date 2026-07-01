@@ -182,7 +182,7 @@ export async function registerRoutes(
     },
   );
 
-  app.get("/uploads/:filename", async (req, res) => {
+  app.get("/uploads/:filename", async (req: any, res: any) => {
     const filename = req.params.filename;
     const localDir = path.join(process.cwd(), "uploads");
     const localPath = path.join(localDir, filename);
@@ -193,17 +193,40 @@ export async function registerRoutes(
 
       if (files && files.length > 0) {
         const file = files[0];
-        if (file.contentType) {
-          res.set("Content-Type", file.contentType);
-        }
+        const contentType = file.contentType || "application/octet-stream";
+        const fileLength = file.length;
+
+        res.set("Content-Type", contentType);
+        res.set("Accept-Ranges", "bytes");
         res.set("Cache-Control", "public, max-age=31536000");
 
+        // Handle HTTP range requests so browsers can seek in audio/video
+        const rangeHeader = req.headers["range"] as string | undefined;
+        if (rangeHeader) {
+          const parts = rangeHeader.replace(/bytes=/, "").split("-");
+          const start = parseInt(parts[0], 10);
+          const end = parts[1] ? parseInt(parts[1], 10) : fileLength - 1;
+          const chunkSize = end - start + 1;
+
+          res.status(206);
+          res.set("Content-Range", `bytes ${start}-${end}/${fileLength}`);
+          res.set("Content-Length", String(chunkSize));
+
+          const downloadStream = bucket.openDownloadStreamByName(filename, { start, end: end + 1 });
+          downloadStream.on("error", (err: Error) => {
+            console.error("GridFS range stream error:", err);
+            if (!res.headersSent) res.status(500).json({ message: "Error streaming file" });
+          });
+          downloadStream.pipe(res);
+          return;
+        }
+
+        // Full file response
+        res.set("Content-Length", String(fileLength));
         const downloadStream = bucket.openDownloadStreamByName(filename);
-        downloadStream.on("error", (err) => {
+        downloadStream.on("error", (err: Error) => {
           console.error("GridFS download stream error:", err);
-          if (!res.headersSent) {
-            res.status(500).json({ message: "Error streaming file" });
-          }
+          if (!res.headersSent) res.status(500).json({ message: "Error streaming file" });
         });
         downloadStream.pipe(res);
         return;
