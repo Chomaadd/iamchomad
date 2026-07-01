@@ -18,6 +18,7 @@ declare module "express-session" {
   interface SessionData {
     adminId?: string;
     loveUnlocked?: boolean;
+    loveUnlockedAt?: number;
   }
 }
 
@@ -292,7 +293,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/love/verify", (req, res) => {
+  app.post("/api/love/verify", async (req, res) => {
     try {
       const { password } = req.body as { password?: string };
       const correct = process.env.LOVE_PAGE_PASSWORD;
@@ -306,6 +307,7 @@ export async function registerRoutes(
           normalize(password) === normalize(correct));
       if (isValid) {
         req.session.loveUnlocked = true;
+        req.session.loveUnlockedAt = Date.now();
       }
       res.json({ valid: isValid });
     } catch (err) {
@@ -314,8 +316,69 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/love/status", (req, res) => {
-    res.json({ unlocked: !!req.session.loveUnlocked });
+  app.get("/api/love/status", async (req, res) => {
+    try {
+      const unlocked = !!req.session.loveUnlocked;
+      if (!unlocked) return res.json({ unlocked: false });
+      const settings = await storage.getSiteSettings();
+      const expiryHours = settings?.loveSessionExpiryHours;
+      if (expiryHours && expiryHours > 0 && req.session.loveUnlockedAt) {
+        const elapsedMs = Date.now() - req.session.loveUnlockedAt;
+        const expiryMs = expiryHours * 60 * 60 * 1000;
+        if (elapsedMs > expiryMs) {
+          req.session.loveUnlocked = false;
+          req.session.loveUnlockedAt = undefined;
+          return res.json({ unlocked: false, expired: true });
+        }
+      }
+      res.json({ unlocked: true });
+    } catch (err) {
+      console.error("Love status error:", err);
+      res.json({ unlocked: !!req.session.loveUnlocked });
+    }
+  });
+
+  app.get("/api/love/config", async (_req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      res.json({
+        gateTitle: settings?.loveGateTitle || null,
+        gateSubtitle: settings?.loveGateSubtitle || null,
+        introTitle: settings?.loveIntroTitle || null,
+        introMessage: settings?.loveIntroMessage || null,
+        finalQuestion: settings?.loveFinalQuestion || null,
+        finalSuccessTitle: settings?.loveFinalSuccessTitle || null,
+        finalSuccessMessage: settings?.loveFinalSuccessMessage || null,
+        finalNoTease: settings?.loveFinalNoTease || null,
+        footerNote: settings?.loveFooterNote || null,
+        musicUrl: settings?.loveMusicUrl || null,
+        musicTitle: settings?.loveMusicTitle || null,
+        photos: settings?.lovePhotos ? JSON.parse(settings.lovePhotos) : [],
+        quiz: settings?.loveQuiz ? JSON.parse(settings.loveQuiz) : [],
+      });
+    } catch (err) {
+      console.error("Love config error:", err);
+      res.json({});
+    }
+  });
+
+  app.put("/api/love/config", requireAuth, async (req, res) => {
+    try {
+      const body = req.body as {
+        loveGateTitle?: string; loveGateSubtitle?: string;
+        loveIntroTitle?: string; loveIntroMessage?: string;
+        loveFinalQuestion?: string; loveFinalSuccessTitle?: string;
+        loveFinalSuccessMessage?: string; loveFinalNoTease?: string;
+        loveFooterNote?: string; loveMusicUrl?: string; loveMusicTitle?: string;
+        loveSessionExpiryHours?: number;
+        lovePhotos?: string; loveQuiz?: string;
+      };
+      await storage.updateSiteSettings(body);
+      res.json({ success: true });
+    } catch (err) {
+      console.error("Love config update error:", err);
+      res.status(500).json({ message: "Failed to update love config" });
+    }
   });
 
   app.get("/robots.txt", (_req, res) => {

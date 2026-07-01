@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, ScrollText, BarChart2, Link2, Settings, Scissors } from "lucide-react";
+import { LayoutDashboard, FileText, Music, Image, Mail, LogOut, Loader2, Menu, X, ScrollText, BarChart2, Link2, Settings, Scissors, Heart } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-settings";
 import { useLanguage } from "@/hooks/use-language";
 
@@ -31,6 +31,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { href: "/admin/links",      label: t("admin.nav.links"),      icon: Link2 },
     { href: "/admin/messages",   label: t("admin.nav.messages"),   icon: Mail },
     { href: "/admin/short-urls", label: t("admin.nav.short_urls"), icon: Scissors },
+    { href: "/admin/love",       label: "Halaman Cinta 💌",         icon: Heart },
     { href: "/admin/settings",   label: t("admin.nav.settings"),   icon: Settings },
   ];
 

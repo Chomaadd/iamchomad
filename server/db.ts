@@ -127,6 +127,20 @@ import mongoose from 'mongoose';
     resumeAddress: { type: String },
     resumeEmail: { type: String },
     resumeWebsite: { type: String },
+    loveGateTitle: { type: String },
+    loveGateSubtitle: { type: String },
+    loveIntroTitle: { type: String },
+    loveIntroMessage: { type: String },
+    loveFinalQuestion: { type: String },
+    loveFinalSuccessTitle: { type: String },
+    loveFinalSuccessMessage: { type: String },
+    loveFinalNoTease: { type: String },
+    loveFooterNote: { type: String },
+    loveMusicUrl: { type: String },
+    loveMusicTitle: { type: String },
+    loveSessionExpiryHours: { type: Number },
+    lovePhotos: { type: String },
+    loveQuiz: { type: String },
   });
 
   export const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);

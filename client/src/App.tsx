@@ -30,6 +30,7 @@ import ManageResume from "./pages/admin/ManageResume";
 import ManageLinks from "./pages/admin/ManageLinks";
 import AdminSettings from "./pages/admin/Settings";
 import ManageShortUrls from "./pages/admin/ManageShortUrls";
+import ManageLove from "./pages/admin/ManageLove";
 import LinkExpired from "./pages/public/LinkExpired";
 
 // Base Fallback
@@ -69,6 +70,7 @@ function Router() {
       <Route path="/admin/links" component={ManageLinks} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/short-urls" component={ManageShortUrls} />
+      <Route path="/admin/love" component={ManageLove} />
 
       {/* Fallback */}
       <Route component={NotFound} />

@@ -186,6 +186,20 @@ export const siteSettingsSchema = z.object({
   resumeAddress: z.string().nullable().optional(),
   resumeEmail: z.string().nullable().optional(),
   resumeWebsite: z.string().nullable().optional(),
+  loveGateTitle: z.string().nullable().optional(),
+  loveGateSubtitle: z.string().nullable().optional(),
+  loveIntroTitle: z.string().nullable().optional(),
+  loveIntroMessage: z.string().nullable().optional(),
+  loveFinalQuestion: z.string().nullable().optional(),
+  loveFinalSuccessTitle: z.string().nullable().optional(),
+  loveFinalSuccessMessage: z.string().nullable().optional(),
+  loveFinalNoTease: z.string().nullable().optional(),
+  loveFooterNote: z.string().nullable().optional(),
+  loveMusicUrl: z.string().nullable().optional(),
+  loveMusicTitle: z.string().nullable().optional(),
+  loveSessionExpiryHours: z.number().nullable().optional(),
+  lovePhotos: z.string().nullable().optional(),
+  loveQuiz: z.string().nullable().optional(),
 });
 export const updateSiteSettingsSchema = siteSettingsSchema.omit({ id: true }).partial();
 
