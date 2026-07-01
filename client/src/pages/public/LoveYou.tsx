@@ -26,6 +26,7 @@ export default function LoveYou() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [quizIndex, setQuizIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [showQuizFeedback, setShowQuizFeedback] = useState(false);
@@ -39,6 +40,17 @@ export default function LoveYou() {
     queryKey: ["/api/love/config"],
     staleTime: 0,
   });
+
+  // On mount: check if session is already unlocked (e.g. admin preview)
+  useEffect(() => {
+    fetch("/api/love/status", { credentials: "include" })
+      .then(r => r.json())
+      .then(data => {
+        if (data?.unlocked) setStage("intro");
+      })
+      .catch(() => {})
+      .finally(() => setCheckingSession(false));
+  }, []);
 
   // Resolved text values
   const gateTitle = cfg.gateTitle || D.gateTitle;
@@ -208,8 +220,16 @@ export default function LoveYou() {
 
       <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-12">
         <AnimatePresence mode="wait">
+          {/* SESSION CHECK LOADING */}
+          {checkingSession && (
+            <motion.div key="checking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="flex flex-col items-center gap-3 text-rose-400">
+              <div className="w-8 h-8 rounded-full border-2 border-rose-300 border-t-rose-500 animate-spin" />
+            </motion.div>
+          )}
+
           {/* GATE */}
-          {stage === "gate" && (
+          {!checkingSession && stage === "gate" && (
             <motion.div key="gate" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               className="max-w-md w-full bg-white/80 dark:bg-black/50 backdrop-blur-xl rounded-3xl shadow-2xl p-8 text-center border border-rose-200/50 dark:border-rose-800/30"
               data-testid="stage-gate">

@@ -328,15 +328,16 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/love/admin-preview", requireAuth, async (req, res) => {
-    try {
-      req.session.loveUnlocked = true;
-      req.session.loveUnlockedAt = Date.now();
+  app.post("/api/love/admin-preview", requireAuth, (req, res) => {
+    req.session.loveUnlocked = true;
+    req.session.loveUnlockedAt = Date.now();
+    req.session.save((err) => {
+      if (err) {
+        console.error("Love admin preview session save error:", err);
+        return res.status(500).json({ ok: false });
+      }
       res.json({ ok: true });
-    } catch (err) {
-      console.error("Love admin preview error:", err);
-      res.status(500).json({ ok: false });
-    }
+    });
   });
 
   app.post("/api/love/verify", async (req, res) => {
