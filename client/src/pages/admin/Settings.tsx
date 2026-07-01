@@ -37,9 +37,11 @@ export default function Settings() {
   const [adminUsernameField, setAdminUsernameField] = useState("");
   const [adminPasswordField, setAdminPasswordField] = useState("");
   const [adminPasswordConfirm, setAdminPasswordConfirm] = useState("");
+  const [lovePagePassword, setLovePagePassword] = useState("");
   const [showGmailPass, setShowGmailPass] = useState(false);
   const [showAdminPass, setShowAdminPass] = useState(false);
   const [showAdminConfirm, setShowAdminConfirm] = useState(false);
+  const [showLovePass, setShowLovePass] = useState(false);
   const [savingCredentials, setSavingCredentials] = useState(false);
 
   const [avatarCropSrc, setAvatarCropSrc] = useState<string | null>(null);
@@ -99,12 +101,14 @@ export default function Settings() {
         gmailAppPassword: gmailAppPassword || (currentSettings?.gmailAppPassword ?? null),
         adminUsername: adminUsernameField || null,
         adminPassword: adminPasswordField || (currentSettings?.adminPassword ?? null),
+        lovePagePassword: lovePagePassword || (currentSettings?.lovePagePassword ?? null),
       };
       await apiRequest("PUT", "/api/settings", payload);
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
       setGmailAppPassword("");
       setAdminPasswordField("");
       setAdminPasswordConfirm("");
+      setLovePagePassword("");
       toast({ title: t("admin.settings.credentials.toast.saved") });
     } catch {
       toast({ title: t("admin.settings.credentials.toast.error"), variant: "destructive" });
@@ -622,6 +626,34 @@ export default function Settings() {
                   </div>
                   <p className="text-xs text-muted-foreground/70">{t("admin.settings.credentials.gmail.pass.hint")}</p>
                 </div>
+              </div>
+            </div>
+
+            <div className="border-t border-border/50" />
+
+            {/* Love Page password section */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">{t("admin.settings.credentials.love.title")}</p>
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">{t("admin.settings.credentials.love.password")}</label>
+                <div className="relative">
+                  <input
+                    type={showLovePass ? "text" : "password"}
+                    value={lovePagePassword}
+                    onChange={e => setLovePagePassword(e.target.value)}
+                    placeholder={t("admin.settings.credentials.love.password.placeholder")}
+                    className="w-full px-4 py-3 pr-11 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all font-mono"
+                    data-testid="input-love-page-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowLovePass(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showLovePass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground/70">{t("admin.settings.credentials.love.password.hint")}</p>
               </div>
             </div>
 

@@ -331,7 +331,8 @@ export async function registerRoutes(
   app.post("/api/love/verify", async (req, res) => {
     try {
       const { password } = req.body as { password?: string };
-      const correct = process.env.LOVE_PAGE_PASSWORD;
+      const settings = await storage.getSiteSettings();
+      const correct = settings?.lovePagePassword?.trim() || process.env.LOVE_PAGE_PASSWORD;
       if (!correct) {
         return res.status(500).json({ valid: false, message: "Not configured" });
       }

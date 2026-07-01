@@ -150,6 +150,7 @@ import mongoose from 'mongoose';
     gmailAppPassword: { type: String },
     adminUsername: { type: String },
     adminPassword: { type: String },
+    lovePagePassword: { type: String },
   });
 
   export const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);

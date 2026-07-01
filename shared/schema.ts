@@ -209,6 +209,7 @@ export const siteSettingsSchema = z.object({
   gmailAppPassword: z.string().nullable().optional(),
   adminUsername: z.string().nullable().optional(),
   adminPassword: z.string().nullable().optional(),
+  lovePagePassword: z.string().nullable().optional(),
 });
 export const updateSiteSettingsSchema = siteSettingsSchema.omit({ id: true }).partial();
 
