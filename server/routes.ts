@@ -251,11 +251,16 @@ export async function registerRoutes(
         return res.status(503).json({ message: "Admin credentials not configured" });
       }
 
-      if (input.username.trim() !== adminUsername) {
+      // Check DB overrides first, then fall back to env vars
+      const settings = await storage.getSiteSettings();
+      const effectiveUsername = settings?.adminUsername?.trim() || adminUsername;
+      const effectivePassword = settings?.adminPassword?.trim() || adminPassword;
+
+      if (input.username.trim() !== effectiveUsername) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      if (input.password.trim() !== adminPassword) {
+      if (input.password.trim() !== effectivePassword) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
@@ -592,8 +597,17 @@ ${blogEntries}
       const message = await storage.createContactMessage(input);
       res.status(201).json(message);
 
-      sendContactNotification(input).catch((err) => {
-        console.error("Failed to send email notification:", err);
+      storage.getSiteSettings().then((settings) => {
+        sendContactNotification(input, {
+          gmailUser: settings?.gmailUser,
+          gmailAppPassword: settings?.gmailAppPassword,
+        }).catch((err) => {
+          console.error("Failed to send email notification:", err);
+        });
+      }).catch(() => {
+        sendContactNotification(input).catch((err) => {
+          console.error("Failed to send email notification:", err);
+        });
       });
     } catch (err) {
       if (err instanceof z.ZodError) {

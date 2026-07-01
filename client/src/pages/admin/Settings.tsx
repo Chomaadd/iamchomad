@@ -4,7 +4,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { ImageCropModal } from "@/components/ui/ImageCropModal";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Loader2, Upload, Trash2, Globe, User, ImageIcon, Search, Settings as SettingsIcon, Radio } from "lucide-react";
+import { Save, Loader2, Upload, Trash2, Globe, User, ImageIcon, Search, Settings as SettingsIcon, Radio, KeyRound, Eye, EyeOff } from "lucide-react";
 import type { SiteSettings } from "@shared/schema";
 import { useLanguage } from "@/hooks/use-language";
 
@@ -31,6 +31,17 @@ export default function Settings() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingAbout, setUploadingAbout] = useState(false);
 
+  // Credentials state
+  const [gmailUser, setGmailUser] = useState("");
+  const [gmailAppPassword, setGmailAppPassword] = useState("");
+  const [adminUsernameField, setAdminUsernameField] = useState("");
+  const [adminPasswordField, setAdminPasswordField] = useState("");
+  const [adminPasswordConfirm, setAdminPasswordConfirm] = useState("");
+  const [showGmailPass, setShowGmailPass] = useState(false);
+  const [showAdminPass, setShowAdminPass] = useState(false);
+  const [showAdminConfirm, setShowAdminConfirm] = useState(false);
+  const [savingCredentials, setSavingCredentials] = useState(false);
+
   const [avatarCropSrc, setAvatarCropSrc] = useState<string | null>(null);
   const [aboutCropSrc, setAboutCropSrc] = useState<string | null>(null);
 
@@ -55,6 +66,8 @@ export default function Settings() {
       setNowReading(currentSettings.nowReading ?? "");
       setNowWorking(currentSettings.nowWorking ?? "");
       setNowLocation(currentSettings.nowLocation ?? "");
+      setGmailUser(currentSettings.gmailUser ?? "");
+      setAdminUsernameField(currentSettings.adminUsername ?? "");
       setInitialized(true);
     }
   }, [currentSettings, initialized]);
@@ -72,6 +85,33 @@ export default function Settings() {
       setSaving(false);
     },
   });
+
+  const handleSaveCredentials = async () => {
+    if (adminPasswordField && adminPasswordField !== adminPasswordConfirm) {
+      toast({ title: t("admin.settings.credentials.admin.mismatch"), variant: "destructive" });
+      return;
+    }
+    setSavingCredentials(true);
+    try {
+      const payload: Partial<SiteSettings> = {
+        ...currentSettings,
+        gmailUser: gmailUser || null,
+        gmailAppPassword: gmailAppPassword || (currentSettings?.gmailAppPassword ?? null),
+        adminUsername: adminUsernameField || null,
+        adminPassword: adminPasswordField || (currentSettings?.adminPassword ?? null),
+      };
+      await apiRequest("PUT", "/api/settings", payload);
+      queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
+      setGmailAppPassword("");
+      setAdminPasswordField("");
+      setAdminPasswordConfirm("");
+      toast({ title: t("admin.settings.credentials.toast.saved") });
+    } catch {
+      toast({ title: t("admin.settings.credentials.toast.error"), variant: "destructive" });
+    } finally {
+      setSavingCredentials(false);
+    }
+  };
 
   const handleSave = () => {
     setSaving(true);
@@ -515,6 +555,139 @@ export default function Settings() {
                     className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                     data-testid="input-now-location"
                   />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Credentials */}
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                <KeyRound size={18} className="text-primary" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-sm">{t("admin.settings.credentials.title")}</h2>
+                <p className="text-xs text-muted-foreground">{t("admin.settings.credentials.desc")}</p>
+              </div>
+            </div>
+            <button
+              onClick={handleSaveCredentials}
+              disabled={savingCredentials}
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
+              data-testid="button-save-credentials"
+            >
+              {savingCredentials ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+              {savingCredentials ? t("admin.settings.credentials.saving") : t("admin.settings.credentials.save")}
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            {/* Gmail section */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">{t("admin.settings.credentials.gmail.title")}</p>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">{t("admin.settings.credentials.gmail.user")}</label>
+                  <input
+                    type="email"
+                    value={gmailUser}
+                    onChange={e => setGmailUser(e.target.value)}
+                    placeholder="kamu@gmail.com"
+                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    data-testid="input-gmail-user"
+                  />
+                  <p className="text-xs text-muted-foreground/70">{t("admin.settings.credentials.gmail.user.hint")}</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">{t("admin.settings.credentials.gmail.pass")}</label>
+                  <div className="relative">
+                    <input
+                      type={showGmailPass ? "text" : "password"}
+                      value={gmailAppPassword}
+                      onChange={e => setGmailAppPassword(e.target.value)}
+                      placeholder={t("admin.settings.credentials.gmail.pass.placeholder")}
+                      className="w-full px-4 py-3 pr-11 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all font-mono"
+                      data-testid="input-gmail-app-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowGmailPass(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showGmailPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground/70">{t("admin.settings.credentials.gmail.pass.hint")}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-border/50" />
+
+            {/* Admin credentials section */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">{t("admin.settings.credentials.admin.title")}</p>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">{t("admin.settings.credentials.admin.username")}</label>
+                  <input
+                    type="text"
+                    value={adminUsernameField}
+                    onChange={e => setAdminUsernameField(e.target.value)}
+                    placeholder="admin"
+                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    data-testid="input-admin-username"
+                  />
+                  <p className="text-xs text-muted-foreground/70">{t("admin.settings.credentials.admin.username.hint")}</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-muted-foreground">{t("admin.settings.credentials.admin.password")}</label>
+                    <div className="relative">
+                      <input
+                        type={showAdminPass ? "text" : "password"}
+                        value={adminPasswordField}
+                        onChange={e => setAdminPasswordField(e.target.value)}
+                        placeholder={t("admin.settings.credentials.admin.password.placeholder")}
+                        className="w-full px-4 py-3 pr-11 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all font-mono"
+                        data-testid="input-admin-password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAdminPass(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showAdminPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                    <p className="text-xs text-muted-foreground/70">{t("admin.settings.credentials.admin.password.hint")}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-muted-foreground">{t("admin.settings.credentials.admin.confirm")}</label>
+                    <div className="relative">
+                      <input
+                        type={showAdminConfirm ? "text" : "password"}
+                        value={adminPasswordConfirm}
+                        onChange={e => setAdminPasswordConfirm(e.target.value)}
+                        placeholder={t("admin.settings.credentials.admin.confirm.placeholder")}
+                        className={`w-full px-4 py-3 pr-11 rounded-xl border bg-background text-sm focus:outline-none focus:ring-2 transition-all font-mono ${adminPasswordField && adminPasswordConfirm && adminPasswordField !== adminPasswordConfirm ? "border-destructive focus:ring-destructive/30" : "border-border focus:ring-primary/30 focus:border-primary"}`}
+                        data-testid="input-admin-password-confirm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAdminConfirm(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showAdminConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                    {adminPasswordField && adminPasswordConfirm && adminPasswordField !== adminPasswordConfirm && (
+                      <p className="text-xs text-destructive">{t("admin.settings.credentials.admin.mismatch")}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

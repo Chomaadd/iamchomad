@@ -146,6 +146,10 @@ import mongoose from 'mongoose';
     loveSessionExpiryHours: { type: Number },
     lovePhotos: { type: String },
     loveQuiz: { type: String },
+    gmailUser: { type: String },
+    gmailAppPassword: { type: String },
+    adminUsername: { type: String },
+    adminPassword: { type: String },
   });
 
   export const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);

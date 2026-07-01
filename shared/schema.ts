@@ -205,6 +205,10 @@ export const siteSettingsSchema = z.object({
   loveSessionExpiryHours: z.number().nullable().optional(),
   lovePhotos: z.string().nullable().optional(),
   loveQuiz: z.string().nullable().optional(),
+  gmailUser: z.string().nullable().optional(),
+  gmailAppPassword: z.string().nullable().optional(),
+  adminUsername: z.string().nullable().optional(),
+  adminPassword: z.string().nullable().optional(),
 });
 export const updateSiteSettingsSchema = siteSettingsSchema.omit({ id: true }).partial();
 

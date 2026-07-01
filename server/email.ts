@@ -1,27 +1,33 @@
 import nodemailer from "nodemailer";
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+export async function sendContactNotification(
+  data: {
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
   },
-});
+  credentials?: { gmailUser?: string | null; gmailAppPassword?: string | null },
+) {
+  const gmailUser = credentials?.gmailUser || process.env.GMAIL_USER;
+  const gmailAppPassword = credentials?.gmailAppPassword || process.env.GMAIL_APP_PASSWORD;
 
-export async function sendContactNotification(data: {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}) {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+  if (!gmailUser || !gmailAppPassword) {
     console.warn("Gmail credentials not configured, skipping email notification.");
     return;
   }
 
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: gmailUser,
+      pass: gmailAppPassword,
+    },
+  });
+
   const mailOptions = {
-    from: `"iamchomad.my.id" <${process.env.GMAIL_USER}>`,
-    to: process.env.GMAIL_USER,
+    from: `"iamchomad.my.id" <${gmailUser}>`,
+    to: gmailUser,
     replyTo: data.email,
     subject: `✉️ Pesan baru dari ${data.name} — ${data.subject}`,
     html: `
