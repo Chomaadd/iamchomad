@@ -13,6 +13,12 @@ A personal portfolio website with blog, brand showcase, music collection, and co
 - Translation system: `client/src/lib/i18n.ts` + `client/src/hooks/use-language.tsx`
 - **i18n keys for availability:** `home.activity.openwork`, `home.activity.curentlybusy` (typo: one 'r'), `home.activity.notavailable`
 
+### Hidden Surprise Page
+- **`/i-love-you`** - Hidden romantic surprise page for Mad's girlfriend, gated by anniversary-date password (stored as `LOVE_PAGE_PASSWORD` secret, verified server-side via `POST /api/love/verify` — password never sent to client bundle)
+- Flow: password gate → intro letter → optional photo gallery → memory quiz (multiple choice, editable) → final "will you..." question with dodge-away "No" button → confetti celebration screen
+- All romantic copy, photos array, and quiz questions are in an easily-editable config block at the top of `client/src/pages/public/LoveYou.tsx`
+- NOT linked from navbar/sitemap — access only via direct URL
+
 ### Public Pages
 - **Home** (`/`) - Landing page with hero avatar, status badge, animated heading, and 3-col blog grid (simple, no complex asymmetric layout)
 - **About** (`/about`) - Redesigned: photo panel left (lg:sticky lg:top-24), stats row, text content right with badge/heading/quote card/3 highlight cards; **"Now" section** (Discord Lanyard live status + manual fallback for listening/reading/working/location); Skills section 4 categories; dark CTA section at bottom

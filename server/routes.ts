@@ -17,6 +17,7 @@ import { sendContactNotification } from "./email";
 declare module "express-session" {
   interface SessionData {
     adminId?: string;
+    loveUnlocked?: boolean;
   }
 }
 
@@ -289,6 +290,32 @@ export async function registerRoutes(
       console.error("Blog list error:", err);
       res.status(500).json({ message: "Internal server error" });
     }
+  });
+
+  app.post("/api/love/verify", (req, res) => {
+    try {
+      const { password } = req.body as { password?: string };
+      const correct = process.env.LOVE_PAGE_PASSWORD;
+      if (!correct) {
+        return res.status(500).json({ valid: false, message: "Not configured" });
+      }
+      const normalize = (s: string) => s.replace(/\D/g, "");
+      const isValid =
+        typeof password === "string" &&
+        (password.trim() === correct.trim() ||
+          normalize(password) === normalize(correct));
+      if (isValid) {
+        req.session.loveUnlocked = true;
+      }
+      res.json({ valid: isValid });
+    } catch (err) {
+      console.error("Love page verify error:", err);
+      res.status(500).json({ valid: false });
+    }
+  });
+
+  app.get("/api/love/status", (req, res) => {
+    res.json({ unlocked: !!req.session.loveUnlocked });
   });
 
   app.get("/robots.txt", (_req, res) => {

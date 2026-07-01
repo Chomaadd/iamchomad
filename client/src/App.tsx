@@ -17,6 +17,7 @@ import Music from "./pages/public/Music";
 import Resume from "./pages/public/Resume";
 import ResumePrint from "./pages/public/ResumePrint";
 import Links from "./pages/public/Links";
+import LoveYou from "./pages/public/LoveYou";
 // Admin Pages
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
@@ -54,6 +55,7 @@ function Router() {
       <Route path="/resume/pdf" component={ResumePrint} />
       <Route path="/links" component={Links} />
       <Route path="/link-expired" component={LinkExpired} />
+      <Route path="/i-love-you" component={LoveYou} />
 
       {/* Admin Routes */}
       <Route path="/login" component={Login} />
